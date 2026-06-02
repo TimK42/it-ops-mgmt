@@ -10,26 +10,42 @@ let state = {
 };
 
 function initTheme() {
-  let theme = localStorage.getItem('theme');
-  if (!theme) {
+  let theme = 'light';
+  try {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || stored === 'light') theme = stored;
+  } catch {}
+  if (!theme || (theme !== 'dark' && theme !== 'light')) {
     theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
   document.documentElement.setAttribute('data-theme', theme);
 
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (!localStorage.getItem('theme')) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const handler = (e) => {
+    let stored = null;
+    try {
+      stored = localStorage.getItem('theme');
+    } catch {}
+    if (!stored) {
       document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
       const btn = document.getElementById('theme-toggle');
       if (btn) btn.textContent = e.matches ? '☀️' : '🌙';
     }
-  });
+  };
+  if (typeof mq.addEventListener === 'function') {
+    mq.addEventListener('change', handler);
+  } else if (typeof mq.addListener === 'function') {
+    mq.addListener(handler);
+  }
 }
 
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
+  try {
+    localStorage.setItem('theme', next);
+  } catch {}
   const btn = document.getElementById('theme-toggle');
   if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
 }

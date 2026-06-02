@@ -45,6 +45,11 @@ body {
     background 0.3s,
     color 0.3s;
 }
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
 .sidebar {
   width: 240px;
   background: var(--sidebar-bg);
@@ -876,7 +881,7 @@ tr.row-click {
 }
 [data-theme='dark'] .status-closed {
   background: rgba(136, 136, 136, 0.15);
-  color: #999;
+  color: var(--text-secondary);
 }
 [data-theme='dark'] .sev-1 {
   background: rgba(220, 38, 38, 0.15);
