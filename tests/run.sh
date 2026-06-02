@@ -306,7 +306,7 @@ echo "$JS" | grep -q 'onkeydown=' || echo "$JS" | grep -q 'onkeyup=' && fail "JS
 CSS=$(curl -sf "$BASE/css/style.css")
 echo "$CSS" | grep -q '.skip-link' && pass "CSS: .skip-link" || fail "CSS: .skip-link"
 echo "$CSS" | grep -q ':focus-visible' && pass "CSS: :focus-visible" || fail "CSS: :focus-visible"
-echo "$CSS" | grep -q 'background:transparent' && pass "CSS: background:transparent" || fail "CSS: background:transparent"
+echo "$CSS" | grep -qE 'background:\s*transparent' && pass "CSS: background:transparent" || fail "CSS: background:transparent"
 
 # ── Cleanup ──
 kill $SPID 2>/dev/null

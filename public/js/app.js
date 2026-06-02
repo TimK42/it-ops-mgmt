@@ -1,10 +1,67 @@
-let state = { page:'qa', qaEntries:[], categories:[], qaTotal:0, qaPage:1, qaFilters:{status:'Published',search:''}, user:null };
+let state = { page:'qa', qaEntries:[], categories:[], qaTotal:0, qaPage:1, qaFilters:{status:'Published',search:''}, user:null, sessionExpired:false };
+
+// Session idle tracking
+const SESSION_MAX_AGE = 16 * 60 * 60 * 1000; // 16h
+const WARNING_BEFORE = 30 * 60 * 1000; // 30 min before
+let lastActivity = Date.now();
+let sessionMonitorId = null;
+let sessionWarned = false;
+
+function startActivityTracking() {
+  lastActivity = Date.now();
+  sessionWarned = false;
+  const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+  const handler = () => { lastActivity = Date.now(); };
+  events.forEach(e => document.removeEventListener(e, handler));
+  events.forEach(e => document.addEventListener(e, handler, { passive: true }));
+  clearInterval(sessionMonitorId);
+  sessionMonitorId = setInterval(checkSessionIdle, 30000); // every 30s
+}
+
+function stopActivityTracking() {
+  clearInterval(sessionMonitorId);
+  sessionMonitorId = null;
+  sessionWarned = false;
+}
+
+function checkSessionIdle() {
+  if (!state.user) return;
+  const idle = Date.now() - lastActivity;
+  // Show warning when within WARNING_BEFORE of SESSION_MAX_AGE
+  if (idle >= SESSION_MAX_AGE - WARNING_BEFORE && !sessionWarned) {
+    sessionWarned = true;
+    openModal('session-warning-modal');
+    toast('Your session is about to expire due to inactivity');
+  }
+  // Auto-logout when past SESSION_MAX_AGE
+  if (idle >= SESSION_MAX_AGE) {
+    stopActivityTracking();
+    state.sessionExpired = true;
+    logout();
+  }
+}
+
+async function stayLoggedIn() {
+  try {
+    await api('/api/auth/me');
+    lastActivity = Date.now();
+    sessionWarned = false;
+    closeModal('session-warning-modal');
+    toast('Session refreshed');
+  } catch (e) {
+    // If keepalive fails, session is truly expired
+    state.sessionExpired = true;
+    closeModal('session-warning-modal');
+    logout();
+  }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const u = await api('/api/auth/me');
     state.user = u;
     await loadCategories();
+    startActivityTracking();
     renderShell();
     const path = window.location.pathname;
     if (path === '/' || path === '') navigate('qa');
@@ -26,7 +83,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ===== HELPERS =====
 async function api(path, opts = {}) {
   const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
-  if (res.status === 401 && state.user) { logout(); return Promise.reject(new Error('Session expired')); }
+  if (res.status === 401 && state.user) {
+    state.sessionExpired = true;
+    stopActivityTracking();
+    logout();
+    return Promise.reject(new Error('Session expired'));
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `API error ${res.status}`);
@@ -42,14 +104,37 @@ function fmtDate(d) { if (!d) return ''; return d.slice(0, 10); }
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 async function loadCategories() { try { state.categories = await api('/api/categories'); } catch (e) { } }
 
+// ===== CUSTOM CONFIRM MODAL =====
+let confirmCallback = null;
+
+function showConfirm(title, message, onConfirm) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-message').innerHTML = message;
+  confirmCallback = onConfirm;
+  const okBtn = document.getElementById('confirm-ok');
+  okBtn.onclick = () => {
+    closeConfirm();
+    if (typeof confirmCallback === 'function') confirmCallback();
+  };
+  openModal('confirm-modal');
+}
+
+function closeConfirm() {
+  confirmCallback = null;
+  closeModal('confirm-modal');
+}
+
 // ===== AUTH =====
 function renderLogin(mode) {
   const isRegister = mode === 'register';
+  const expiredMsg = state.sessionExpired ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>' : '';
+  state.sessionExpired = false;
   document.getElementById('app').innerHTML = `
     <div class="login-page">
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
         <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
+        ${expiredMsg}
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
         <div class="form-group"><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
@@ -78,6 +163,7 @@ function renderLogin(mode) {
         const u = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password, remember }) });
         state.user = u;
         await loadCategories();
+        startActivityTracking();
         renderShell();
         navigate('qa');
       }
@@ -92,8 +178,9 @@ function renderLogin(mode) {
 }
 
 async function logout() {
-  await api('/api/auth/logout', { method: 'POST' });
+  try { await api('/api/auth/logout', { method: 'POST' }); } catch (e) { }
   state.user = null; state.qaEntries = []; state.categories = [];
+  stopActivityTracking();
   renderLogin();
 }
 
@@ -102,6 +189,7 @@ function renderShell() {
   const u = state.user;
   const isAdmin = u.role === 'Admin';
   const userName = u.username;
+  const appVersion = '1.1.0';
   document.getElementById('app').innerHTML = `
     <nav class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar-header">
@@ -116,7 +204,7 @@ function renderShell() {
         <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
       </div>
       <div class="sidebar-footer">
-        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px">👤</span> ${esc(userName)} (${u.role})</div>
+        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px"><span class="admin-user-icon">A</span></span> ${esc(userName)} (${u.role})</div>
         <button class="nav-item" onclick="logout()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
     </nav>
@@ -133,6 +221,10 @@ function renderShell() {
         </div>
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
+      <footer class="footer">
+        <span>IT Operations Knowledge Base</span>
+        <span class="footer-version">v${appVersion}</span>
+      </footer>
     </main>`;
 
   // Bind search
@@ -174,10 +266,18 @@ async function renderQA(el) {
   el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div><div class="qa-list" id="qa-list"></div>`;
   el.querySelectorAll('[data-qf]').forEach(b => { b.onclick = () => { state.qaFilters.status = b.dataset.qf || null; state.qaPage = 1; renderQA(el); }; });
   const list = document.getElementById('qa-list');
-  if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
+  if (!state.qaEntries.length) {
+    // Show different empty states for search vs. no entries at all
+    if (state.qaFilters.search) {
+      list.innerHTML = '<div class="search-empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No results found</div><div class="empty-state-sub">Try adjusting your search query or filters</div></div>';
+    } else {
+      list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>';
+    }
+    return;
+  }
   list.innerHTML = state.qaEntries.map(q => `<a href="/qa/${q.id}" class="qa-card" onclick="if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.pushState(null,'','/qa/'+${q.id});showQADetail(${q.id})}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''}<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`).join('');
   const totalPages = Math.ceil(state.qaTotal / 20);
-  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="filter-tab" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="filter-tab" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
+  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
   document.getElementById('qa-count').textContent = state.qaTotal;
   const prev = document.getElementById('qa-prev'); if (prev && !prev.disabled) prev.onclick = () => { state.qaPage--; renderQA(el); };
   const next = document.getElementById('qa-next'); if (next && !next.disabled) next.onclick = () => { state.qaPage++; renderQA(el); };
@@ -201,7 +301,7 @@ async function showQADetail(id) {
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
       <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'}</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
   </div>`;
   openModal('detail-modal');
 }
@@ -230,7 +330,16 @@ async function showCreateQA(data) {
   openModal('form-modal');
 }
 function editQA(id) { closeModal('detail-modal'); const d = state.qaEntries.find(q => q.id === id); if (d) showCreateQA(d); }
-async function deleteQA(id) { if (!confirm('Delete?')) return; await api(`/api/qa/${id}`, { method: 'DELETE' }); toast('Deleted'); navigate('qa'); }
+function deleteQA(id) {
+  showConfirm('Delete QA Entry', 'Are you sure you want to delete this QA entry? This action cannot be undone.', async () => {
+    try {
+      await api(`/api/qa/${id}`, { method: 'DELETE' });
+      toast('Deleted');
+      closeModal('detail-modal');
+      navigate('qa');
+    } catch (e) { toast('Error: ' + e.message); }
+  });
+}
 
 function exportCSV() {
   if (!state.qaEntries.length) return toast('Nothing to export');
@@ -258,7 +367,15 @@ async function showCreateCategory() {
   };
   openModal('form-modal');
 }
-async function deleteCat(id) { if (!confirm('Remove?')) return; await api(`/api/categories/${id}`, { method: 'DELETE' }); navigate('categories'); }
+function deleteCat(id) {
+  showConfirm('Remove Sub-System', 'Are you sure you want to remove this sub-system? Associated QA entries will become uncategorized.', async () => {
+    try {
+      await api(`/api/categories/${id}`, { method: 'DELETE' });
+      navigate('categories');
+      toast('Removed');
+    } catch (e) { toast('Error: ' + e.message); }
+  });
+}
 
 // ===== USERS =====
 async function renderUsers(el) {
@@ -301,7 +418,15 @@ function showCreateUser() {
   openModal('form-modal');
 }
 async function approveUser(id) { await api(`/api/users/${id}/approve`, { method: 'POST' }); navigate('users'); toast('Approved'); }
-async function rejectUser(id) { if (!confirm('Reject & delete?')) return; await api(`/api/users/${id}/reject`, { method: 'POST' }); navigate('users'); toast('Rejected'); }
+function rejectUser(id) {
+  showConfirm('Reject User', 'This will delete the pending user account. Continue?', async () => {
+    try {
+      await api(`/api/users/${id}/reject`, { method: 'POST' });
+      navigate('users');
+      toast('Rejected');
+    } catch (e) { toast('Error: ' + e.message); }
+  });
+}
 async function toggleUser(id) { const r = await api(`/api/users/${id}/toggle`, { method: 'POST' }); navigate('users'); toast(r.status === 'disabled' ? 'Disabled' : 'Enabled'); }
 
 // ===== DASHBOARD =====
