@@ -109,25 +109,29 @@ let lastActivity = Date.now();
 let sessionMonitorId = null;
 let sessionWarned = false;
 
+const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
 let activityHandler;
 
 function startActivityTracking() {
   lastActivity = Date.now();
   sessionWarned = false;
-  const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
   const handler = () => {
     lastActivity = Date.now();
   };
   if (activityHandler) {
-    events.forEach((e) => document.removeEventListener(e, activityHandler));
+    activityEvents.forEach((e) => document.removeEventListener(e, activityHandler));
   }
-  events.forEach((e) => document.addEventListener(e, handler, { passive: true }));
+  activityEvents.forEach((e) => document.addEventListener(e, handler, { passive: true }));
   activityHandler = handler;
   clearInterval(sessionMonitorId);
   sessionMonitorId = setInterval(checkSessionIdle, 30000);
 }
 
 function stopActivityTracking() {
+  if (activityHandler) {
+    activityEvents.forEach((e) => document.removeEventListener(e, activityHandler));
+    activityHandler = null;
+  }
   clearInterval(sessionMonitorId);
   sessionMonitorId = null;
   sessionWarned = false;
