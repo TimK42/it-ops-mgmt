@@ -1,4 +1,4 @@
-let state = { page:'qa', qaEntries:[], categories:[], qaFilters:{status:'Published',search:''} };
+let state = { page:'qa', qaEntries:[], categories:[], qaTotal:0, qaPage:1, qaFilters:{status:'Published',search:''} };
 
 document.addEventListener('DOMContentLoaded', async () => { await loadCategories(); navigate('qa'); });
 
@@ -42,19 +42,25 @@ function exportCSV() {
 // ===== QA =====
 async function renderQA(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
-  try { state.qaEntries = await loadQA(); } catch(e) {}
+  try { const res = await loadQA(); state.qaEntries = res.data; state.qaTotal = res.total; state.qaPage = res.page; } catch(e) {}
   const statuses = [null,'Published','Draft','Archived'];
   el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.qaFilters.status===s?'active':''}" data-qf="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button></div><div class="qa-list" id="qa-list"></div>`;
-  el.querySelectorAll('[data-qf]').forEach(b=>{b.onclick=()=>{state.qaFilters.status=b.dataset.qf||null;renderQA(el);};});
+  el.querySelectorAll('[data-qf]').forEach(b=>{b.onclick=()=>{state.qaFilters.status=b.dataset.qf||null;state.qaPage=1;renderQA(el);};});
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
   list.innerHTML = state.qaEntries.map(q => `<div class="qa-card" onclick="showQADetail(${q.id})"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name?`<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>`:''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags?q.tags.split(',').map(t=>`<span class="tag">#${t.trim()}</span>`).join(''):''}<span style="font-size:11px;color:#888;margin-left:auto">${timeAgo(q.updated_at)}</span></div></div>`).join('');
-  document.getElementById('qa-count').textContent = state.qaEntries.length;
+  const totalPages = Math.ceil(state.qaTotal / 20);
+  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage-1)*20+1}–${Math.min(state.qaPage*20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="filter-tab" id="qa-prev" ${state.qaPage<=1?'disabled':''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="filter-tab" id="qa-next" ${state.qaPage>=totalPages?'disabled':''}>Next ›</button></div></div>`;
+  document.getElementById('qa-count').textContent = state.qaTotal;
+  const prev = document.getElementById('qa-prev'); if (prev && !prev.disabled) prev.onclick = ()=>{ state.qaPage--; renderQA(el); };
+  const next = document.getElementById('qa-next'); if (next && !next.disabled) next.onclick = ()=>{ state.qaPage++; renderQA(el); };
 }
 async function loadQA() {
   const p = new URLSearchParams();
   if (state.qaFilters.status) p.set('status',state.qaFilters.status);
   if (state.qaFilters.search) p.set('search',state.qaFilters.search);
+  p.set('_page', state.qaPage);
+  p.set('_per_page', '20');
   return api(`/api/qa?${p}`);
 }
 
@@ -135,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const search = document.getElementById('global-search');
   if (search) {
     search.addEventListener('input', debounce(() => {
-      if (state.page === 'qa') { state.qaFilters.search = search.value; navigate('qa'); }
+      if (state.page === 'qa') { state.qaFilters.search = search.value; state.qaPage = 1; navigate('qa'); }
     }, 300));
   }
 });

@@ -4,20 +4,30 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   const db = getDb();
-  const { status, category_id, search, tag, sort='newest' } = req.query;
-  let sql = `SELECT q.*, c.name as category_name, c.color as category_color, c.icon as category_icon
-    FROM qa_entries q LEFT JOIN categories c ON q.category_id = c.id WHERE 1=1`;
+  const { status, category_id, search, tag, sort='newest', _page=1, _per_page=20 } = req.query;
+  const page = Math.max(1, parseInt(_page) || 1);
+  const perPage = Math.min(100, Math.max(1, parseInt(_per_page) || 20));
+
+  let where = 'WHERE 1=1';
   const p = [];
-  if (status) { sql += ' AND q.status=?'; p.push(status); }
-  if (category_id) { sql += ' AND q.category_id=?'; p.push(category_id); }
-  if (tag) { sql += ' AND q.tags LIKE ?'; p.push(`%${tag}%`); }
+  if (status) { where += ' AND q.status=?'; p.push(status); }
+  if (category_id) { where += ' AND q.category_id=?'; p.push(category_id); }
+  if (tag) { where += ' AND q.tags LIKE ?'; p.push(`%${tag}%`); }
   if (search) { 
-    const clean = search.replace(/^#+/, ''); // strip # for tag matching
-    sql += ' AND (q.title LIKE ? OR q.question LIKE ? OR q.tags LIKE ?)'; 
-    const s=`%${clean}%`; p.push(s,s,s); 
+    const clean = search.replace(/^#+/, '');
+    where += ' AND (q.title LIKE ? OR q.question LIKE ? OR q.tags LIKE ?)';
+    const s=`%${clean}%`; p.push(s,s,s);
   }
-  sql += sort === 'oldest' ? ' ORDER BY q.created_at ASC' : ' ORDER BY q.created_at DESC';
-  res.json(db.prepare(sql).all(...p));
+
+  const { total } = db.prepare(`SELECT COUNT(*) as total FROM qa_entries q LEFT JOIN categories c ON q.category_id = c.id ${where}`).get(...p);
+
+  const order = sort === 'oldest' ? 'ASC' : 'DESC';
+  const offset = (page - 1) * perPage;
+  const sql = `SELECT q.*, c.name as category_name, c.color as category_color, c.icon as category_icon
+    FROM qa_entries q LEFT JOIN categories c ON q.category_id = c.id ${where} ORDER BY q.created_at ${order} LIMIT ? OFFSET ?`;
+  const data = db.prepare(sql).all(...p, perPage, offset);
+
+  res.json({ data, total, page, per_page: perPage });
 });
 
 router.get('/:id', (req, res) => {
