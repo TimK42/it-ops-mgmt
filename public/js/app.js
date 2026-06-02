@@ -34,6 +34,7 @@ function initTheme() {
         btn.textContent = isDark ? '☀️' : '🌙';
         btn.setAttribute('aria-pressed', String(isDark));
       }
+    }
   };
   if (typeof mq.addEventListener === 'function') {
     mq.addEventListener('change', handler);
