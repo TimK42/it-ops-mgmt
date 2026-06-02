@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -32,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   session({
     store: new SQLiteStore(getDb()),
-    secret: process.env.SESSION_SECRET || 'it-ops-mgmt-secret-change-me',
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: false,
     cookie: {

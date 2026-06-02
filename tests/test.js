@@ -208,7 +208,7 @@ async function run() {
     // Get real category ID for testing
     let catId = 1;
     try {
-      const db = require('./db').getDb();
+      const db = require('../db').getDb();
       const cat = db.prepare('SELECT id FROM categories LIMIT 1').get();
       if (cat) catId = cat.id;
     } catch {
