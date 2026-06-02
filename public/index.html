@@ -1,28 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Operations - Knowledge Base</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IT Operations - Knowledge Base</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div id="app" class="app-loading">
+      <div class="loading">Loading...</div>
+    </div>
 
-<div id="app" class="app-loading">
-  <div class="loading">Loading...</div>
-</div>
+    <div class="modal-overlay" id="detail-modal"></div>
+    <div class="modal-overlay" id="form-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">New Entry</div>
+          <button class="modal-close" onclick="closeModal('form-modal')" aria-label="Close">
+            ✕
+          </button>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button
+          ><button class="btn btn-primary btn-sm">Save</button>
+        </div>
+      </div>
+    </div>
 
-<div class="modal-overlay" id="detail-modal"></div>
-<div class="modal-overlay" id="form-modal">
-  <div class="modal">
-    <div class="modal-header"><div class="modal-title">New Entry</div><button class="modal-close" onclick="closeModal('form-modal')" aria-label="Close">✕</button></div>
-    <div class="modal-body"></div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm">Save</button></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-<script src="/js/app.js"></script>
-</body>
+    <div class="toast" id="toast"></div>
+    <script src="/js/app.js"></script>
+  </body>
 </html>
