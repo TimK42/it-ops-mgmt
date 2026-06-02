@@ -284,7 +284,7 @@ async function run() {
     const css = r.body;
     assert(css.includes('.skip-link'), 'CSS: .skip-link');
     assert(css.includes(':focus-visible'), 'CSS: :focus-visible');
-    assert(css.includes('background:transparent'), 'CSS: background:transparent');
+    assert(css.includes('background: transparent'), 'CSS: background: transparent (Prettier format)');
   } finally {
     server.kill();
   }
