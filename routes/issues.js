@@ -28,10 +28,10 @@ router.post('/', (req, res) => {
   const { title, description, category_id, status, priority, assignee, fraca } = req.body;
   if (!title) return res.status(400).json({ error: 'Title required' });
   const last = db.prepare("SELECT issue_number FROM issues ORDER BY id DESC LIMIT 1").get();
-  const num = last ? String(parseInt(last.issue_number.replace('INC-','')) + 1).padStart(3,'0') : '013';
+  const num = last ? String(parseInt(last.issue_number.replace('ISSUE-','')) + 1).padStart(4,'0') : '0013';
   const r = db.prepare('INSERT INTO issues (issue_number,title,description,category_id,status,priority,assignee,fraca) VALUES (?,?,?,?,?,?,?,?)')
-    .run(`INC-${num}`, title, description||'', category_id||null, status||'Open', priority||'Medium', assignee||'', fraca||null);
-  res.status(201).json({ id: r.lastInsertRowid, issue_number: `INC-${num}` });
+    .run(`ISSUE-${num}`, title, description||'', category_id||null, status||'Open', priority||'Medium', assignee||'', fraca||null);
+  res.status(201).json({ id: r.lastInsertRowid, issue_number: `ISSUE-${num}` });
 });
 
 router.put('/:id', (req, res) => {

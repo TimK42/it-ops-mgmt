@@ -30,9 +30,12 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!title || !question) return res.status(400).json({error:'Title and question required'});
-  const r = getDb().prepare('INSERT INTO qa_entries (title,question,answer,category_id,tags,status) VALUES (?,?,?,?,?,?)')
-    .run(title, question, answer||'', category_id||null, tags||'', status||'Published');
-  res.status(201).json({id: r.lastInsertRowid});
+  const db = getDb();
+  const last = db.prepare("SELECT qa_number FROM qa_entries ORDER BY id DESC LIMIT 1").get();
+  const num = last ? String(parseInt(last.qa_number.replace('QA-','')) + 1).padStart(4,'0') : '0006';
+  const r = db.prepare('INSERT INTO qa_entries (qa_number,title,question,answer,category_id,tags,status) VALUES (?,?,?,?,?,?,?)')
+    .run(`QA-${num}`, title, question||'', answer||'', category_id||null, tags||'', status||'Published');
+  res.status(201).json({id: r.lastInsertRowid, qa_number: `QA-${num}`});
 });
 
 router.put('/:id', (req, res) => {
