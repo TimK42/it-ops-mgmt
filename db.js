@@ -69,18 +69,18 @@ function seedData() {
   }
 
   const issues = [
-    ['INC-001', '登入頁面 Safari 顯示異常', 'CSS flexbox 在 Safari 15 不支援，導致登入按鈕偏移', 'UI', 'Open', 'Critical', 'Alex M.', '', 423001],
-    ['INC-002', '訂單匯出 CSV 亂碼問題', '中文檔名在 Excel 開啟時出現亂碼，需加入 BOM', 'System', 'In Progress', 'High', 'Sarah J.', '', 423015],
-    ['INC-003', 'API 504 Timeout 處理', 'Gateway timeout 時回傳空白畫面', 'API', 'Resolved', 'Medium', 'Tim C.', '已加入 retry 機制', 422998],
-    ['INC-004', '報表下載按鈕點擊無反應', 'Chrome 116+ 新版下載 API 變更', 'UI', 'Open', 'High', 'Jenny L.', '', 422985],
-    ['INC-005', '忘記密碼流程客服回覆範本', '逐步引導客戶重置密碼', 'System', 'Resolved', 'Low', 'Alex M.', '已建立標準回覆腳本', 423010],
-    ['INC-006', '搜尋結果頁面分頁不準確', '第 2 頁之後結果與搜尋條件不符', 'API', 'In Progress', 'Critical', 'Sarah J.', '', 422972],
-    ['INC-007', '資料庫連線池溢滿', '高峰期連線數超過 pool 上限', 'Database', 'Closed', 'High', 'Tim C.', '已調整 pool size', 423003],
-    ['INC-008', 'VPN 斷線通知延遲', '斷線後 30 分鐘才收到警報', 'Network', 'Open', 'Medium', '', '', 423020],
-    ['INC-009', '密碼變更後舊 session 未失效', '安全性漏洞', 'Security', 'Resolved', 'Critical', 'Sarah J.', '已實作 token revoke', 422990],
-    ['INC-010', '行事曆同步異常', 'Google Calendar 與內部系統時間差 1 小時', 'System', 'In Progress', 'Low', 'Jenny L.', '', 423011],
-    ['INC-011', '系統備份排程未執行', 'cron job 因磁碟空間不足跳過備份', 'Database', 'Open', 'High', 'Tim C.', '', 422977],
-    ['INC-012', 'LDAP 認證逾時', '大量請求時 LDAP 查詢逾時', 'Security', 'Resolved', 'Medium', 'Alex M.', '已加入連線池', 423005],
+    ['INC-001', '登入頁面 Safari 顯示異常', 'CSS flexbox 在 Safari 15 不支援，導致登入按鈕偏移', 'UI', 'Open', 'Critical', 'Alex M.', '', 23001],
+    ['INC-002', '訂單匯出 CSV 亂碼問題', '中文檔名在 Excel 開啟時出現亂碼，需加入 BOM', 'System', 'In Progress', 'High', 'Sarah J.', '', 23015],
+    ['INC-003', 'API 504 Timeout 處理', 'Gateway timeout 時回傳空白畫面', 'API', 'Resolved', 'Medium', 'Tim C.', '已加入 retry 機制', 22998],
+    ['INC-004', '報表下載按鈕點擊無反應', 'Chrome 116+ 新版下載 API 變更', 'UI', 'Open', 'High', 'Jenny L.', '', 22985],
+    ['INC-005', '忘記密碼流程客服回覆範本', '逐步引導客戶重置密碼', 'System', 'Resolved', 'Low', 'Alex M.', '已建立標準回覆腳本', 23010],
+    ['INC-006', '搜尋結果頁面分頁不準確', '第 2 頁之後結果與搜尋條件不符', 'API', 'In Progress', 'Critical', 'Sarah J.', '', 22972],
+    ['INC-007', '資料庫連線池溢滿', '高峰期連線數超過 pool 上限', 'Database', 'Closed', 'High', 'Tim C.', '已調整 pool size', 23003],
+    ['INC-008', 'VPN 斷線通知延遲', '斷線後 30 分鐘才收到警報', 'Network', 'Open', 'Medium', '', '', 23020],
+    ['INC-009', '密碼變更後舊 session 未失效', '安全性漏洞', 'Security', 'Resolved', 'Critical', 'Sarah J.', '已實作 token revoke', 22990],
+    ['INC-010', '行事曆同步異常', 'Google Calendar 與內部系統時間差 1 小時', 'System', 'In Progress', 'Low', 'Jenny L.', '', 23011],
+    ['INC-011', '系統備份排程未執行', 'cron job 因磁碟空間不足跳過備份', 'Database', 'Open', 'High', 'Tim C.', '', 22977],
+    ['INC-012', 'LDAP 認證逾時', '大量請求時 LDAP 查詢逾時', 'Security', 'Resolved', 'Medium', 'Alex M.', '已加入連線池', 23005],
   ];
   for (const i of issues) {
     db.prepare('INSERT INTO issues (issue_number,title,description,category_id,status,priority,assignee,resolution,fraca) VALUES (?,?,?,?,?,?,?,?,?)')
