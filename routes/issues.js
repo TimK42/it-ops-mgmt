@@ -30,7 +30,7 @@ router.post('/', (req, res) => {
   const last = db.prepare("SELECT issue_number FROM issues ORDER BY id DESC LIMIT 1").get();
   const num = last ? String(parseInt(last.issue_number.replace('ISSUE-','')) + 1).padStart(4,'0') : '0013';
   const r = db.prepare('INSERT INTO issues (issue_number,title,description,category_id,status,priority,assignee,fraca) VALUES (?,?,?,?,?,?,?,?)')
-    .run(`ISSUE-${num}`, title, description||'', category_id||null, status||'Open', priority||'Medium', assignee||'', fraca||null);
+    .run(`ISSUE-${num}`, title, description||'', category_id||null, status||'Open', priority||'3', assignee||'', fraca||null);
   res.status(201).json({ id: r.lastInsertRowid, issue_number: `ISSUE-${num}` });
 });
 

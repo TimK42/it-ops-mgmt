@@ -27,7 +27,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
 function initials(n) { return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
 function statusClass(s) { return ({'Open':'status-open','In Progress':'status-in-progress','Resolved':'status-resolved','Closed':'status-closed','Published':'status-resolved','Draft':'status-open','Archived':'status-closed'})[s]||'status-closed'; }
-function priorityClass(p) { return ({'Critical':'pri-critical','High':'pri-high','Medium':'pri-medium','Low':'pri-low'})[p]||'pri-medium'; }
+function severityClass(p) { return `sev-${p}`; }
 function timeAgo(d) { if(!d) return ''; const t=(new Date()-new Date(d))/1000; return t<60?'just now':t<3600?Math.floor(t/60)+'m ago':t<86400?Math.floor(t/3600)+'h ago':Math.floor(t/86400)+'d ago'; }
 function debounce(fn,ms) { let t; return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);}; }
 
@@ -57,13 +57,13 @@ function renderIssueRows() {
   if (!tbody) return;
   if (!state.issues.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No issues</div></div></td></tr>'; return; }
   tbody.innerHTML = state.issues.map(i => {
-    const isBug = i.priority==='Critical'||i.priority==='High';
+    const isBug = i.priority==='1'||i.priority==='2';
     return `<tr class="row-click" onclick="showIssueDetail(${i.id})">
       <td></td><td><span class="issue-id">${esc(i.issue_number)}</span></td>
       <td><div class="issue-cell"><div class="issue-icon" style="background:${isBug?'#fef2f2':'#fefce8'};color:${isBug?'#dc2626':'#eab308'}">${isBug?'⚠':'❓'}</div><div class="issue-text"><div class="issue-title">${esc(i.title)}</div><div class="issue-desc">${esc((i.description||'').slice(0,60))}</div></div></div></td>
       <td>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</td>
       <td><span class="badge ${statusClass(i.status)}">● ${i.status}</span></td>
-      <td><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></td>
+      <td><span class="badge ${severityClass(i.priority)}">${i.priority}</span></td>
       <td>${i.fraca?i.fraca:'-'}</td>
       <td style="color:#888;font-size:12px;white-space:nowrap">${timeAgo(i.updated_at)}</td>
       <td><button class="action-btn" onclick="event.stopPropagation();deleteIssue(${i.id})">🗑</button></td>
@@ -74,11 +74,11 @@ function renderIssueRows() {
 async function showIssueDetail(id) {
   const i = await api(`/api/issues/${id}`);
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
-    <div class="modal-header"><div class="detail-banner"><div class="issue-icon" style="background:${i.priority==='Critical'||i.priority==='High'?'#fef2f2':'#fefce8'};color:${i.priority==='Critical'||i.priority==='High'?'#dc2626':'#eab308'}">${i.priority==='Critical'||i.priority==='High'?'⚠':'❓'}</div><div class="modal-title">${esc(i.title)}</div><div class="detail-id">${i.issue_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')">✕</button></div>
+    <div class="modal-header"><div class="detail-banner"><div class="issue-icon" style="background:${i.priority==='1'||i.priority==='2'?'#fef2f2':'#fefce8'};color:${i.priority==='1'||i.priority==='2'?'#dc2626':'#eab308'}">${i.priority==='1'||i.priority==='2'?'⚠':'❓'}</div><div class="modal-title">${esc(i.title)}</div><div class="detail-id">${i.issue_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')">✕</button></div>
     <div class="modal-body">
       <div class="detail-meta">
         <div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(i.status)}">● ${i.status}</span></div>
-        <div><div class="detail-meta-label">Severity</div><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></div>
+        <div><div class="detail-meta-label">Severity</div><span class="badge ${severityClass(i.priority)}">${i.priority}</span></div>
         <div><div class="detail-meta-label">Sub-System</div>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</div>
         <div><div class="detail-meta-label">FRACA</div>${i.fraca?`<span style="font-size:13px;font-family:monospace;font-weight:600">${i.fraca}</span>`:'-'}</div>
         <div><div class="detail-meta-label">Updated</div><span style="font-size:13px">${timeAgo(i.updated_at)}</span></div>
@@ -105,7 +105,7 @@ async function showCreateIssue(data) {
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">FRACA</label><input class="form-input" id="f-fraca" value="${isEdit&&data.fraca?data.fraca:''}" placeholder="6-digit code" maxlength="6"></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status">${['Open','In Progress','Resolved','Closed'].map(s=>`<option value="${s}" ${isEdit&&data.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Severity</label><select class="form-select" id="f-prio">${['Critical','High','Medium','Low'].map(p=>`<option value="${p}" ${isEdit&&data.priority===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
+    <div class="form-group"><label class="form-label">Severity</label><select class="form-select" id="f-prio">${['1','2','3','4','5','6'].map(p=>`<option value="${p}" ${isEdit&&data.priority===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
     ${isEdit?`<div class="form-group"><label class="form-label">Resolution</label><textarea class="form-textarea" id="f-res">${esc(data.resolution||'')}</textarea></div>`:''}`;
   modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-submit">${isEdit?'Update':'Create'}</button>`;
   document.getElementById('f-submit').onclick = async ()=>{
