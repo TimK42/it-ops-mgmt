@@ -126,7 +126,7 @@ done
 STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/nonexistent-page")
 [ "$STATUS" = "404" ] && pass "GET /nonexistent-page => 404" || fail "GET /nonexistent-page => $STATUS (expected 404)"
 CT=$(curl -s "$BASE/" | head -c 20)
-echo "$CT" | grep -q '<!DOCTYPE' && pass "Response is HTML document" || fail "Response is not HTML"
+echo "$CT" | grep -qi '<!doctype' && pass "Response is HTML document" || fail "Response is not HTML"
 
 echo ""
 echo ">>> Authentication"
@@ -306,7 +306,7 @@ echo "$JS" | grep -q 'onkeydown=' || echo "$JS" | grep -q 'onkeyup=' && fail "JS
 CSS=$(curl -sf "$BASE/css/style.css")
 echo "$CSS" | grep -q '.skip-link' && pass "CSS: .skip-link" || fail "CSS: .skip-link"
 echo "$CSS" | grep -q ':focus-visible' && pass "CSS: :focus-visible" || fail "CSS: :focus-visible"
-echo "$CSS" | grep -q 'background:transparent' && pass "CSS: background:transparent" || fail "CSS: background:transparent"
+echo "$CSS" | grep -qE 'background:\s*transparent' && pass "CSS: background:transparent" || fail "CSS: background:transparent"
 
 # ── Cleanup ──
 kill $SPID 2>/dev/null

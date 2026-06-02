@@ -1,23 +1,36 @@
-let state = { page:'qa', qaEntries:[], categories:[], qaTotal:0, qaPage:1, qaFilters:{status:'Published',search:''}, user:null };
+let state = {
+  page: "qa",
+  qaEntries: [],
+  categories: [],
+  qaTotal: 0,
+  qaPage: 1,
+  qaFilters: { status: "Published", search: "" },
+  user: null,
+  sessionExpired: false,
+};
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const u = await api('/api/auth/me');
+    const u = await api("/api/auth/me");
     state.user = u;
     await loadCategories();
+    startActivityTracking();
     renderShell();
     const path = window.location.pathname;
-    if (path === '/' || path === '') navigate('qa');
-    else if (path === '/qa') navigate('qa');
-    else if (path === '/categories') navigate('categories');
-    else if (path === '/users') navigate('users');
-    else if (path === '/dashboard') navigate('dashboard');
-    else if (path.startsWith('/qa/')) {
-      const parts = path.split('/').filter(Boolean);
-      const id = parts.length === 2 && /^\d+$/.test(parts[1]) ? parseInt(parts[1]) : 0;
-      if (id > 0) { navigate('qa'); showQADetail(id); }
-      else navigate('404');
-    } else navigate('404');
+    if (path === "/" || path === "") navigate("qa");
+    else if (path === "/qa") navigate("qa");
+    else if (path === "/categories") navigate("categories");
+    else if (path === "/users") navigate("users");
+    else if (path === "/dashboard") navigate("dashboard");
+    else if (path.startsWith("/qa/")) {
+      const parts = path.split("/").filter(Boolean);
+      const id =
+        parts.length === 2 && /^\d+$/.test(parts[1]) ? parseInt(parts[1]) : 0;
+      if (id > 0) {
+        navigate("qa");
+        showQADetail(id);
+      } else navigate("404");
+    } else navigate("404");
   } catch (e) {
     renderLogin();
   }
@@ -25,84 +38,233 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===== HELPERS =====
 async function api(path, opts = {}) {
-  const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts });
-  if (res.status === 401 && state.user) { logout(); return Promise.reject(new Error('Session expired')); }
+  const res = await fetch(path, {
+    headers: { "Content-Type": "application/json" },
+    ...opts,
+  });
+  if (res.status === 401 && state.user) {
+    logout();
+    return Promise.reject(new Error("Session expired"));
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `API error ${res.status}`);
   }
   return res.json();
 }
-function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function esc(s) { return s ? String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : ''; }
-function statusClass(s) { return ({ 'Open': 'status-open', 'In Progress': 'status-in-progress', 'Resolved': 'status-resolved', 'Closed': 'status-closed', 'Published': 'status-resolved', 'Draft': 'status-open', 'Archived': 'status-closed' })[s] || 'status-closed'; }
-function fmtDate(d) { if (!d) return ''; return d.slice(0, 10); }
-function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
-async function loadCategories() { try { state.categories = await api('/api/categories'); } catch (e) { } }
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2500);
+}
+function openModal(id) {
+  document.getElementById(id).classList.add("open");
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+function esc(s) {
+  return s
+    ? String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+    : "";
+}
+function statusClass(s) {
+  return (
+    {
+      Open: "status-open",
+      "In Progress": "status-in-progress",
+      Resolved: "status-resolved",
+      Closed: "status-closed",
+      Published: "status-resolved",
+      Draft: "status-open",
+      Archived: "status-closed",
+    }[s] || "status-closed"
+  );
+}
+function fmtDate(d) {
+  if (!d) return "";
+  return d.slice(0, 10);
+}
+function debounce(fn, ms) {
+  let t;
+  return (...a) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...a), ms);
+  };
+}
+async function loadCategories() {
+  try {
+    state.categories = await api("/api/categories");
+  } catch (e) {}
+}
+
+// Session idle tracking
+const SESSION_MAX_AGE = 16 * 60 * 60 * 1000; // 16h
+const WARNING_BEFORE = 30 * 60 * 1000; // 30 min before
+let lastActivity = Date.now();
+let sessionMonitorId = null;
+let sessionWarned = false;
+
+function startActivityTracking() {
+  lastActivity = Date.now();
+  sessionWarned = false;
+  const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+  const handler = () => {
+    lastActivity = Date.now();
+  };
+  events.forEach((e) => document.removeEventListener(e, handler));
+  events.forEach((e) =>
+    document.addEventListener(e, handler, { passive: true }),
+  );
+  clearInterval(sessionMonitorId);
+  sessionMonitorId = setInterval(checkSessionIdle, 30000);
+}
+
+function stopActivityTracking() {
+  clearInterval(sessionMonitorId);
+  sessionMonitorId = null;
+  sessionWarned = false;
+}
+
+function checkSessionIdle() {
+  if (!state.user) return;
+  const idle = Date.now() - lastActivity;
+  if (idle >= SESSION_MAX_AGE - WARNING_BEFORE && !sessionWarned) {
+    sessionWarned = true;
+    openModal("session-warning-modal");
+    toast("Your session is about to expire due to inactivity");
+  }
+  if (idle >= SESSION_MAX_AGE) {
+    stopActivityTracking();
+    state.sessionExpired = true;
+    logout();
+  }
+}
+
+async function stayLoggedIn() {
+  try {
+    await api("/api/auth/me");
+    lastActivity = Date.now();
+    sessionWarned = false;
+    closeModal("session-warning-modal");
+    toast("Session refreshed");
+  } catch (e) {
+    state.sessionExpired = true;
+    closeModal("session-warning-modal");
+    logout();
+  }
+}
+
+// ===== CONFIRM MODAL =====
+let confirmCallback = null;
+function showConfirm(title, message, onConfirm) {
+  document.getElementById("confirm-title").textContent = title;
+  document.getElementById("confirm-message").textContent = message;
+  confirmCallback = onConfirm;
+  document.getElementById("confirm-ok").onclick = () => {
+    if (confirmCallback) confirmCallback();
+    closeConfirm();
+  };
+  openModal("confirm-modal");
+}
+function closeConfirm() {
+  confirmCallback = null;
+  closeModal("confirm-modal");
+}
 
 // ===== AUTH =====
 function renderLogin(mode) {
-  const isRegister = mode === 'register';
-  document.getElementById('app').innerHTML = `
+  const isRegister = mode === "register";
+  const expiredMsg = state.sessionExpired
+    ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
+    : "";
+  state.sessionExpired = false;
+  document.getElementById("app").innerHTML = `
     <div class="login-page">
       <div class="login-card">
-        <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
-        <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
+        <h1>${isRegister ? "Create Account" : "IT Operations"}</h1>
+        <div class="login-sub">${isRegister ? "Register for access" : "Knowledge Base"}</div>
+        ${expiredMsg}
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
         <div class="form-group"><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
-        <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
+        <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? "new-password" : "current-password"}"></div>
         ${isRegister ? `<div class="form-group"><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
-        <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
+        <button class="btn btn-primary" id="auth-submit">${isRegister ? "Register" : "Sign In"}</button>
         <div class="login-link">${isRegister ? '<a href="#" onclick="event.preventDefault();renderLogin()">← Back to sign in</a>' : '<a href="#" onclick="event.preventDefault();renderLogin(\'register\')">Create account</a>'}</div>
       </div>
     </div>`;
-  const err = document.getElementById('login-error');
-  const suc = document.getElementById('login-success');
-  document.getElementById('auth-submit').onclick = async () => {
-    const username = document.getElementById('auth-user').value.trim();
-    const password = document.getElementById('auth-pass').value;
-    err.classList.remove('show');
-    suc.classList.remove('show');
-    if (!username || !password) { err.textContent = 'Fill in all fields'; err.classList.add('show'); return; }
+  const err = document.getElementById("login-error");
+  const suc = document.getElementById("login-success");
+  document.getElementById("auth-submit").onclick = async () => {
+    const username = document.getElementById("auth-user").value.trim();
+    const password = document.getElementById("auth-pass").value;
+    err.classList.remove("show");
+    suc.classList.remove("show");
+    if (!username || !password) {
+      err.textContent = "Fill in all fields";
+      err.classList.add("show");
+      return;
+    }
     try {
       if (isRegister) {
-        const role = document.getElementById('auth-role').value;
-        await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ username, password, role }) });
-        suc.textContent = 'Registration submitted. An admin will approve your account.';
-        suc.classList.add('show');
+        const role = document.getElementById("auth-role").value;
+        await api("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify({ username, password, role }),
+        });
+        suc.textContent =
+          "Registration submitted. An admin will approve your account.";
+        suc.classList.add("show");
       } else {
-        const remember = document.getElementById('auth-remember')?.checked || false;
-        const u = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password, remember }) });
+        const remember =
+          document.getElementById("auth-remember")?.checked || false;
+        const u = await api("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ username, password, remember }),
+        });
         state.user = u;
         await loadCategories();
         renderShell();
-        navigate('qa');
+        startActivityTracking();
+        navigate("qa");
       }
-    } catch (e) { err.textContent = e.message; err.classList.add('show'); }
+    } catch (e) {
+      err.textContent = e.message;
+      err.classList.add("show");
+    }
   };
-  document.getElementById('auth-user').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('auth-pass').focus();
+  document.getElementById("auth-user").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("auth-pass").focus();
   });
-  document.getElementById('auth-pass').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('auth-submit').click();
+  document.getElementById("auth-pass").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("auth-submit").click();
   });
 }
 
 async function logout() {
-  await api('/api/auth/logout', { method: 'POST' });
-  state.user = null; state.qaEntries = []; state.categories = [];
+  try {
+    await api("/api/auth/logout", { method: "POST" });
+  } catch (e) {}
+  state.user = null;
+  state.qaEntries = [];
+  state.categories = [];
+  stopActivityTracking();
   renderLogin();
 }
 
 // ===== SHELL =====
 function renderShell() {
   const u = state.user;
-  const isAdmin = u.role === 'Admin';
+  const isAdmin = u.role === "Admin";
   const userName = u.username;
-  document.getElementById('app').innerHTML = `
+  const appVersion = "1.1.0";
+  document.getElementById("app").innerHTML = `
     <nav class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar-header">
         <div class="sidebar-logo">IT Operations</div>
@@ -111,14 +273,15 @@ function renderShell() {
       <div class="sidebar-nav">
         <div class="nav-section">Main</div>
         <button class="nav-item active" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">0</span></button>
-        ${isAdmin ? `<button class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" onclick="navigate('users')"><span class="nav-icon">👥</span> Users</button>` : ''}
+        ${isAdmin ? `<button class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" onclick="navigate('users')"><span class="nav-icon">👥</span> Users</button>` : ""}
         <div class="nav-section">Workspace</div>
         <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
       </div>
       <div class="sidebar-footer">
-        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px">👤</span> ${esc(userName)} (${u.role})</div>
+        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px"><span class="admin-user-icon">${esc(userName)[0].toUpperCase()}</span></span> ${esc(userName)} (${u.role})</div>
         <button class="nav-item" onclick="logout()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
+      <div class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></div>
     </nav>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <main id="main-content" class="main" tabindex="-1">
@@ -136,182 +299,348 @@ function renderShell() {
     </main>`;
 
   // Bind search
-  const search = document.getElementById('global-search');
+  const search = document.getElementById("global-search");
   if (search) {
-    search.addEventListener('input', debounce(() => {
-      if (state.page === 'qa') { state.qaFilters.search = search.value; state.qaPage = 1; navigate('qa'); }
-    }, 300));
+    search.addEventListener(
+      "input",
+      debounce(() => {
+        if (state.page === "qa") {
+          state.qaFilters.search = search.value;
+          state.qaPage = 1;
+          navigate("qa");
+        }
+      }, 300),
+    );
   }
 }
 
 function navigate(page) {
   state.page = page;
-  document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+  document
+    .querySelectorAll(".nav-item")
+    .forEach((e) => e.classList.remove("active"));
   const n = document.querySelector(`[data-nav="${page}"]`);
-  if (n) n.classList.add('active');
-  const titles = { qa: 'QA Library', categories: 'Categories', users: 'Users', dashboard: 'Dashboard' };
-  document.getElementById('page-title').textContent = titles[page] || 'Dashboard';
-  const el = document.getElementById('page-content');
-  if (page === 'qa') renderQA(el);
-  else if (page === 'categories') renderCategories(el);
-  else if (page === 'users') renderUsers(el);
-  else if (page === 'dashboard') renderDashboard(el);
-  else if (page === '404') render404(el);
+  if (n) n.classList.add("active");
+  const titles = {
+    qa: "QA Library",
+    categories: "Categories",
+    users: "Users",
+    dashboard: "Dashboard",
+  };
+  document.getElementById("page-title").textContent =
+    titles[page] || "Dashboard";
+  const el = document.getElementById("page-content");
+  if (page === "qa") renderQA(el);
+  else if (page === "categories") renderCategories(el);
+  else if (page === "users") renderUsers(el);
+  else if (page === "dashboard") renderDashboard(el);
+  else if (page === "404") render404(el);
   else render404(el);
 }
 
 function render404(el) {
-  document.getElementById('page-title').textContent = 'Page Not Found';
-  el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Page not found</div><button class="btn btn-primary" onclick="navigate(\'qa\')">Go to QA Library</button></div>';
+  document.getElementById("page-title").textContent = "Page Not Found";
+  el.innerHTML =
+    '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Page not found</div><button class="btn btn-primary" onclick="navigate(\'qa\')">Go to QA Library</button></div>';
 }
 
 // ===== QA =====
 async function renderQA(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
-  try { const res = await loadQA(); state.qaEntries = res.data; state.qaTotal = res.total; state.qaPage = res.page; } catch (e) { }
-  const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
-  const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div><div class="qa-list" id="qa-list"></div>`;
-  el.querySelectorAll('[data-qf]').forEach(b => { b.onclick = () => { state.qaFilters.status = b.dataset.qf || null; state.qaPage = 1; renderQA(el); }; });
-  const list = document.getElementById('qa-list');
-  if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
-  list.innerHTML = state.qaEntries.map(q => `<a href="/qa/${q.id}" class="qa-card" onclick="if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.pushState(null,'','/qa/'+${q.id});showQADetail(${q.id})}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''}<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`).join('');
+  try {
+    const res = await loadQA();
+    state.qaEntries = res.data;
+    state.qaTotal = res.total;
+    state.qaPage = res.page;
+  } catch (e) {}
+  const canEdit = ["Admin", "Contributor"].includes(state.user.role);
+  const statuses = [null, "Published", "Draft", "Archived"];
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? "active" : ""}" data-qf="${s || ""}">${s || "All"}</button>`).join("")}</div>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ""}</div><div class="qa-list" id="qa-list"></div>`;
+  el.querySelectorAll("[data-qf]").forEach((b) => {
+    b.onclick = () => {
+      state.qaFilters.status = b.dataset.qf || null;
+      state.qaPage = 1;
+      renderQA(el);
+    };
+  });
+  const list = document.getElementById("qa-list");
+  if (!state.qaEntries.length) {
+    const emptyText = state.qaFilters.search
+      ? "No results found"
+      : "No QA entries";
+    list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">${emptyText}</div></div>`;
+    return;
+  }
+  list.innerHTML = state.qaEntries
+    .map(
+      (q) =>
+        `<a href="/qa/${q.id}" class="qa-card" onclick="if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.pushState(null,'','/qa/'+${q.id});showQADetail(${q.id})}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ""}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
+          q.tags
+            ? q.tags
+                .split(",")
+                .map((t) => `<span class="tag">#${esc(t.trim())}</span>`)
+                .join("")
+            : ""
+        }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
+    )
+    .join("");
   const totalPages = Math.ceil(state.qaTotal / 20);
-  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="filter-tab" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="filter-tab" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
-  document.getElementById('qa-count').textContent = state.qaTotal;
-  const prev = document.getElementById('qa-prev'); if (prev && !prev.disabled) prev.onclick = () => { state.qaPage--; renderQA(el); };
-  const next = document.getElementById('qa-next'); if (next && !next.disabled) next.onclick = () => { state.qaPage++; renderQA(el); };
+  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? "disabled" : ""}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? "disabled" : ""}>Next ›</button></div></div>`;
+  document.getElementById("qa-count").textContent = state.qaTotal;
+  const prev = document.getElementById("qa-prev");
+  if (prev && !prev.disabled)
+    prev.onclick = () => {
+      state.qaPage--;
+      renderQA(el);
+    };
+  const next = document.getElementById("qa-next");
+  if (next && !next.disabled)
+    next.onclick = () => {
+      state.qaPage++;
+      renderQA(el);
+    };
 }
 async function loadQA() {
   const p = new URLSearchParams();
-  if (state.qaFilters.status) p.set('status', state.qaFilters.status);
-  if (state.qaFilters.search) p.set('search', state.qaFilters.search);
-  p.set('_page', state.qaPage);
-  p.set('_per_page', '20');
+  if (state.qaFilters.status) p.set("status", state.qaFilters.status);
+  if (state.qaFilters.search) p.set("search", state.qaFilters.search);
+  p.set("_page", state.qaPage);
+  p.set("_per_page", "20");
   return api(`/api/qa?${p}`);
 }
 
 async function showQADetail(id) {
   const q = await api(`/api/qa/${id}`);
-  const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
-  document.getElementById('detail-modal').innerHTML = `<div class="modal">
+  const canEdit = ["Admin", "Contributor"].includes(state.user.role);
+  document.getElementById("detail-modal").innerHTML = `<div class="modal">
     <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')" aria-label="Close">✕</button></div>
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
-      ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
-      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'}</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
+      ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ""}
+      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : "-"}</div><div><div class="detail-meta-label">Tags</div>${
+        q.tags
+          ? q.tags
+              .split(",")
+              .map((t) => `<span class="tag">#${esc(t.trim())}</span>`)
+              .join(" ")
+          : "-"
+      }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteQA(${q.id})">Delete</button>` : ""}</div>
   </div>`;
-  openModal('detail-modal');
+  openModal("detail-modal");
 }
 
 async function showCreateQA(data) {
   const isEdit = !!data;
-  const modal = document.getElementById('form-modal');
-  modal.querySelector('.modal-title').textContent = isEdit ? 'Edit QA Entry' : 'New QA Entry';
-  modal.querySelector('.modal-body').innerHTML = `
-    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"></div>
-    <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea></div>
-    <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map(c => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map(s => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account"></div>`;
-  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
-  document.getElementById('f-q-submit').onclick = async () => {
-    const body = { title: document.getElementById('f-q-title').value, question: document.getElementById('f-question').value, answer: document.getElementById('f-answer').value, category_id: document.getElementById('f-q-cat').value || null, status: document.getElementById('f-q-status').value, tags: document.getElementById('f-tags').value };
-    if (!body.title || !body.question) return toast('Title and question required');
+  const modal = document.getElementById("form-modal");
+  modal.querySelector(".modal-title").textContent = isEdit
+    ? "Edit QA Entry"
+    : "New QA Entry";
+  modal.querySelector(".modal-body").innerHTML = `
+    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ""}"></div>
+    <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ""}</textarea></div>
+    <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || "") : ""}</textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select></div>
+    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${["Published", "Draft", "Archived"].map((s) => `<option value="${s}" ${isEdit && data.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></div></div>
+    <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || "") : ""}" placeholder="e.g., password,account"></div>`;
+  modal.querySelector(".modal-footer").innerHTML =
+    `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? "Update" : "Create"}</button>`;
+  document.getElementById("f-q-submit").onclick = async () => {
+    const body = {
+      title: document.getElementById("f-q-title").value,
+      question: document.getElementById("f-question").value,
+      answer: document.getElementById("f-answer").value,
+      category_id: document.getElementById("f-q-cat").value || null,
+      status: document.getElementById("f-q-status").value,
+      tags: document.getElementById("f-tags").value,
+    };
+    if (!body.title || !body.question)
+      return toast("Title and question required");
     try {
-      if (isEdit) { await api(`/api/qa/${data.id}`, { method: 'PUT', body: JSON.stringify(body) }); toast('Updated'); }
-      else { await api('/api/qa', { method: 'POST', body: JSON.stringify(body) }); toast('Created'); }
-      closeModal('form-modal'); navigate('qa');
-    } catch (e) { toast('Error: ' + e.message); }
+      if (isEdit) {
+        await api(`/api/qa/${data.id}`, {
+          method: "PUT",
+          body: JSON.stringify(body),
+        });
+        toast("Updated");
+      } else {
+        await api("/api/qa", { method: "POST", body: JSON.stringify(body) });
+        toast("Created");
+      }
+      closeModal("form-modal");
+      navigate("qa");
+    } catch (e) {
+      toast("Error: " + e.message);
+    }
   };
-  openModal('form-modal');
+  openModal("form-modal");
 }
-function editQA(id) { closeModal('detail-modal'); const d = state.qaEntries.find(q => q.id === id); if (d) showCreateQA(d); }
-async function deleteQA(id) { if (!confirm('Delete?')) return; await api(`/api/qa/${id}`, { method: 'DELETE' }); toast('Deleted'); navigate('qa'); }
+function editQA(id) {
+  closeModal("detail-modal");
+  const d = state.qaEntries.find((q) => q.id === id);
+  if (d) showCreateQA(d);
+}
+async function deleteQA(id) {
+  showConfirm(
+    "Delete",
+    "Are you sure you want to delete this entry?",
+    async () => {
+      await api(`/api/qa/${id}`, { method: "DELETE" });
+      toast("Deleted");
+      navigate("qa");
+    },
+  );
+}
 
 function exportCSV() {
-  if (!state.qaEntries.length) return toast('Nothing to export');
+  if (!state.qaEntries.length) return toast("Nothing to export");
   const keys = Object.keys(state.qaEntries[0]);
-  const csv = [keys.join(','), ...state.qaEntries.map(r => keys.map(k => `"${(r[k] || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `it-ops-qa-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+  const csv = [
+    keys.join(","),
+    ...state.qaEntries.map((r) =>
+      keys
+        .map((k) => `"${(r[k] || "").toString().replace(/"/g, '""')}"`)
+        .join(","),
+    ),
+  ].join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `it-ops-qa-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
 }
 
 // ===== CATEGORIES =====
 async function renderCategories(el) {
   await loadCategories();
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" onclick="showCreateCategory()">＋ Add Sub-System</button></div>
-    <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map(c => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" onclick="deleteCat(${c.id})">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+    <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" onclick="deleteCat(${c.id})">Remove</button></td></tr>`).join("")}</tbody></table></div>`;
 }
 async function showCreateCategory() {
-  const modal = document.getElementById('form-modal');
-  modal.querySelector('.modal-title').textContent = 'New Sub-System';
-  modal.querySelector('.modal-body').innerHTML = `<div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-cat-name"></div><div class="form-row"><div class="form-group"><label class="form-label">Color</label><input class="form-input" id="f-cat-color" type="color" value="#6366f1"></div><div class="form-group"><label class="form-label">Icon</label><input class="form-input" id="f-cat-icon" value="📋"></div></div>`;
-  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-cat-submit">Create</button>`;
-  document.getElementById('f-cat-submit').onclick = async () => {
-    const body = { name: document.getElementById('f-cat-name').value, color: document.getElementById('f-cat-color').value, icon: document.getElementById('f-cat-icon').value };
-    if (!body.name) return toast('Name required');
-    await api('/api/categories', { method: 'POST', body: JSON.stringify(body) }); closeModal('form-modal'); navigate('categories'); toast('Created');
+  const modal = document.getElementById("form-modal");
+  modal.querySelector(".modal-title").textContent = "New Sub-System";
+  modal.querySelector(".modal-body").innerHTML =
+    `<div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-cat-name"></div><div class="form-row"><div class="form-group"><label class="form-label">Color</label><input class="form-input" id="f-cat-color" type="color" value="#6366f1"></div><div class="form-group"><label class="form-label">Icon</label><input class="form-input" id="f-cat-icon" value="📋"></div></div>`;
+  modal.querySelector(".modal-footer").innerHTML =
+    `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-cat-submit">Create</button>`;
+  document.getElementById("f-cat-submit").onclick = async () => {
+    const body = {
+      name: document.getElementById("f-cat-name").value,
+      color: document.getElementById("f-cat-color").value,
+      icon: document.getElementById("f-cat-icon").value,
+    };
+    if (!body.name) return toast("Name required");
+    await api("/api/categories", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    closeModal("form-modal");
+    navigate("categories");
+    toast("Created");
   };
-  openModal('form-modal');
+  openModal("form-modal");
 }
-async function deleteCat(id) { if (!confirm('Remove?')) return; await api(`/api/categories/${id}`, { method: 'DELETE' }); navigate('categories'); }
+async function deleteCat(id) {
+  showConfirm(
+    "Remove",
+    "Are you sure you want to remove this category?",
+    async () => {
+      await api(`/api/categories/${id}`, { method: "DELETE" });
+      navigate("categories");
+    },
+  );
+}
 
 // ===== USERS =====
 async function renderUsers(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   let users = [];
-  try { users = await api('/api/users'); } catch (e) { el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading users</div></div>`; return; }
+  try {
+    users = await api("/api/users");
+  } catch (e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading users</div></div>`;
+    return;
+  }
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" onclick="showCreateUser()">＋ New User</button></div>
-    <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${users.map(u => `<tr>
-      <td><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
+    <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${users
+      .map(
+        (u) => `<tr>
+      <td><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ""}</td>
       <td><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
-      <td><span class="badge ${u.status === 'active' ? 'status-resolved' : u.status === 'pending' ? 'status-open' : 'status-closed'}">${u.status}</span></td>
+      <td><span class="badge ${u.status === "active" ? "status-resolved" : u.status === "pending" ? "status-open" : "status-closed"}">${u.status}</span></td>
       <td style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
-      <td style="text-align:right">${u.id === state.user.id ? '' : (u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" onclick="approveUser(${u.id})">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" onclick="rejectUser(${u.id})">Reject</button>` : `<button class="btn btn-sm btn-ghost" onclick="toggleUser(${u.id})">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`)}</td>
-    </tr>`).join('')}</tbody></table></div>`;
+      <td style="text-align:right">${u.id === state.user.id ? "" : u.status === "pending" ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" onclick="approveUser(${u.id})">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" onclick="rejectUser(${u.id})">Reject</button>` : `<button class="btn btn-sm btn-ghost" onclick="toggleUser(${u.id})">${u.status === "disabled" ? "Enable" : "Disable"}</button>`}</td>
+    </tr>`,
+      )
+      .join("")}</tbody></table></div>`;
 }
 function showCreateUser() {
-  const modal = document.getElementById('form-modal');
-  modal.querySelector('.modal-title').textContent = 'Create User';
-  modal.querySelector('.modal-body').innerHTML = `
+  const modal = document.getElementById("form-modal");
+  modal.querySelector(".modal-title").textContent = "Create User";
+  modal.querySelector(".modal-body").innerHTML = `
     <div class="form-group"><label class="form-label">Username *</label><input class="form-input" id="f-u-name" placeholder="e.g. john" autofocus></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="f-u-pass" placeholder="Min 4 characters"></div>
       <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" type="password" id="f-u-pass-confirm" placeholder="Re-enter password"></div>
     </div>
     <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option><option value="Admin">Admin</option></select></div>`;
-  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
-  document.getElementById('f-u-submit').onclick = async () => {
-    const username = document.getElementById('f-u-name').value.trim();
-    const password = document.getElementById('f-u-pass').value;
-    const confirm = document.getElementById('f-u-pass-confirm').value;
-    const role = document.getElementById('f-u-role').value;
-    if (!username || !password || !confirm) return toast('All fields required');
-    if (password.length < 4) return toast('Password too short (min 4)');
-    if (password !== confirm) return toast('Passwords do not match');
+  modal.querySelector(".modal-footer").innerHTML =
+    `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
+  document.getElementById("f-u-submit").onclick = async () => {
+    const username = document.getElementById("f-u-name").value.trim();
+    const password = document.getElementById("f-u-pass").value;
+    const confirm = document.getElementById("f-u-pass-confirm").value;
+    const role = document.getElementById("f-u-role").value;
+    if (!username || !password || !confirm) return toast("All fields required");
+    if (password.length < 4) return toast("Password too short (min 4)");
+    if (password !== confirm) return toast("Passwords do not match");
     try {
-      await api('/api/users/create', { method: 'POST', body: JSON.stringify({ username, password, role }) });
-      closeModal('form-modal'); navigate('users'); toast('User created');
-    } catch (e) { toast('Error: ' + e.message); }
+      await api("/api/users/create", {
+        method: "POST",
+        body: JSON.stringify({ username, password, role }),
+      });
+      closeModal("form-modal");
+      navigate("users");
+      toast("User created");
+    } catch (e) {
+      toast("Error: " + e.message);
+    }
   };
-  openModal('form-modal');
+  openModal("form-modal");
 }
-async function approveUser(id) { await api(`/api/users/${id}/approve`, { method: 'POST' }); navigate('users'); toast('Approved'); }
-async function rejectUser(id) { if (!confirm('Reject & delete?')) return; await api(`/api/users/${id}/reject`, { method: 'POST' }); navigate('users'); toast('Rejected'); }
-async function toggleUser(id) { const r = await api(`/api/users/${id}/toggle`, { method: 'POST' }); navigate('users'); toast(r.status === 'disabled' ? 'Disabled' : 'Enabled'); }
+async function approveUser(id) {
+  await api(`/api/users/${id}/approve`, { method: "POST" });
+  navigate("users");
+  toast("Approved");
+}
+async function rejectUser(id) {
+  showConfirm(
+    "Reject User",
+    "This will delete the pending user account. Continue?",
+    async () => {
+      await api(`/api/users/${id}/reject`, { method: "POST" });
+      navigate("users");
+      toast("Rejected");
+    },
+  );
+}
+async function toggleUser(id) {
+  const r = await api(`/api/users/${id}/toggle`, { method: "POST" });
+  navigate("users");
+  toast(r.status === "disabled" ? "Disabled" : "Enabled");
+}
 
 // ===== DASHBOARD =====
 async function renderDashboard(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   try {
-    const s = await api('/api/stats');
+    const s = await api("/api/stats");
     el.innerHTML = `<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px">
       <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.qa.total}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">QA Entries</div></div>
       <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.categories}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Sub-Systems</div></div>
     </div>`;
-  } catch (e) { el.innerHTML = '<div class="error-msg">Failed to load dashboard</div>'; }
+  } catch (e) {
+    el.innerHTML = '<div class="error-msg">Failed to load dashboard</div>';
+  }
 }

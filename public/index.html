@@ -1,28 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Operations - Knowledge Base</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="IT Operations Knowledge Base - QA Library"
+    />
+    <title>IT Operations - Knowledge Base</title>
+    <link rel="stylesheet" href="/fonts/inter.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔧%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div id="app" class="app-loading">
+      <div class="loading">Loading...</div>
+    </div>
 
-<div id="app" class="app-loading">
-  <div class="loading">Loading...</div>
-</div>
+    <div class="modal-overlay" id="detail-modal"></div>
+    <div class="modal-overlay" id="form-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">New Entry</div>
+          <button
+            class="modal-close"
+            onclick="closeModal('form-modal')"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-ghost btn-sm"
+            onclick="closeModal('form-modal')"
+          >
+            Cancel
+          </button>
+          <button class="btn btn-primary btn-sm">Save</button>
+        </div>
+      </div>
+    </div>
 
-<div class="modal-overlay" id="detail-modal"></div>
-<div class="modal-overlay" id="form-modal">
-  <div class="modal">
-    <div class="modal-header"><div class="modal-title">New Entry</div><button class="modal-close" onclick="closeModal('form-modal')" aria-label="Close">✕</button></div>
-    <div class="modal-body"></div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm">Save</button></div>
-  </div>
-</div>
+    <div class="modal-overlay" id="confirm-modal">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <div class="modal-title" id="confirm-title">Confirm</div>
+          <button
+            class="modal-close"
+            onclick="closeConfirm()"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="modal-body" id="confirm-message"></div>
+        <div class="modal-footer custom-modal-footer" id="confirm-actions">
+          <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">
+            Cancel
+          </button>
+          <button class="btn btn-sm btn-danger" id="confirm-ok">Confirm</button>
+        </div>
+      </div>
+    </div>
 
-<div class="toast" id="toast"></div>
-<script src="/js/app.js"></script>
-</body>
+    <div class="modal-overlay" id="session-warning-modal">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <div class="modal-title">Session Expiring</div>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 12px">
+            Your session will expire soon due to inactivity.
+          </p>
+          <p style="font-size: 13px; color: #888">
+            Click "Stay Logged In" to keep your session active.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost btn-sm" onclick="logout()">
+            Sign Out
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="stayLoggedIn()">
+            Stay Logged In
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="/js/app.js"></script>
+  </body>
 </html>
