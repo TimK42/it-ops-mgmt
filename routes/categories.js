@@ -5,7 +5,6 @@ const router = express.Router();
 router.get('/', (req, res) => {
   const db = getDb();
   res.json(db.prepare(`SELECT c.*,
-    (SELECT COUNT(*) FROM issues WHERE category_id=c.id) as issue_count,
     (SELECT COUNT(*) FROM qa_entries WHERE category_id=c.id) as qa_count
     FROM categories c ORDER BY c.name`).all());
 });
