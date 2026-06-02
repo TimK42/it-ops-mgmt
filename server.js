@@ -5,10 +5,24 @@ const fs = require('fs');
 const { getDb } = require('./db');
 const SQLiteStore = require('./session-store');
 
+const helmet = require('helmet');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"]
+    }
+  }
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session middleware
@@ -65,7 +79,7 @@ app.get('/api/stats', (req, res) => {
 app.get('/*path', (req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({error:'Not found'});
   const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
-  res.status(200).type('html').send(html);
+  res.status(404).type('html').send(html);
 });
 
 if (require.main === module) {

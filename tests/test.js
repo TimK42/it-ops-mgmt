@@ -73,7 +73,7 @@ async function run() {
     assert(r.status === 200, 'GET /js/app.js => 200');
 
     r = await req('GET', '/nonexistent-page');
-    assert(r.status === 200, 'SPA catch-all => 200');
+    assert(r.status === 404, 'SPA catch-all => 404');
 
     // ═══ AUTH ═══
     console.log('\n>>> Auth');
@@ -216,8 +216,8 @@ async function run() {
     assert(js.includes('aria-label="Search QA entries"'), 'JS: search aria-label');
     assert(js.includes('aria-label="Close"'), 'JS: close aria-label');
     assert(js.includes('aria-label="Toggle sidebar"'), 'JS: toggle aria-label');
-    assert(js.includes('tabindex="0"'), 'JS: tabindex=0');
-    assert(js.includes('role="button"'), 'JS: role=button');
+    assert(!js.includes('tabindex="0"'), 'JS: no tabindex=0 on interactive elements');
+    assert(!js.includes('role="button"'), 'JS: no role=button on interactive elements');
     assert(js.includes('esc(t.trim())'), 'JS: esc() XSS prevention');
     assert(js.includes('<h1>'), 'JS: h1 heading');
     assert(js.includes('autofocus'), 'JS: autofocus');
@@ -225,7 +225,7 @@ async function run() {
     assert(js.includes('<button class="nav-item"'), 'JS: nav <button> elements');
     assert(js.includes('skip-link'), 'JS: skip-link present');
     assert(js.includes('tabindex="-1"'), 'JS: tabindex=-1 for main');
-    assert(js.includes('Enter') && js.includes('event.key'), 'JS: keyboard handler');
+    assert(!js.includes('onkeydown=') && !js.includes('onkeyup='), 'JS: no inline keyboard handlers');
 
     // CSS checks
     r = await req('GET', '/css/style.css');
