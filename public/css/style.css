@@ -80,7 +80,7 @@ tr.row-click { cursor:pointer; }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .detail-banner { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
 .detail-id { font-size:14px; color:#888; font-family:monospace; margin-left:auto; }
-.detail-meta { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:20px; }
+.detail-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:16px; margin-bottom:20px; }
 .detail-meta-label { font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
 .detail-section { margin-bottom:20px; }
 .detail-section-title { font-size:13px; font-weight:600; color:#555; margin-bottom:8px; }
