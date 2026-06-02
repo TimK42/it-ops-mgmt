@@ -25,21 +25,21 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   const db = getDb();
-  const { title, description, category_id, status, priority, assignee } = req.body;
+  const { title, description, category_id, status, priority, assignee, fraca } = req.body;
   if (!title) return res.status(400).json({ error: 'Title required' });
   const last = db.prepare("SELECT issue_number FROM issues ORDER BY id DESC LIMIT 1").get();
   const num = last ? String(parseInt(last.issue_number.replace('INC-','')) + 1).padStart(3,'0') : '013';
-  const r = db.prepare('INSERT INTO issues (issue_number,title,description,category_id,status,priority,assignee) VALUES (?,?,?,?,?,?,?)')
-    .run(`INC-${num}`, title, description||'', category_id||null, status||'Open', priority||'Medium', assignee||'');
+  const r = db.prepare('INSERT INTO issues (issue_number,title,description,category_id,status,priority,assignee,fraca) VALUES (?,?,?,?,?,?,?,?)')
+    .run(`INC-${num}`, title, description||'', category_id||null, status||'Open', priority||'Medium', assignee||'', fraca||null);
   res.status(201).json({ id: r.lastInsertRowid, issue_number: `INC-${num}` });
 });
 
 router.put('/:id', (req, res) => {
   const db = getDb();
-  const { title, description, category_id, status, priority, assignee, resolution } = req.body;
+  const { title, description, category_id, status, priority, assignee, resolution, fraca } = req.body;
   if (!db.prepare('SELECT id FROM issues WHERE id=?').get(req.params.id)) return res.status(404).json({error:'Not found'});
-  db.prepare("UPDATE issues SET title=COALESCE(?,title), description=COALESCE(?,description), category_id=COALESCE(?,category_id), status=COALESCE(?,status), priority=COALESCE(?,priority), assignee=COALESCE(?,assignee), resolution=COALESCE(?,resolution), updated_at=datetime('now') WHERE id=?")
-    .run(title, description, category_id, status, priority, assignee, resolution, req.params.id);
+  db.prepare("UPDATE issues SET title=COALESCE(?,title), description=COALESCE(?,description), category_id=COALESCE(?,category_id), status=COALESCE(?,status), priority=COALESCE(?,priority), assignee=COALESCE(?,assignee), resolution=COALESCE(?,resolution), fraca=COALESCE(?,fraca), updated_at=datetime('now') WHERE id=?")
+    .run(title, description, category_id, status, priority, assignee, resolution, fraca, req.params.id);
   res.json({ ok: true });
 });
 
