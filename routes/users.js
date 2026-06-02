@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const bcrypt = require('bcryptjs');
 const { getDb } = require('../db');
 
 const router = Router();
@@ -8,6 +9,24 @@ router.get('/', (req, res) => {
   const db = getDb();
   const users = db.prepare('SELECT id, username, role, status, created_at FROM users ORDER BY created_at DESC').all();
   res.json(users);
+});
+
+// POST /api/users/create — Admin directly creates an active user
+router.post('/create', (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password required' });
+  if (username.length < 2) return res.status(400).json({ error: 'Username too short' });
+  if (password.length < 4) return res.status(400).json({ error: 'Password too short (min 4)' });
+  const role = req.body.role || 'Viewer';
+  if (!['Admin','Contributor','Viewer'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+  const db = getDb();
+  const exists = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+  if (exists) return res.status(409).json({ error: 'Username taken' });
+
+  const hash = bcrypt.hashSync(password, 10);
+  const info = db.prepare("INSERT INTO users (username, password, role, status) VALUES (?,?,?,'active')").run(username, hash, role);
+  res.status(201).json({ id: info.lastInsertRowid, username, role, status: 'active' });
 });
 
 // POST /api/users/:id/approve

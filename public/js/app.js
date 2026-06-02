@@ -246,7 +246,7 @@ async function renderUsers(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   let users = [];
   try { users = await api('/api/users'); } catch (e) { el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading users</div></div>`; return; }
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div></div>
+  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" onclick="showCreateUser()">＋ New User</button></div>
     <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${users.map(u => `<tr>
       <td><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
       <td><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
@@ -254,6 +254,32 @@ async function renderUsers(el) {
       <td style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
       <td style="text-align:right">${u.id === state.user.id ? '' : (u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" onclick="approveUser(${u.id})">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" onclick="rejectUser(${u.id})">Reject</button>` : `<button class="btn btn-sm btn-ghost" onclick="toggleUser(${u.id})">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`)}</td>
     </tr>`).join('')}</tbody></table></div>`;
+}
+function showCreateUser() {
+  const modal = document.getElementById('form-modal');
+  modal.querySelector('.modal-title').textContent = 'Create User';
+  modal.querySelector('.modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Username *</label><input class="form-input" id="f-u-name" placeholder="e.g. john" autofocus></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="f-u-pass" placeholder="Min 4 characters"></div>
+      <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" type="password" id="f-u-pass-confirm" placeholder="Re-enter password"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option><option value="Admin">Admin</option></select></div>`;
+  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
+  document.getElementById('f-u-submit').onclick = async () => {
+    const username = document.getElementById('f-u-name').value.trim();
+    const password = document.getElementById('f-u-pass').value;
+    const confirm = document.getElementById('f-u-pass-confirm').value;
+    const role = document.getElementById('f-u-role').value;
+    if (!username || !password || !confirm) return toast('All fields required');
+    if (password.length < 4) return toast('Password too short (min 4)');
+    if (password !== confirm) return toast('Passwords do not match');
+    try {
+      await api('/api/users/create', { method: 'POST', body: JSON.stringify({ username, password, role }) });
+      closeModal('form-modal'); navigate('users'); toast('User created');
+    } catch (e) { toast('Error: ' + e.message); }
+  };
+  openModal('form-modal');
 }
 async function approveUser(id) { await api(`/api/users/${id}/approve`, { method: 'POST' }); navigate('users'); toast('Approved'); }
 async function rejectUser(id) { if (!confirm('Reject & delete?')) return; await api(`/api/users/${id}/reject`, { method: 'POST' }); navigate('users'); toast('Rejected'); }
