@@ -1,0 +1,24 @@
+{
+  "name": "it-ops-mgmt",
+  "version": "1.0.0",
+  "description": "IT Operations - Known Issues & QA Knowledge Base",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimK42/it-ops-mgmt.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TimK42/it-ops-mgmt/issues"
+  },
+  "homepage": "https://github.com/TimK42/it-ops-mgmt#readme",
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "express": "^5.2.1"
+  }
+}

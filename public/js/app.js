@@ -1,0 +1,246 @@
+let state = { page:'issues', issues:[], qaEntries:[], categories:[], filters:{status:null,search:''}, qaFilters:{status:null,search:''} };
+
+document.addEventListener('DOMContentLoaded', async () => { await loadCategories(); navigate('issues'); });
+
+function navigate(page) {
+  state.page = page;
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  const n = document.querySelector(`[data-nav="${page}"]`);
+  if (n) n.classList.add('active');
+  const titles = {issues:'Known Issues', qa:'QA Library', categories:'Categories', dashboard:'Dashboard'};
+  document.getElementById('page-title').textContent = titles[page] || 'Dashboard';
+  const el = document.getElementById('page-content');
+  if (page === 'issues') renderIssues(el);
+  else if (page === 'qa') renderQA(el);
+  else if (page === 'categories') renderCategories(el);
+  else if (page === 'dashboard') renderDashboard(el);
+}
+
+async function api(path, opts={}) {
+  const res = await fetch(path, { headers:{'Content-Type':'application/json'}, ...opts });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
+}
+function toast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+function initials(n) { return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function statusClass(s) { return ({'Open':'status-open','In Progress':'status-in-progress','Resolved':'status-resolved','Closed':'status-closed','Published':'status-resolved','Draft':'status-open','Archived':'status-closed'})[s]||'status-closed'; }
+function priorityClass(p) { return ({'Critical':'pri-critical','High':'pri-high','Medium':'pri-medium','Low':'pri-low'})[p]||'pri-medium'; }
+function timeAgo(d) { if(!d) return ''; const t=(new Date()-new Date(d))/1000; return t<60?'just now':t<3600?Math.floor(t/60)+'m ago':t<86400?Math.floor(t/3600)+'h ago':Math.floor(t/86400)+'d ago'; }
+function debounce(fn,ms) { let t; return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);}; }
+
+async function loadCategories() { try { state.categories = await api('/api/categories'); } catch(e){} }
+
+// ===== ISSUES =====
+async function renderIssues(el) {
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  try { await loadIssues(); } catch(e) {}
+  const statuses = [null,'Open','In Progress','Resolved','Closed'];
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.filters.status===s?'active':''}" data-if="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateIssue()">＋ New Issue</button></div><div class="table-container"><table><thead><tr><th></th><th>#</th><th>Issue</th><th>Category</th><th>Status</th><th>Priority</th><th>Assignee</th><th>Updated</th><th></th></tr></thead><tbody id="issues-tbody"></tbody></table><div class="pagination"><div class="pagination-info">${state.issues.length} issue(s)</div></div></div>`;
+  el.querySelectorAll('[data-if]').forEach(b=>{b.onclick=()=>{state.filters.status=b.dataset.if||null;renderIssues(el);};});
+  document.getElementById('global-search').oninput = debounce(e=>{state.filters.search=e.target.value;renderIssues(el);},300);
+  renderIssueRows();
+  document.getElementById('issue-count').textContent = state.issues.length;
+}
+
+async function loadIssues() {
+  const p = new URLSearchParams();
+  if (state.filters.status) p.set('status', state.filters.status);
+  if (state.filters.search) p.set('search', state.filters.search);
+  state.issues = await api(`/api/issues?${p}`);
+}
+
+function renderIssueRows() {
+  const tbody = document.getElementById('issues-tbody');
+  if (!tbody) return;
+  if (!state.issues.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No issues</div></div></td></tr>'; return; }
+  tbody.innerHTML = state.issues.map(i => {
+    const isBug = i.priority==='Critical'||i.priority==='High';
+    return `<tr class="row-click" onclick="showIssueDetail(${i.id})">
+      <td></td><td><span class="issue-id">${esc(i.issue_number)}</span></td>
+      <td><div class="issue-cell"><div class="issue-icon" style="background:${isBug?'#fef2f2':'#fefce8'};color:${isBug?'#dc2626':'#eab308'}">${isBug?'⚠':'❓'}</div><div class="issue-text"><div class="issue-title">${esc(i.title)}</div><div class="issue-desc">${esc((i.description||'').slice(0,60))}</div></div></div></td>
+      <td>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</td>
+      <td><span class="badge ${statusClass(i.status)}">● ${i.status}</span></td>
+      <td><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></td>
+      <td>${i.assignee?`<span class="assignee"><span class="avatar">${initials(i.assignee)}</span>${esc(i.assignee)}</span>`:'-'}</td>
+      <td style="color:#888;font-size:12px;white-space:nowrap">${timeAgo(i.updated_at)}</td>
+      <td><button class="action-btn" onclick="event.stopPropagation();deleteIssue(${i.id})">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function showIssueDetail(id) {
+  const i = await api(`/api/issues/${id}`);
+  document.getElementById('detail-modal').innerHTML = `<div class="modal">
+    <div class="modal-header"><div class="detail-banner"><div class="issue-icon" style="background:${i.priority==='Critical'||i.priority==='High'?'#fef2f2':'#fefce8'};color:${i.priority==='Critical'||i.priority==='High'?'#dc2626':'#eab308'}">${i.priority==='Critical'||i.priority==='High'?'⚠':'❓'}</div><div class="modal-title">${esc(i.title)}</div><div class="detail-id">${i.issue_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="detail-meta">
+        <div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(i.status)}">● ${i.status}</span></div>
+        <div><div class="detail-meta-label">Priority</div><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></div>
+        <div><div class="detail-meta-label">Category</div>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</div>
+        <div><div class="detail-meta-label">Assignee</div>${i.assignee?`<span class="assignee"><span class="avatar">${initials(i.assignee)}</span>${esc(i.assignee)}</span>`:'-'}</div>
+        <div><div class="detail-meta-label">Updated</div><span style="font-size:13px">${timeAgo(i.updated_at)}</span></div>
+        <div><div class="detail-meta-label">Created</div><span style="font-size:13px">${timeAgo(i.created_at)}</span></div>
+      </div>
+      ${i.description?`<div class="detail-section"><div class="detail-section-title">Description</div><div class="detail-section-content">${esc(i.description)}</div></div>`:''}
+      ${i.resolution?`<div class="detail-section"><div class="detail-section-title">Resolution</div><div class="detail-section-content">${esc(i.resolution)}</div></div>`:''}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>
+      <button class="btn btn-sm" style="background:#f0f0f5" onclick="editIssue(${i.id})">Edit</button>
+    </div>
+  </div>`;
+  openModal('detail-modal');
+}
+
+async function showCreateIssue(data) {
+  const isEdit = !!data;
+  const modal = document.getElementById('form-modal');
+  modal.querySelector('.modal-title').textContent = isEdit ? 'Edit Issue' : 'New Issue';
+  modal.querySelector('.modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-title" value="${isEdit?esc(data.title):''}"></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-desc">${isEdit?esc(data.description||''):''}</textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="f-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Assignee</label><input class="form-input" id="f-assign" value="${isEdit?esc(data.assignee||''):''}" placeholder="Name"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status">${['Open','In Progress','Resolved','Closed'].map(s=>`<option value="${s}" ${isEdit&&data.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="f-prio">${['Critical','High','Medium','Low'].map(p=>`<option value="${p}" ${isEdit&&data.priority===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
+    ${isEdit?`<div class="form-group"><label class="form-label">Resolution</label><textarea class="form-textarea" id="f-res">${esc(data.resolution||'')}</textarea></div>`:''}`;
+  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-submit">${isEdit?'Update':'Create'}</button>`;
+  document.getElementById('f-submit').onclick = async ()=>{
+    const body = {
+      title: document.getElementById('f-title').value,
+      description: document.getElementById('f-desc').value,
+      category_id: document.getElementById('f-cat').value || null,
+      assignee: document.getElementById('f-assign').value,
+      status: document.getElementById('f-status').value,
+      priority: document.getElementById('f-prio').value,
+    };
+    if (!body.title) return toast('Title required');
+    try {
+      if (isEdit) { body.resolution = document.getElementById('f-res').value; await api(`/api/issues/${data.id}`,{method:'PUT',body:JSON.stringify(body)}); toast('Updated'); }
+      else { await api('/api/issues',{method:'POST',body:JSON.stringify(body)}); toast('Created'); }
+      closeModal('form-modal'); navigate('issues');
+    } catch(e) { toast('Error: '+e.message); }
+  };
+  openModal('form-modal');
+}
+
+function editIssue(id) { closeModal('detail-modal'); const d=state.issues.find(i=>i.id===id); if(d) showCreateIssue(d); }
+async function deleteIssue(id) { if(!confirm('Delete?')) return; await api(`/api/issues/${id}`,{method:'DELETE'}); toast('Deleted'); navigate('issues'); }
+
+function exportCSV() {
+  const items = state.page==='issues' ? state.issues : state.qaEntries;
+  if (!items.length) return toast('Nothing to export');
+  const keys = Object.keys(items[0]);
+  const csv = [keys.join(','), ...items.map(r=>keys.map(k=>`"${(r[k]||'').toString().replace(/"/g,'""')}"`).join(','))].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `it-ops-${state.page}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+}
+
+// ===== QA =====
+async function renderQA(el) {
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  try { state.qaEntries = await loadQA(); } catch(e) {}
+  const statuses = [null,'Published','Draft','Archived'];
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.qaFilters.status===s?'active':''}" data-qf="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button></div><div class="qa-list" id="qa-list"></div>`;
+  el.querySelectorAll('[data-qf]').forEach(b=>{b.onclick=()=>{state.qaFilters.status=b.dataset.qf||null;renderQA(el);};});
+  const list = document.getElementById('qa-list');
+  if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
+  list.innerHTML = state.qaEntries.map(q => `<div class="qa-card" onclick="showQADetail(${q.id})"><div class="qa-card-title">${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name?`<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>`:''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags?q.tags.split(',').map(t=>`<span class="tag">#${t.trim()}</span>`).join(''):''}<span style="font-size:11px;color:#888;margin-left:auto">${timeAgo(q.updated_at)}</span></div></div>`).join('');
+  document.getElementById('qa-count').textContent = state.qaEntries.length;
+}
+async function loadQA() {
+  const p = new URLSearchParams();
+  if (state.qaFilters.status) p.set('status',state.qaFilters.status);
+  if (state.qaFilters.search) p.set('search',state.qaFilters.search);
+  return api(`/api/qa?${p}`);
+}
+
+async function showQADetail(id) {
+  const q = await api(`/api/qa/${id}`);
+  document.getElementById('detail-modal').innerHTML = `<div class="modal">
+    <div class="modal-header"><div class="modal-title">${esc(q.title)}</div><button class="modal-close" onclick="closeModal('detail-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
+      ${q.answer?`<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>`:''}
+      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Category</div>${q.category_name?`<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>`:'-'}</div><div><div class="detail-meta-label">Tags</div>${q.tags?q.tags.split(',').map(t=>`<span class="tag">#${t.trim()}</span>`).join(' '):'-'}</div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button><button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteQA(${q.id})">Delete</button></div>
+  </div>`;
+  openModal('detail-modal');
+}
+
+async function showCreateQA(data) {
+  const isEdit = !!data;
+  const modal = document.getElementById('form-modal');
+  modal.querySelector('.modal-title').textContent = isEdit ? 'Edit QA Entry' : 'New QA Entry';
+  modal.querySelector('.modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit?esc(data.title):''}"></div>
+    <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit?esc(data.question):''}</textarea></div>
+    <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit?esc(data.answer||''):''}</textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published','Draft','Archived'].map(s=>`<option value="${s}" ${isEdit&&data.status===s?'selected':''}>${s}</option>`).join('')}</select></div></div>
+    <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit?esc(data.tags||''):''}" placeholder="e.g., password,account"></div>`;
+  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit?'Update':'Create'}</button>`;
+  document.getElementById('f-q-submit').onclick = async ()=>{
+    const body = {title:document.getElementById('f-q-title').value, question:document.getElementById('f-question').value, answer:document.getElementById('f-answer').value, category_id:document.getElementById('f-q-cat').value||null, status:document.getElementById('f-q-status').value, tags:document.getElementById('f-tags').value};
+    if (!body.title||!body.question) return toast('Title and question required');
+    try {
+      if (isEdit) { await api(`/api/qa/${data.id}`,{method:'PUT',body:JSON.stringify(body)}); toast('Updated'); }
+      else { await api('/api/qa',{method:'POST',body:JSON.stringify(body)}); toast('Created'); }
+      closeModal('form-modal'); navigate('qa');
+    } catch(e) { toast('Error: '+e.message); }
+  };
+  openModal('form-modal');
+}
+function editQA(id) { closeModal('detail-modal'); const d=state.qaEntries.find(q=>q.id===id); if(d) showCreateQA(d); }
+async function deleteQA(id) { if(!confirm('Delete?')) return; await api(`/api/qa/${id}`,{method:'DELETE'}); toast('Deleted'); navigate('qa'); }
+
+// ===== CATEGORIES =====
+async function renderCategories(el) {
+  await loadCategories();
+  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} categories</div><button class="btn btn-primary btn-sm" onclick="showCreateCategory()">＋ Add Category</button></div>
+    <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>Issues</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map(c=>`<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.issue_count||0}</td><td>${c.qa_count||0}</td><td><button class="btn btn-ghost btn-sm" onclick="deleteCat(${c.id})">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+}
+async function showCreateCategory() {
+  const modal = document.getElementById('form-modal');
+  modal.querySelector('.modal-title').textContent = 'New Category';
+  modal.querySelector('.modal-body').innerHTML = `<div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-cat-name"></div><div class="form-row"><div class="form-group"><label class="form-label">Color</label><input class="form-input" id="f-cat-color" type="color" value="#6366f1"></div><div class="form-group"><label class="form-label">Icon</label><input class="form-input" id="f-cat-icon" value="📋"></div></div>`;
+  modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-cat-submit">Create</button>`;
+  document.getElementById('f-cat-submit').onclick = async ()=>{
+    const body = {name:document.getElementById('f-cat-name').value, color:document.getElementById('f-cat-color').value, icon:document.getElementById('f-cat-icon').value};
+    if (!body.name) return toast('Name required');
+    await api('/api/categories',{method:'POST',body:JSON.stringify(body)}); closeModal('form-modal'); navigate('categories'); toast('Created');
+  };
+  openModal('form-modal');
+}
+async function deleteCat(id) { if(!confirm('Remove?')) return; await api(`/api/categories/${id}`,{method:'DELETE'}); navigate('categories'); }
+
+// ===== DASHBOARD =====
+async function renderDashboard(el) {
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  try {
+    const s = await api('/api/stats');
+    el.innerHTML = `<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px">
+      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.issues.total}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Total Issues</div></div>
+      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700;color:#dc2626">${s.issues.open}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Open</div></div>
+      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700;color:#2563eb">${s.issues.in_progress}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">In Progress</div></div>
+      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700;color:#16a34a">${s.issues.resolved}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Resolved</div></div>
+      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.qa.total}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">QA Entries</div></div>
+      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.categories}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Categories</div></div>
+    </div>`;
+  } catch(e) { el.innerHTML = '<div class="error-msg">Failed to load dashboard</div>'; }
+}
+
+// Global search binding
+document.addEventListener('DOMContentLoaded', () => {
+  const search = document.getElementById('global-search');
+  if (search) {
+    search.addEventListener('input', debounce(() => {
+      if (state.page === 'issues') { state.filters.search = search.value; navigate('issues'); }
+      else if (state.page === 'qa') { state.qaFilters.search = search.value; navigate('qa'); }
+    }, 300));
+  }
+});

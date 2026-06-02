@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Operations - Knowledge Base</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">IT Operations</div>
+    <div class="sidebar-title">Knowledge Base</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" data-nav="issues" onclick="navigate('issues')"><span class="nav-icon">⚠</span> Known Issues <span class="nav-badge" id="issue-count">0</span></div>
+    <div class="nav-item" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">0</span></div>
+    <div class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Categories</div>
+    <div class="nav-section">Workspace</div>
+    <div class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="nav-item" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:default"><span class="nav-icon" style="font-size:12px">👤</span> Admin</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div><div class="topbar-title" id="page-title">Known Issues</div><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search"></div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" onclick="exportCSV()">📥 Export</button>
+    </div>
+  </div>
+  <div class="content" id="page-content"><div class="loading">Loading...</div></div>
+</div>
+
+<div class="modal-overlay" id="detail-modal"></div>
+<div class="modal-overlay" id="form-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">New Entry</div><button class="modal-close" onclick="closeModal('form-modal')">✕</button></div>
+    <div class="modal-body"></div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm">Save</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/app.js"></script>
+</body>
+</html>
