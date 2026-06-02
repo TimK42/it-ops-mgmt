@@ -77,7 +77,7 @@ app.get('/api/stats', (req, res) => {
 });
 
 app.get('/*path', (req, res) => {
-  if (req.path.startsWith('/api/')) return res.status(404).json({error:'Not found'});
+  if (req.path.startsWith('/api/') || req.path === '/api') return res.status(404).json({error:'Not found'});
   const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
   res.status(404).type('html').send(html);
 });
