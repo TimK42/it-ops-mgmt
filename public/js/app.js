@@ -92,36 +92,36 @@ function renderShell() {
   const isAdmin = u.role === 'Admin';
   const userName = u.username;
   document.getElementById('app').innerHTML = `
-    <div class="sidebar" id="sidebar">
+    <nav class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar-header">
         <div class="sidebar-logo">IT Operations</div>
         <div class="sidebar-title">Knowledge Base</div>
       </div>
       <div class="sidebar-nav">
         <div class="nav-section">Main</div>
-        <div class="nav-item active" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">0</span></div>
-        ${isAdmin ? `<div class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Sub-Systems</div><div class="nav-item" data-nav="users" onclick="navigate('users')"><span class="nav-icon">👥</span> Users</div>` : ''}
+        <button class="nav-item active" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">0</span></button>
+        ${isAdmin ? `<button class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" onclick="navigate('users')"><span class="nav-icon">👥</span> Users</button>` : ''}
         <div class="nav-section">Workspace</div>
-        <div class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
+        <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
       </div>
       <div class="sidebar-footer">
         <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px">👤</span> ${esc(userName)} (${u.role})</div>
-        <div class="nav-item" onclick="logout()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</div>
+        <button class="nav-item" onclick="logout()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
-    </div>
-    <div class="main">
-      <div class="topbar">
+    </nav>
+    <main id="main-content" class="main">
+      <header class="topbar">
         <div class="topbar-left">
-          <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+          <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
           <div><div class="topbar-title" id="page-title">QA Library</div><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
-          <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search"></div>
+          <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search" aria-label="Search QA entries"></div>
         </div>
         <div class="topbar-right">
           <button class="btn btn-ghost" onclick="exportCSV()">📥 Export</button>
         </div>
-      </div>
+      </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
-    </div>`;
+    </main>`;
 
   // Bind search
   const search = document.getElementById('global-search');
@@ -156,7 +156,7 @@ async function renderQA(el) {
   el.querySelectorAll('[data-qf]').forEach(b => { b.onclick = () => { state.qaFilters.status = b.dataset.qf || null; state.qaPage = 1; renderQA(el); }; });
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
-  list.innerHTML = state.qaEntries.map(q => `<div class="qa-card" onclick="showQADetail(${q.id})"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : ''}<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></div>`).join('');
+  list.innerHTML = state.qaEntries.map(q => `<div class="qa-card" onclick="showQADetail(${q.id})" tabindex="0" role="button" onkeydown="if(event.key==='Enter')showQADetail(${q.id})"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : ''}<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></div>`).join('');
   const totalPages = Math.ceil(state.qaTotal / 20);
   list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="filter-tab" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="filter-tab" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
   document.getElementById('qa-count').textContent = state.qaTotal;
@@ -176,7 +176,7 @@ async function showQADetail(id) {
   const q = await api(`/api/qa/${id}`);
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
-    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')">✕</button></div>
+    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')" aria-label="Close">✕</button></div>
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
