@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs');
 const { getDb } = require('./db');
 const SQLiteStore = require('./session-store');
 
@@ -61,13 +62,18 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-app.get('{*path}', (req, res) => {
+app.get('/*path', (req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({error:'Not found'});
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
+  res.status(200).type('html').send(html);
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`IT Ops Management running at http://localhost:${PORT}`);
-  const db = getDb();
-  console.log(`DB: ${db.prepare('SELECT COUNT(*) as c FROM qa_entries').get().c} QA entries, ${db.prepare('SELECT COUNT(*) as c FROM categories').get().c} categories`);
-});
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`IT Ops Management running at http://localhost:${PORT}`);
+    const db = getDb();
+    console.log(`DB: ${db.prepare('SELECT COUNT(*) as c FROM qa_entries').get().c} QA entries, ${db.prepare('SELECT COUNT(*) as c FROM categories').get().c} categories`);
+  });
+}
+
+module.exports = app;

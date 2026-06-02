@@ -4,7 +4,9 @@
   "description": "IT Operations - Known Issues & QA Knowledge Base",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "bash tests/run.sh",
+    "test:js": "node tests/test.js"
   },
   "repository": {
     "type": "git",

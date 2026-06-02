@@ -110,7 +110,7 @@ function renderShell() {
       </div>
     </nav>
     <a href="#main-content" class="skip-link">Skip to content</a>
-    <main id="main-content" class="main">
+    <main id="main-content" class="main" tabindex="-1">
       <header class="topbar">
         <div class="topbar-left">
           <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
