@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/TimK42/it-ops-mgmt#readme",
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
-    "express": "^5.2.1"
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.9.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0"
   }
 }

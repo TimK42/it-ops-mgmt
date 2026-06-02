@@ -1,14 +1,57 @@
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const { getDb } = require('./db');
+const SQLiteStore = require('./session-store');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/api/qa', require('./routes/qa'));
-app.use('/api/categories', require('./routes/categories'));
+
+// Session middleware
+app.use(session({
+  store: new SQLiteStore(getDb()),
+  secret: process.env.SESSION_SECRET || 'it-ops-mgmt-secret-change-me',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 16 * 60 * 60 * 1000, // 16h idle
+    httpOnly: true,
+    sameSite: 'lax',
+  },
+}));
+
+// Public auth routes (no login required)
+app.use('/api/auth', require('./routes/auth'));
+
+// Auth guard — all /api/* below this requires login
+app.use('/api', (req, res, next) => {
+  if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
+  next();
+});
+
+// Role helpers
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.session.role)) return res.status(403).json({ error: 'Forbidden' });
+    next();
+  };
+}
+
+// QA routes — GET open to all roles, write operations Contributor+
+app.use('/api/qa', (req, res, next) => {
+  if (req.method === 'GET') return next(); // all roles can read
+  if (['Admin','Contributor'].includes(req.session.role)) return next();
+  return res.status(403).json({ error: 'Forbidden' });
+}, require('./routes/qa'));
+
+// Categories — Admin only
+app.use('/api/categories', requireRole('Admin'), require('./routes/categories'));
+
+// Users — Admin only
+app.use('/api/users', requireRole('Admin'), require('./routes/users'));
 
 app.get('/api/stats', (req, res) => {
   const db = getDb();
