@@ -1,8 +1,8 @@
-const express = require("express");
-const { getDb } = require("../db");
+const express = require('express');
+const { getDb } = require('../db');
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get('/', (req, res) => {
   const db = getDb();
   res.json(
     db
@@ -15,27 +15,27 @@ router.get("/", (req, res) => {
   );
 });
 
-router.post("/", (req, res) => {
+router.post('/', (req, res) => {
   const { name, color, icon } = req.body;
-  if (!name) return res.status(400).json({ error: "Name required" });
+  if (!name) return res.status(400).json({ error: 'Name required' });
   const r = getDb()
-    .prepare("INSERT INTO categories (name,color,icon) VALUES (?,?,?)")
-    .run(name, color || "#6b7280", icon || "📋");
+    .prepare('INSERT INTO categories (name,color,icon) VALUES (?,?,?)')
+    .run(name, color || '#6b7280', icon || '📋');
   res.status(201).json({ id: r.lastInsertRowid });
 });
 
-router.put("/:id", (req, res) => {
+router.put('/:id', (req, res) => {
   const { name, color, icon } = req.body;
   getDb()
     .prepare(
-      "UPDATE categories SET name=COALESCE(?,name), color=COALESCE(?,color), icon=COALESCE(?,icon) WHERE id=?",
+      'UPDATE categories SET name=COALESCE(?,name), color=COALESCE(?,color), icon=COALESCE(?,icon) WHERE id=?',
     )
     .run(name, color, icon, req.params.id);
   res.json({ ok: true });
 });
 
-router.delete("/:id", (req, res) => {
-  getDb().prepare("DELETE FROM categories WHERE id=?").run(req.params.id);
+router.delete('/:id', (req, res) => {
+  getDb().prepare('DELETE FROM categories WHERE id=?').run(req.params.id);
   res.json({ ok: true });
 });
 
