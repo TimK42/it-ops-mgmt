@@ -27,10 +27,13 @@ function initTheme() {
       stored = localStorage.getItem('theme');
     } catch {}
     if (!stored || (stored !== 'dark' && stored !== 'light')) {
-      document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      const isDark = e.matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
       const btn = document.getElementById('theme-toggle');
-      if (btn) btn.textContent = e.matches ? '☀️' : '🌙';
-    }
+      if (btn) {
+        btn.textContent = isDark ? '☀️' : '🌙';
+        btn.setAttribute('aria-pressed', String(isDark));
+      }
   };
   if (typeof mq.addEventListener === 'function') {
     mq.addEventListener('change', handler);
@@ -47,7 +50,10 @@ function toggleTheme() {
     localStorage.setItem('theme', next);
   } catch {}
   const btn = document.getElementById('theme-toggle');
-  if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+  if (btn) {
+    btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    btn.setAttribute('aria-pressed', String(next === 'dark'));
+  }
 }
 
 initTheme();
@@ -339,7 +345,7 @@ function renderShell() {
           <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search" aria-label="Search QA entries"></div>
         </div>
         <div class="topbar-right">
-          <button class="btn btn-ghost" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
+          <button class="btn btn-ghost" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" aria-pressed="${document.documentElement.getAttribute('data-theme') === 'dark'}">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
           <button class="btn btn-ghost" onclick="exportCSV()">📥 Export</button>
         </div>
       </header>

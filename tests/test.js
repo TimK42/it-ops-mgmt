@@ -263,6 +263,7 @@ async function run() {
     assert(js.includes('aria-label="Close"'), 'JS: close aria-label');
     assert(js.includes('aria-label="Toggle sidebar"'), 'JS: toggle aria-label');
     assert(js.includes('aria-label="Toggle theme"'), 'JS: theme toggle aria-label');
+    assert(js.includes('aria-pressed='), 'JS: theme toggle aria-pressed');
     assert(!js.includes('tabindex="0"'), 'JS: no tabindex=0 on interactive elements');
     assert(!js.includes('role="button"'), 'JS: no role=button on interactive elements');
     assert(js.includes('esc(t.trim())'), 'JS: esc() XSS prevention');
