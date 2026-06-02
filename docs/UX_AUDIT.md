@@ -1,207 +1,162 @@
 # IT Ops Management — UI/UX Audit Report
 
-> **Conducted:** 2026-06-02 23:00 HKT · via curl + DOM/JS analysis  
-> **Pages audited:** Login, Register, QA Library, QA Detail, QA Create/Edit, Categories, Users, Dashboard, 404  
-> **Roles tested:** Admin (admin), Contributor (tester11), Viewer (tester21)  
-> **Round:** 1
+> **Round 2:** 2026-06-03 03:56 HKT · via Browser (Playwright) snapshot + curl + source inspection  
+> **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L) — see below for per-issue status  
+> **Auth:** Admin (admin/0000)  
 
 ---
 
-## 🔴 Critical Issues
+## 🔴 Critical Issues (Round 1 → Status)
 
 ### C1. No Semantic HTML Structure
 
-**Severity:** Critical · **Pages:** All  
-No `<nav>`, `<main>`, `<header>`, `<footer>`, `<section>`, or `<article>` tags — everything is `<div>`.
-
-**Fix:** Wrap sidebar in `<nav>`, content area in `<main id="main-content">`, topbar in `<header>`.
+**✅ FIXED** — `<nav aria-label="Main navigation">`, `<main>`, `<h1>`, `<button>`, `<a>` all implemented. Sidebar wrapped in `<nav>`, content in `<main>`. Skip-to-content link present.
 
 ### C2. No ARIA or Accessibility Attributes
 
-**Severity:** Critical · **Pages:** All  
-Zero `aria-label`, `aria-role`, `aria-describedby`, or `role` attributes. Screen readers get no structure.
-
-**Fix:** Add `aria-label` to icon-only buttons (search, sidebar toggle), `role="navigation"` on sidebar, `role="button"` on `<div>` clickable items.
+**✅ FIXED** — `aria-label="Main navigation"` on sidebar. Skip-link with `href="#main-content"`. Interactive elements are native `<button>` and `<a>` with built-in accessibility.
 
 ### C3. No Keyboard Navigation or Focus Indication
 
-**Severity:** Critical · **Pages:** All
-
-- Sidebar items are `<div onclick>` — not focusable via Tab key
-- Only form inputs have `:focus` styling (ring), no `:focus-visible` on buttons/links
-- No skip-to-content link
-
-**Fix:** Use `<button>` or `<a>` for interactive elements. Add `:focus-visible` outline. Add skip link as first focusable element.
+**✅ FIXED** — Skip-to-content link (first focusable element). Sidebar items are `<button>` focusable via Tab. `:focus-visible` styling present. QA cards are `<a>` links. Form inputs use `autofocus`.
 
 ### C4. Missing Security Headers
 
-**Severity:** Critical · **Pages:** All  
-No CSP, X-Frame-Options, Referrer-Policy, or Cross-Origin headers. Only `X-Content-Type-Options: nosniff` is present.
+**✅ FIXED** — Full `helmet` middleware:
 
-**Fix:** Add `helmet` middleware to Express, or manual headers for CSP/X-Frame-Options/Referrer-Policy.
+```
+Content-Security-Policy: default-src 'self'; ...
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=31536000
+X-Frame-Options: SAMEORIGIN
+X-Content-Type-Options: nosniff
+```
 
 ---
 
-## 🟧 High Issues
+## 🟧 High Issues (Round 1 → Status)
 
 ### H1. No Dark Mode
 
-**Severity:** High · **Pages:** All  
-No `prefers-color-scheme` support, no dark theme toggle. Sidebar is always dark blue, main content always light.
+**❌ UNFIXED** — No `prefers-color-scheme` support, no `data-theme` toggle, no dark variant in CSS. This is the only remaining Round 1 high-priority issue.
 
-**Fix:** Add CSS custom properties for light/dark and a `data-theme` toggle. Low priority for internal tool but significant for eye comfort.
+### H2. Missing `autocomplete` Attributes
 
-### H2. Missing `autocomplete` Attributes on Login Form
+**✅ FIXED** — Login form uses `autocomplete="username"` and `autocomplete="current-password"` (dynamic per login vs register). Password managers can auto-fill.
 
-**Severity:** High · **Pages:** Login, Register, Create User  
-Password fields lack `autocomplete="current-password"` / `new-password"`. Username lacks `autocomplete="username"`. Password managers cannot auto-fill properly.
+### H3. No Heading Hierarchy
 
-```html
-<!-- Current -->
-<input class="form-input" type="password" id="auth-pass" placeholder="Password" />
-
-<!-- Should be -->
-<input
-  class="form-input"
-  type="password"
-  id="auth-pass"
-  placeholder="Password"
-  autocomplete="current-password"
-/>
-```
-
-### H3. No Heading Hierarchy on Content Pages
-
-**Severity:** High · **Pages:** QA Library, Categories, Users, Dashboard  
-Only heading is `<h1>` on login card. Content pages have zero semantic headings — page titles use `<div class="topbar-title">`.
-
-**Fix:** Make page titles `<h1>`. Use `<h2>` for section headers (e.g., "QA Entries", "Sub-Systems table").
+**✅ FIXED** — All page titles now render as `<h1>` (QA Library, Categories, Users, Dashboard, 404, Login).
 
 ### H4. 404 Page is Express Default
 
-**Severity:** High · **Pages:** 404  
-Non-existent routes return Express default HTML error page — no app shell, no nav, no way back.
-
-```
-Cannot POST /api/users/create
-```
-
-**Fix:** Add custom 404 in SPA routing or server-side catch-all that renders a styled error component.
+**✅ FIXED** — Custom SPA 404: `<h1>Page Not Found</h1>` with full app shell (nav, search, "Go to QA Library" button).
 
 ### H5. No Session Timeout Warning
 
-**Severity:** High · **Pages:** All  
-16h session idle — session expires silently. User gets 401 on next API call and gets kicked to login with no warning.
-
-**Fix:** Add a warning modal ~5 minutes before expiry, or show a "Session expired" message on login redirect.
+**✅ FIXED** — Full idle monitoring: 30s check interval, warning modal before expiry, expired session message on login redirect. `startSessionMonitoring()` / `stopSessionMonitoring()` lifecycle.
 
 ---
 
-## 🟨 Medium Issues
+## 🟨 Medium Issues (Round 1 → Status)
 
-### M1. Navigation Items are `<div>`, Not `<button>` or `<a>`
+### M1. Navigation Items are `<div>` Not `<button>`
 
-**Severity:** Medium · **Pages:** All  
-Sidebar nav and pagination are clickable `<div>` elements. Not reachable via keyboard, no `Enter`/`Space` activation, no `role` attribute.
+**✅ FIXED** — All sidebar nav items are native `<button>` elements. Pagination uses `<button>`.
 
-```html
-<!-- Current -->
-<div class="nav-item active" data-nav="qa" onclick="navigate('qa')">
-  <!-- Should be -->
-  <button class="nav-item active" onclick="navigate('qa')"></button>
-</div>
-```
+### M2. Pagination Styled as Filter Tabs
 
-### M2. Pagination Buttons Styled as Filter Tabs
-
-**Severity:** Medium · **Pages:** QA Library  
-Prev/Next buttons use `.filter-tab` CSS class — visually identical to status filter tabs (All/Published/Draft/Archived). Confusing affordance.
-
-**Fix:** Give pagination buttons their own visual style (e.g., bordered, distinct from filter tabs).
+**🟡 PARTIAL** — `.pagination-btn` has separate CSS class but visual style could still be more distinct from `.filter-tab`. Low impact.
 
 ### M3. Confirmation Dialogs Use `window.confirm()`
 
-**Severity:** Medium · **Pages:** QA Delete, Category Remove, User Reject  
-Browser-native `confirm()` is unstyled, inconsistent with app design. Text is terse ("Delete?", "Remove?").
+**✅ FIXED** — Custom confirmation modal (`#confirm-modal`) with title, message, OK/Cancel buttons. `confirmCallback` pattern.
 
-**Fix:** Custom confirmation modal or at minimum improve confirm text: "Delete QA-0001? This cannot be undone."
+### M4. No Empty-State for Search
 
-### M4. No Empty-State for Search with No Results
+**✅ FIXED** — `empty-state` with `📭` icon and context-aware text: `"No results found"` (with search active) / `"No QA entries"` (no search).
 
-**Severity:** Medium · **Pages:** QA Library (search active)  
-When search filter returns zero results, the QA list renders empty — no "No results found" message.
+### M5. QA Card Uses `<div onclick>`
 
-**Fix:** Add empty state: "No QA entries match your search. Try different keywords."
-
-### M5. QA Card Uses `<div onclick>` Instead of `<a>`
-
-**Severity:** Medium · **Pages:** QA Library  
-Clicking a QA card opens detail modal — but cards are generic `<div onclick>`. Can't right-click → open in new tab, can't Ctrl+click, can't keyboard-navigate.
-
-**Fix:** Wrap card content in `<a href="#" onclick="...">` or add `tabindex="0"` + `role="button"` + keyboard handler.
+**✅ FIXED** — QA cards are `<a href="/qa/{id}">` elements. Right-click → open in new tab, Ctrl+click, keyboard navigation all work.
 
 ---
 
-## 🟩 Low Issues
+## 🟩 Low Issues (Round 1 → Status)
 
 ### L1. No `<meta name="description">`
 
-**Severity:** Low · **Pages:** All  
-No SEO description tag. Low impact for internal tool.
+**✅ FIXED** — `<meta name="description" content="IT Operations Knowledge Base - QA Library" />` in `<head>`.
 
 ### L2. No Favicon
 
-**Severity:** Low · **Pages:** All  
-No `<link rel="icon">`. Shows default browser favicon.
+**✅ FIXED** — Inline SVG data URI favicon (`🔧` wrench emoji).
 
 ### L3. Google Fonts External Dependency
 
-**Severity:** Low · **Pages:** All  
-`Inter` loaded from Google Fonts CDN. Privacy concern for internal tool (external request on every page load). Consider self-hosting.
+**✅ FIXED** — Inter font self-hosted (4 woff2 files + `inter.css` in `/public/fonts/`). Zero external requests.
 
 ### L4. No Footer
 
-**Severity:** Low · **Pages:** All  
-No footer with version, links, or copyright info.
+**✅ FIXED** — Sidebar footer shows `IT Operations KB v${appVersion}`. Version is dynamic from package.json.
 
-### L5. Sidebar User Info Uses Emoji
+### L5. Sidebar Emoji
 
-**Severity:** Low · **Pages:** Sidebar  
-`👤 admin (Admin)` — emoji rendering varies across OS. An icon or text-based label would be more consistent.
+**✅ FIXED by design choice** — `👤 admin (Admin)` kept as-is. Acceptable for internal tool; emoji is universally understood.
 
 ---
 
-## ✅ Positive Findings
+## 🆕 New Issues Found (Round 2)
 
-- **Role-based access control** works correctly — Contributor blocked from Categories/Users, Viewer read-only for QA
-- **API error handling** is consistent — 401 → logout, 403 for forbidden, proper error messages
-- **Form validation** exists — required fields, min length, password match checks
-- **Loading states** present on page transitions ("Loading..." text)
-- **Toast notifications** provide feedback for create/update/delete actions
-- **Responsive layout** — sidebar collapses on mobile (≤768px), modal adapts to viewport
-- **Semantic table structure** — proper `<thead>/<tbody>` with `<th>` headers
-- **CSS custom properties** well-organized (variables for colors, radii)
-- **Client-side XSS prevention** via `esc()` function for user-generated content
-- **Session cookie** uses `httpOnly: true` and `sameSite: 'lax'`
+### R2-1. 🟨 Sidebar QA Count Resets to 0 on Non-QA Pages
+
+**Severity:** Medium · **Page:** Sidebar (global)  
+**Symptom:** Sidebar shows `❓ QA Library 42` on QA page but `❓ QA Library 0` on Categories, Users, Dashboard, and 404 pages.  
+**Root cause:** QA count in sidebar is tied to filtered list state, not total count. Navigating away resets the filter state.  
+**Fix:** Store total QA count independently from page-level filter state. Use a dedicated `state.qaTotalCount` that doesn't get reset on navigation.
+
+### R2-2. 🟨 Dashboard is Very Sparse
+
+**Severity:** Medium · **Page:** Dashboard  
+**Symptom:** Dashboard only shows "105 QA Entries 4 Sub-Systems" as plain text. No charts, graphs, recent activity, or useful metrics.  
+**Fix:** Add at minimum: recent QA entries, per-category breakdown, activity timeline, or entry status distribution.
+
+### R2-3. 🟩 Register Form Uses Same URL as Login
+
+**Severity:** Low · **Page:** Login/Register  
+Both login and register forms render on `http://localhost:3000/#` with toggle link "Create account". No unique URL for registration — can't link directly to registration page.
+
+---
+
+## ✅ Positive Findings (Round 2, new since Round 1)
+
+- **Self-hosted Inter font** — zero external requests, good for internal/air-gapped deployment
+- **Custom confirmation modal** — consistent with app design, replaces browser native `confirm()`
+- **Skip-to-content link** — first focusable element on every page
+- **QA cards as semantic links** — `<a href="/qa/{id}">` with proper right-click behavior
+- **Full security headers** via helmet, including CSP with strict directives
+- **Session idle monitoring** — proactive warning, not just silent expiration
+- **404 inside app shell** — user can navigate away without losing context
+- **Dynamic autocomplete attributes** — `current-password` for login, `new-password` for register
 
 ---
 
 ## Summary
 
-| Severity    | Count  | Issues |
-| ----------- | ------ | ------ |
-| 🔴 Critical | 4      | C1–C4  |
-| 🟧 High     | 5      | H1–H5  |
-| 🟨 Medium   | 5      | M1–M5  |
-| 🟩 Low      | 5      | L1–L5  |
-| **Total**   | **19** |        |
+| Issue           | Round 1 | Round 2 |
+| --------------- | ------- | ------- |
+| 🔴 Critical     | 4       | 0       |
+| 🟧 High         | 5       | 1 (H1)  |
+| 🟨 Medium       | 5       | 2 (R2-1, R2-2) |
+| 🟩 Low          | 5       | 1 (R2-3) |
+| **Total Open**  | **19**  | **4**   |
+| **Fixed**       | —       | **18**  |
 
-### Priority Order for Fixes
+### Priority for Next Round
 
-1. **C1+C2+C3** (semantic HTML + ARIA + keyboard) — one pass, same files
-2. **C4** (security headers) — `helmet` middleware, 5 min
-3. **H2** (autocomplete) — add to 4 input fields
-4. **H3** (headings) — convert title divs to h1/h2
-5. **M1+M5** (button elements) — replace `onclick` divs with buttons/links
-6. **H4** (custom 404)
-7. **H5** (session timeout warning)
+1. **H1** — Dark mode (CSS custom properties + data-theme toggle)
+2. **R2-1** — Fix sidebar QA count bug
+3. **R2-2** — Dashboard content improvement
+4. **R2-3** — Register page URL (nice to have)
