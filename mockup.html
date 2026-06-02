@@ -1,245 +1,755 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Operations Management - Mockup</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Inter', -apple-system, sans-serif; height: 100vh; display: flex; background: #f5f5f5; color: #1a1a2e; }
-.sidebar { width: 240px; background: #1a1a2e; color: #fff; display: flex; flex-direction: column; flex-shrink: 0; }
-.sidebar-header { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.sidebar-logo { font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
-.sidebar-title { font-size: 18px; font-weight: 700; color: #fff; }
-.sidebar-nav { padding: 12px 8px; flex: 1; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.6); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
-.nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
-.nav-item.active { background: #4f46e5; color: #fff; }
-.nav-icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-.nav-badge { margin-left: auto; background: rgba(255,255,255,0.12); padding: 1px 8px; border-radius: 10px; font-size: 11px; color: rgba(255,255,255,0.7); }
-.nav-section { padding: 16px 12px 6px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); }
-.sidebar-footer { padding: 12px 8px; border-top: 1px solid rgba(255,255,255,0.08); }
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: #fff; border-bottom: 1px solid #e8e8ec; }
-.topbar-left { display: flex; align-items: center; gap: 24px; }
-.topbar-title { font-size: 20px; font-weight: 700; }
-.topbar-breadcrumb { font-size: 13px; color: #888; }
-.search-box { display: flex; align-items: center; background: #f5f5f5; border-radius: 8px; padding: 0 12px; width: 240px; border: 1px solid #e8e8ec; }
-.search-box input { border: none; background: none; padding: 8px 8px; font-size: 13px; outline: none; width: 100%; font-family: 'Inter', sans-serif; }
-.search-icon { color: #999; font-size: 14px; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
-.btn-primary { background: #4f46e5; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-.btn-ghost { background: none; border: 1px solid #e0e0e4; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; color: #555; display: flex; align-items: center; gap: 6px; }
-.content { flex: 1; padding: 24px 32px; overflow-y: auto; }
-.table-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.filter-group { display: flex; align-items: center; gap: 8px; }
-.filter-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #e0e0e4; background: #fff; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; color: #555; font-weight: 500; }
-.filter-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
-.table-container { background: #fff; border-radius: 12px; border: 1px solid #e8e8ec; overflow: hidden; }
-table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 1px solid #e8e8ec; background: #fafafa; }
-th:first-child { width: 36px; } th:nth-child(2) { width: 40px; }
-td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f0f0f2; vertical-align: middle; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: #f8f8ff; }
-.checkbox { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #ccc; display: inline-block; cursor: pointer; vertical-align: middle; }
-input[type="checkbox"] { display: none; }
-input[type="checkbox"]:checked + .checkbox { background: #4f46e5; border-color: #4f46e5; position: relative; }
-input[type="checkbox"]:checked + .checkbox::after { content: "✓"; position: absolute; top: -1px; left: 2px; font-size: 11px; color: #fff; }
-.issue-id { color: #888; font-size: 12px; font-weight: 500; font-family: monospace; }
-.issue-cell { display: flex; align-items: center; gap: 10px; }
-.issue-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-.issue-icon.bug { background: #fef2f2; color: #dc2626; }
-.issue-icon.qa { background: #fefce8; color: #eab308; }
-.issue-icon.feature { background: #ecfdf5; color: #16a34a; }
-.issue-text { display: flex; flex-direction: column; }
-.issue-title { font-weight: 500; font-size: 13px; }
-.issue-desc { font-size: 12px; color: #888; margin-top: 1px; }
-.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
-.badge-open { background: #fef2f2; color: #dc2626; }
-.badge-in-progress { background: #eff6ff; color: #2563eb; }
-.badge-resolved { background: #ecfdf5; color: #16a34a; }
-.badge-closed { background: #f5f5f5; color: #888; }
-.badge-critical { background: #fef2f2; color: #dc2626; }
-.badge-high { background: #fff7ed; color: #ea580c; }
-.badge-medium { background: #fefce8; color: #ca8a04; }
-.badge-low { background: #f0fdf4; color: #16a34a; }
-.assignee { display: flex; align-items: center; gap: 6px; }
-.avatar { width: 22px; height: 22px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #4f46e5; }
-.category-tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; background: #f0f0f5; color: #666; }
-.category-tag.sys { background: #eef2ff; color: #4f46e5; }
-.category-tag.ui { background: #fefce8; color: #ca8a04; }
-.category-tag.api { background: #ecfdf5; color: #16a34a; }
-.category-tag.db { background: #fef2f2; color: #dc2626; }
-.action-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #999; }
-.action-btn:hover { background: #f0f0f5; color: #333; }
-.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid #e8e8ec; }
-.pagination-info { font-size: 12px; color: #888; }
-.pagination-pages { display: flex; gap: 4px; }
-.page-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e0e0e4; background: #fff; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; color: #555; display: flex; align-items: center; justify-content: center; }
-.page-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
-.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-</style>
-</head>
-<body>
-<div class="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo">IT Operations</div>
-    <div class="sidebar-title">Knowledge Base</div>
-  </div>
-  <div class="sidebar-nav">
-    <div class="nav-section">Main</div>
-    <div class="nav-item active">
-      <span class="nav-icon" style="background:rgba(255,255,255,0.1)">⚠</span> Known Issues
-      <span class="nav-badge">12</span>
-    </div>
-    <div class="nav-item">
-      <span class="nav-icon" style="background:rgba(255,255,255,0.1)">❓</span> QA Library
-      <span class="nav-badge">8</span>
-    </div>
-    <div class="nav-item">
-      <span class="nav-icon" style="background:rgba(255,255,255,0.1)">📋</span> Categories
-    </div>
-    <div class="nav-section">Workspace</div>
-    <div class="nav-item"><span class="nav-icon" style="background:rgba(255,255,255,0.1)">📊</span> Dashboard</div>
-    <div class="nav-item"><span class="nav-icon" style="background:rgba(255,255,255,0.1)">🏷</span> Tags</div>
-    <div class="nav-item"><span class="nav-icon" style="background:rgba(255,255,255,0.1)">⚙</span> Settings</div>
-  </div>
-  <div class="sidebar-footer">
-    <div class="nav-item" style="color:rgba(255,255,255,0.4);font-size:12px">
-      <span class="nav-icon" style="background:rgba(255,255,255,0.05);width:24px;height:24px;border-radius:50%;font-size:10px">👤</span> Admin User
-    </div>
-  </div>
-</div>
-<div class="main">
-  <div class="topbar">
-    <div class="topbar-left">
-      <div>
-        <div class="topbar-title">Known Issues</div>
-        <div class="topbar-breadcrumb">IT Operations / Issues</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IT Operations Management - Mockup</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          sans-serif;
+        height: 100vh;
+        display: flex;
+        background: #f5f5f5;
+        color: #1a1a2e;
+      }
+      .sidebar {
+        width: 240px;
+        background: #1a1a2e;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+      }
+      .sidebar-header {
+        padding: 20px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-logo {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 4px;
+      }
+      .sidebar-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .sidebar-nav {
+        padding: 12px 8px;
+        flex: 1;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        transition: all 0.15s;
+        margin-bottom: 2px;
+      }
+      .nav-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+      }
+      .nav-item.active {
+        background: #4f46e5;
+        color: #fff;
+      }
+      .nav-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+      .nav-badge {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.12);
+        padding: 1px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .nav-section {
+        padding: 16px 12px 6px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .sidebar-footer {
+        padding: 12px 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 32px;
+        background: #fff;
+        border-bottom: 1px solid #e8e8ec;
+      }
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .topbar-title {
+        font-size: 20px;
+        font-weight: 700;
+      }
+      .topbar-breadcrumb {
+        font-size: 13px;
+        color: #888;
+      }
+      .search-box {
+        display: flex;
+        align-items: center;
+        background: #f5f5f5;
+        border-radius: 8px;
+        padding: 0 12px;
+        width: 240px;
+        border: 1px solid #e8e8ec;
+      }
+      .search-box input {
+        border: none;
+        background: none;
+        padding: 8px 8px;
+        font-size: 13px;
+        outline: none;
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+      }
+      .search-icon {
+        color: #999;
+        font-size: 14px;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .btn-primary {
+        background: #4f46e5;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-ghost {
+        background: none;
+        border: 1px solid #e0e0e4;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        color: #555;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .content {
+        flex: 1;
+        padding: 24px 32px;
+        overflow-y: auto;
+      }
+      .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .filter-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e4;
+        background: #fff;
+        font-size: 12px;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        color: #555;
+        font-weight: 500;
+      }
+      .filter-btn.active {
+        background: #4f46e5;
+        color: #fff;
+        border-color: #4f46e5;
+      }
+      .table-container {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e8e8ec;
+        overflow: hidden;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #888;
+        border-bottom: 1px solid #e8e8ec;
+        background: #fafafa;
+      }
+      th:first-child {
+        width: 36px;
+      }
+      th:nth-child(2) {
+        width: 40px;
+      }
+      td {
+        padding: 12px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid #f0f0f2;
+        vertical-align: middle;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: #f8f8ff;
+      }
+      .checkbox {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1.5px solid #ccc;
+        display: inline-block;
+        cursor: pointer;
+        vertical-align: middle;
+      }
+      input[type='checkbox'] {
+        display: none;
+      }
+      input[type='checkbox']:checked + .checkbox {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        position: relative;
+      }
+      input[type='checkbox']:checked + .checkbox::after {
+        content: '✓';
+        position: absolute;
+        top: -1px;
+        left: 2px;
+        font-size: 11px;
+        color: #fff;
+      }
+      .issue-id {
+        color: #888;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: monospace;
+      }
+      .issue-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .issue-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .issue-icon.bug {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      .issue-icon.qa {
+        background: #fefce8;
+        color: #eab308;
+      }
+      .issue-icon.feature {
+        background: #ecfdf5;
+        color: #16a34a;
+      }
+      .issue-text {
+        display: flex;
+        flex-direction: column;
+      }
+      .issue-title {
+        font-weight: 500;
+        font-size: 13px;
+      }
+      .issue-desc {
+        font-size: 12px;
+        color: #888;
+        margin-top: 1px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge-open {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      .badge-in-progress {
+        background: #eff6ff;
+        color: #2563eb;
+      }
+      .badge-resolved {
+        background: #ecfdf5;
+        color: #16a34a;
+      }
+      .badge-closed {
+        background: #f5f5f5;
+        color: #888;
+      }
+      .badge-critical {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      .badge-high {
+        background: #fff7ed;
+        color: #ea580c;
+      }
+      .badge-medium {
+        background: #fefce8;
+        color: #ca8a04;
+      }
+      .badge-low {
+        background: #f0fdf4;
+        color: #16a34a;
+      }
+      .assignee {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .avatar {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #e0e7ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        color: #4f46e5;
+      }
+      .category-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        background: #f0f0f5;
+        color: #666;
+      }
+      .category-tag.sys {
+        background: #eef2ff;
+        color: #4f46e5;
+      }
+      .category-tag.ui {
+        background: #fefce8;
+        color: #ca8a04;
+      }
+      .category-tag.api {
+        background: #ecfdf5;
+        color: #16a34a;
+      }
+      .category-tag.db {
+        background: #fef2f2;
+        color: #dc2626;
+      }
+      .action-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: #999;
+      }
+      .action-btn:hover {
+        background: #f0f0f5;
+        color: #333;
+      }
+      .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-top: 1px solid #e8e8ec;
+      }
+      .pagination-info {
+        font-size: 12px;
+        color: #888;
+      }
+      .pagination-pages {
+        display: flex;
+        gap: 4px;
+      }
+      .page-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e4;
+        background: #fff;
+        font-size: 12px;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        color: #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .page-btn.active {
+        background: #4f46e5;
+        color: #fff;
+        border-color: #4f46e5;
+      }
+      .page-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">IT Operations</div>
+        <div class="sidebar-title">Knowledge Base</div>
       </div>
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search issues...">
+      <div class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <div class="nav-item active">
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">⚠</span> Known Issues
+          <span class="nav-badge">12</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">❓</span> QA Library
+          <span class="nav-badge">8</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">📋</span> Categories
+        </div>
+        <div class="nav-section">Workspace</div>
+        <div class="nav-item">
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">📊</span> Dashboard
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">🏷</span> Tags
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">⚙</span> Settings
+        </div>
       </div>
-    </div>
-    <div class="topbar-right">
-      <button class="btn-ghost">📥 Export</button>
-      <button class="btn-primary">＋ New Issue</button>
-    </div>
-  </div>
-  <div class="content">
-    <div class="table-toolbar">
-      <div class="filter-group">
-        <button class="filter-btn active">All</button>
-        <button class="filter-btn">Open</button>
-        <button class="filter-btn">In Progress</button>
-        <button class="filter-btn">Resolved</button>
-        <button class="filter-btn">Closed</button>
-      </div>
-      <div class="bulk-actions">
-        <button class="filter-btn">Category ▾</button>
-        <button class="filter-btn">Priority ▾</button>
-        <button class="filter-btn">Assignee ▾</button>
-        <button class="filter-btn" style="background:#f0f0f5">Sort: Newest ▾</button>
-      </div>
-    </div>
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="sa"><label for="sa"><span class="checkbox"></span></label></th>
-            <th>#</th>
-            <th>Issue</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Assignee</th>
-            <th>Updated</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><input type="checkbox" id="c1"><label for="c1"><span class="checkbox"></span></label></td>
-            <td><span class="issue-id">INC-042</span></td>
-            <td><div class="issue-cell"><div class="issue-icon bug">⚠</div><div class="issue-text"><span class="issue-title">登入頁面 Safari 顯示異常</span><span class="issue-desc">CSS flexbox 在 Safari 15 不支援...</span></div></div></td>
-            <td><span class="category-tag ui">UI</span></td>
-            <td><span class="badge badge-open">● Open</span></td>
-            <td><span class="badge badge-critical">Critical</span></td>
-            <td><div class="assignee"><div class="avatar">AM</div> Alex M.</div></td>
-            <td style="color:#888;font-size:12px">2h ago</td>
-            <td><button class="action-btn">⋯</button></td>
-          </tr>
-          <tr>
-            <td><input type="checkbox" id="c2"><label for="c2"><span class="checkbox"></span></label></td>
-            <td><span class="issue-id">INC-041</span></td>
-            <td><div class="issue-cell"><div class="issue-icon qa">❓</div><div class="issue-text"><span class="issue-title">訂單匯出 CSV 亂碼問題</span><span class="issue-desc">中文檔名在 Excel 開啟時出現亂碼...</span></div></div></td>
-            <td><span class="category-tag sys">System</span></td>
-            <td><span class="badge badge-in-progress">● In Progress</span></td>
-            <td><span class="badge badge-high">High</span></td>
-            <td><div class="assignee"><div class="avatar">SJ</div> Sarah J.</div></td>
-            <td style="color:#888;font-size:12px">5h ago</td>
-            <td><button class="action-btn">⋯</button></td>
-          </tr>
-          <tr>
-            <td><input type="checkbox" id="c3"><label for="c3"><span class="checkbox"></span></label></td>
-            <td><span class="issue-id">INC-040</span></td>
-            <td><div class="issue-cell"><div class="issue-icon qa">❓</div><div class="issue-text"><span class="issue-title">API 504 錯誤的回覆腳本</span><span class="issue-desc">同事回應客戶 timeout 問題時可參考...</span></div></div></td>
-            <td><span class="category-tag api">API</span></td>
-            <td><span class="badge badge-resolved">● Resolved</span></td>
-            <td><span class="badge badge-medium">Medium</span></td>
-            <td><div class="assignee"><div class="avatar">TC</div> Tim C.</div></td>
-            <td style="color:#888;font-size:12px">1d ago</td>
-            <td><button class="action-btn">⋯</button></td>
-          </tr>
-          <tr>
-            <td><input type="checkbox" id="c4"><label for="c4"><span class="checkbox"></span></label></td>
-            <td><span class="issue-id">INC-039</span></td>
-            <td><div class="issue-cell"><div class="issue-icon bug">⚠</div><div class="issue-text"><span class="issue-title">報表下載按鈕點擊無反應</span><span class="issue-desc">Chrome 116+ 新版下載 API 變更...</span></div></div></td>
-            <td><span class="category-tag ui">UI</span></td>
-            <td><span class="badge badge-open">● Open</span></td>
-            <td><span class="badge badge-high">High</span></td>
-            <td><div class="assignee"><div class="avatar">JL</div> Jenny L.</div></td>
-            <td style="color:#888;font-size:12px">2d ago</td>
-            <td><button class="action-btn">⋯</button></td>
-          </tr>
-          <tr>
-            <td><input type="checkbox" id="c5"><label for="c5"><span class="checkbox"></span></label></td>
-            <td><span class="issue-id">INC-038</span></td>
-            <td><div class="issue-cell"><div class="issue-icon qa">❓</div><div class="issue-text"><span class="issue-title">忘記密碼流程 - 客服回覆範本</span><span class="issue-desc">step by step 引導客戶重置密碼...</span></div></div></td>
-            <td><span class="category-tag sys">System</span></td>
-            <td><span class="badge badge-resolved">● Resolved</span></td>
-            <td><span class="badge badge-low">Low</span></td>
-            <td><div class="assignee"><div class="avatar">AM</div> Alex M.</div></td>
-            <td style="color:#888;font-size:12px">3d ago</td>
-            <td><button class="action-btn">⋯</button></td>
-          </tr>
-          <tr>
-            <td><input type="checkbox" id="c6"><label for="c6"><span class="checkbox"></span></label></td>
-            <td><span class="issue-id">INC-037</span></td>
-            <td><div class="issue-cell"><div class="issue-icon bug">⚠</div><div class="issue-text"><span class="issue-title">搜尋結果頁面分頁不準確</span><span class="issue-desc">第2頁之後顯示的結果與搜尋條件不符...</span></div></div></td>
-            <td><span class="category-tag api">API</span></td>
-            <td><span class="badge badge-in-progress">● In Progress</span></td>
-            <td><span class="badge badge-critical">Critical</span></td>
-            <td><div class="assignee"><div class="avatar">SJ</div> Sarah J.</div></td>
-            <td style="color:#888;font-size:12px">4d ago</td>
-            <td><button class="action-btn">⋯</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="pagination">
-        <div class="pagination-info">Showing 1 to 6 of 12 issues</div>
-        <div class="pagination-pages">
-          <button class="page-btn" disabled>‹</button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">›</button>
+      <div class="sidebar-footer">
+        <div class="nav-item" style="color: rgba(255, 255, 255, 0.4); font-size: 12px">
+          <span
+            class="nav-icon"
+            style="
+              background: rgba(255, 255, 255, 0.05);
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              font-size: 10px;
+            "
+            >👤</span
+          >
+          Admin User
         </div>
       </div>
     </div>
-  </div>
-</div>
-</body>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div>
+            <div class="topbar-title">Known Issues</div>
+            <div class="topbar-breadcrumb">IT Operations / Issues</div>
+          </div>
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search issues..." />
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn-ghost">📥 Export</button>
+          <button class="btn-primary">＋ New Issue</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="table-toolbar">
+          <div class="filter-group">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Open</button>
+            <button class="filter-btn">In Progress</button>
+            <button class="filter-btn">Resolved</button>
+            <button class="filter-btn">Closed</button>
+          </div>
+          <div class="bulk-actions">
+            <button class="filter-btn">Category ▾</button>
+            <button class="filter-btn">Priority ▾</button>
+            <button class="filter-btn">Assignee ▾</button>
+            <button class="filter-btn" style="background: #f0f0f5">Sort: Newest ▾</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <input type="checkbox" id="sa" /><label for="sa"
+                    ><span class="checkbox"></span
+                  ></label>
+                </th>
+                <th>#</th>
+                <th>Issue</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Assignee</th>
+                <th>Updated</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <input type="checkbox" id="c1" /><label for="c1"
+                    ><span class="checkbox"></span
+                  ></label>
+                </td>
+                <td><span class="issue-id">INC-042</span></td>
+                <td>
+                  <div class="issue-cell">
+                    <div class="issue-icon bug">⚠</div>
+                    <div class="issue-text">
+                      <span class="issue-title">登入頁面 Safari 顯示異常</span
+                      ><span class="issue-desc">CSS flexbox 在 Safari 15 不支援...</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="category-tag ui">UI</span></td>
+                <td><span class="badge badge-open">● Open</span></td>
+                <td><span class="badge badge-critical">Critical</span></td>
+                <td>
+                  <div class="assignee">
+                    <div class="avatar">AM</div>
+                    Alex M.
+                  </div>
+                </td>
+                <td style="color: #888; font-size: 12px">2h ago</td>
+                <td><button class="action-btn">⋯</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="c2" /><label for="c2"
+                    ><span class="checkbox"></span
+                  ></label>
+                </td>
+                <td><span class="issue-id">INC-041</span></td>
+                <td>
+                  <div class="issue-cell">
+                    <div class="issue-icon qa">❓</div>
+                    <div class="issue-text">
+                      <span class="issue-title">訂單匯出 CSV 亂碼問題</span
+                      ><span class="issue-desc">中文檔名在 Excel 開啟時出現亂碼...</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="category-tag sys">System</span></td>
+                <td><span class="badge badge-in-progress">● In Progress</span></td>
+                <td><span class="badge badge-high">High</span></td>
+                <td>
+                  <div class="assignee">
+                    <div class="avatar">SJ</div>
+                    Sarah J.
+                  </div>
+                </td>
+                <td style="color: #888; font-size: 12px">5h ago</td>
+                <td><button class="action-btn">⋯</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="c3" /><label for="c3"
+                    ><span class="checkbox"></span
+                  ></label>
+                </td>
+                <td><span class="issue-id">INC-040</span></td>
+                <td>
+                  <div class="issue-cell">
+                    <div class="issue-icon qa">❓</div>
+                    <div class="issue-text">
+                      <span class="issue-title">API 504 錯誤的回覆腳本</span
+                      ><span class="issue-desc">同事回應客戶 timeout 問題時可參考...</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="category-tag api">API</span></td>
+                <td><span class="badge badge-resolved">● Resolved</span></td>
+                <td><span class="badge badge-medium">Medium</span></td>
+                <td>
+                  <div class="assignee">
+                    <div class="avatar">TC</div>
+                    Tim C.
+                  </div>
+                </td>
+                <td style="color: #888; font-size: 12px">1d ago</td>
+                <td><button class="action-btn">⋯</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="c4" /><label for="c4"
+                    ><span class="checkbox"></span
+                  ></label>
+                </td>
+                <td><span class="issue-id">INC-039</span></td>
+                <td>
+                  <div class="issue-cell">
+                    <div class="issue-icon bug">⚠</div>
+                    <div class="issue-text">
+                      <span class="issue-title">報表下載按鈕點擊無反應</span
+                      ><span class="issue-desc">Chrome 116+ 新版下載 API 變更...</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="category-tag ui">UI</span></td>
+                <td><span class="badge badge-open">● Open</span></td>
+                <td><span class="badge badge-high">High</span></td>
+                <td>
+                  <div class="assignee">
+                    <div class="avatar">JL</div>
+                    Jenny L.
+                  </div>
+                </td>
+                <td style="color: #888; font-size: 12px">2d ago</td>
+                <td><button class="action-btn">⋯</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="c5" /><label for="c5"
+                    ><span class="checkbox"></span
+                  ></label>
+                </td>
+                <td><span class="issue-id">INC-038</span></td>
+                <td>
+                  <div class="issue-cell">
+                    <div class="issue-icon qa">❓</div>
+                    <div class="issue-text">
+                      <span class="issue-title">忘記密碼流程 - 客服回覆範本</span
+                      ><span class="issue-desc">step by step 引導客戶重置密碼...</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="category-tag sys">System</span></td>
+                <td><span class="badge badge-resolved">● Resolved</span></td>
+                <td><span class="badge badge-low">Low</span></td>
+                <td>
+                  <div class="assignee">
+                    <div class="avatar">AM</div>
+                    Alex M.
+                  </div>
+                </td>
+                <td style="color: #888; font-size: 12px">3d ago</td>
+                <td><button class="action-btn">⋯</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="checkbox" id="c6" /><label for="c6"
+                    ><span class="checkbox"></span
+                  ></label>
+                </td>
+                <td><span class="issue-id">INC-037</span></td>
+                <td>
+                  <div class="issue-cell">
+                    <div class="issue-icon bug">⚠</div>
+                    <div class="issue-text">
+                      <span class="issue-title">搜尋結果頁面分頁不準確</span
+                      ><span class="issue-desc">第2頁之後顯示的結果與搜尋條件不符...</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="category-tag api">API</span></td>
+                <td><span class="badge badge-in-progress">● In Progress</span></td>
+                <td><span class="badge badge-critical">Critical</span></td>
+                <td>
+                  <div class="assignee">
+                    <div class="avatar">SJ</div>
+                    Sarah J.
+                  </div>
+                </td>
+                <td style="color: #888; font-size: 12px">4d ago</td>
+                <td><button class="action-btn">⋯</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <div class="pagination-info">Showing 1 to 6 of 12 issues</div>
+            <div class="pagination-pages">
+              <button class="page-btn" disabled>‹</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

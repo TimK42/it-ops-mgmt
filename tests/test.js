@@ -6,12 +6,17 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-let passed = 0, failed = 0;
+let passed = 0,
+  failed = 0;
 const failures = [];
 
 function assert(cond, msg) {
   if (cond) passed++;
-  else { failed++; failures.push(msg); process.stdout.write('  FAIL ' + msg + '\n'); }
+  else {
+    failed++;
+    failures.push(msg);
+    process.stdout.write('  FAIL ' + msg + '\n');
+  }
 }
 
 function req(method, urlPath, opts = {}) {
@@ -20,24 +25,36 @@ function req(method, urlPath, opts = {}) {
     if (opts.body) headers['Content-Type'] = 'application/json';
     if (opts.cookie) headers['Cookie'] = opts.cookie;
 
-    const r = http.request({
-      hostname: '127.0.0.1', port: 3199,
-      path: urlPath, method, headers
-    }, (res) => {
-      const chunks = [];
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => {
-        const body = Buffer.concat(chunks).toString();
-        let json = null;
-        try { json = JSON.parse(body); } catch {}
-        const setCookie = res.headers['set-cookie'] || [];
-        resolve({
-          status: res.statusCode, body, json,
-          setCookie: Array.isArray(setCookie) ? setCookie : [setCookie],
-          headers: res.headers
+    const r = http.request(
+      {
+        hostname: '127.0.0.1',
+        port: 3199,
+        path: urlPath,
+        method,
+        headers,
+      },
+      (res) => {
+        const chunks = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () => {
+          const body = Buffer.concat(chunks).toString();
+          let json = null;
+          try {
+            json = JSON.parse(body);
+          } catch {
+            /* empty - invalid JSON expected */
+          }
+          const setCookie = res.headers['set-cookie'] || [];
+          resolve({
+            status: res.statusCode,
+            body,
+            json,
+            setCookie: Array.isArray(setCookie) ? setCookie : [setCookie],
+            headers: res.headers,
+          });
         });
-      });
-    });
+      },
+    );
     r.on('error', () => resolve({ status: -1, body: '', json: null, setCookie: [], headers: {} }));
     if (opts.body) r.write(JSON.stringify(opts.body));
     r.end();
@@ -52,11 +69,18 @@ async function login(username = 'admin', password = '0000') {
 async function run() {
   // ── Start server ──
   const { spawn } = require('child_process');
-  const server = spawn('node', ['-e', "require('./server').listen(3199,'127.0.0.1',()=>console.log('ready'))"], {
-    cwd: path.join(__dirname, '..'), stdio: ['ignore', 'pipe', 'pipe']
-  });
+  const server = spawn(
+    'node',
+    ['-e', "require('./server').listen(3199,'127.0.0.1',()=>console.log('ready'))"],
+    {
+      cwd: path.join(__dirname, '..'),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  );
   await new Promise((ok) => {
-    server.stdout.on('data', d => { if (d.toString().includes('ready')) ok(); });
+    server.stdout.on('data', (d) => {
+      if (d.toString().includes('ready')) ok();
+    });
   });
 
   try {
@@ -64,7 +88,10 @@ async function run() {
     console.log('\n>>> Static Files');
     let r = await req('GET', '/');
     assert(r.status === 200, 'GET / => 200');
-    assert((r.headers['content-type'] || '').includes('text/html'), 'GET / => Content-Type includes html');
+    assert(
+      (r.headers['content-type'] || '').includes('text/html'),
+      'GET / => Content-Type includes html',
+    );
 
     r = await req('GET', '/css/style.css');
     assert(r.status === 200, 'GET /css/style.css => 200');
@@ -96,28 +123,28 @@ async function run() {
     // ═══ REGISTRATION ═══
     console.log('\n>>> Registration');
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'node_test_v', password: 'test1234', role: 'Viewer' }
+      body: { username: 'node_test_v', password: 'test1234', role: 'Viewer' },
     });
     assert(r.status === 201, 'Register Viewer => 201');
 
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'node_test_v', password: 'test1234', role: 'Viewer' }
+      body: { username: 'node_test_v', password: 'test1234', role: 'Viewer' },
     });
     assert(r.status === 409, 'Register duplicate => 409');
 
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'x', password: '1234', role: 'Viewer' }
+      body: { username: 'x', password: '1234', role: 'Viewer' },
     });
     assert(r.status === 400, 'Register short username => 400');
 
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'validuser', password: 'ab', role: 'Viewer' }
+      body: { username: 'validuser', password: 'ab', role: 'Viewer' },
     });
     assert(r.status === 400, 'Register short password => 400');
 
     // Pending account login blocked
     r = await req('POST', '/api/auth/login', {
-      body: { username: 'node_test_v', password: 'test1234' }
+      body: { username: 'node_test_v', password: 'test1234' },
     });
     assert(r.status === 403, 'Pending account login => 403');
 
@@ -176,11 +203,19 @@ async function run() {
       const db = require('./db').getDb();
       const cat = db.prepare('SELECT id FROM categories LIMIT 1').get();
       if (cat) catId = cat.id;
-    } catch {}
+    } catch {
+      /* empty - db may not exist yet */
+    }
 
-    r = await req('POST', '/api/qa', { cookie, body: {
-      title: 'Test Entry', question: 'Q?', answer: 'A', category_id: catId
-    }});
+    r = await req('POST', '/api/qa', {
+      cookie,
+      body: {
+        title: 'Test Entry',
+        question: 'Q?',
+        answer: 'A',
+        category_id: catId,
+      },
+    });
     assert(r.status === 201, 'QA POST => 201');
     const newId = r.json?.id;
 
@@ -221,11 +256,17 @@ async function run() {
     assert(js.includes('esc(t.trim())'), 'JS: esc() XSS prevention');
     assert(js.includes('<h1>'), 'JS: h1 heading');
     assert(js.includes('autofocus'), 'JS: autofocus');
-    assert(!js.includes('<div class="nav-item" onclick'), 'JS: nav uses <button> not <div onclick>');
+    assert(
+      !js.includes('<div class="nav-item" onclick'),
+      'JS: nav uses <button> not <div onclick>',
+    );
     assert(js.includes('<button class="nav-item"'), 'JS: nav <button> elements');
     assert(js.includes('skip-link'), 'JS: skip-link present');
     assert(js.includes('tabindex="-1"'), 'JS: tabindex=-1 for main');
-    assert(!js.includes('onkeydown=') && !js.includes('onkeyup='), 'JS: no inline keyboard handlers');
+    assert(
+      !js.includes('onkeydown=') && !js.includes('onkeyup='),
+      'JS: no inline keyboard handlers',
+    );
 
     // CSS checks
     r = await req('GET', '/css/style.css');
@@ -233,7 +274,6 @@ async function run() {
     assert(css.includes('.skip-link'), 'CSS: .skip-link');
     assert(css.includes(':focus-visible'), 'CSS: :focus-visible');
     assert(css.includes('background:transparent'), 'CSS: background:transparent');
-
   } finally {
     server.kill();
   }
@@ -248,4 +288,7 @@ async function run() {
   process.exit(failures.length > 0 ? 1 : 0);
 }
 
-run().catch(e => { console.error(e); process.exit(1); });
+run().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

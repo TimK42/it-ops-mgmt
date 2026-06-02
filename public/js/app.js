@@ -97,6 +97,62 @@ async function loadCategories() {
   } catch (e) {}
 }
 
+// ===== SESSION TIMEOUT WARNING =====
+const SESSION_IDLE_TIMEOUT = 16 * 60 * 60 * 1000; // 16h
+const SESSION_WARNING_AT = 15.5 * 60 * 60 * 1000; // 15.5h (30 min before)
+let lastActivity = Date.now();
+let sessionTimer = null;
+
+function startSessionTimer() {
+  lastActivity = Date.now();
+  const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+  const resetActivity = () => {
+    lastActivity = Date.now();
+  };
+  activityEvents.forEach((ev) => document.addEventListener(ev, resetActivity, { passive: true }));
+  if (sessionTimer) clearInterval(sessionTimer);
+  sessionTimer = setInterval(() => {
+    const idle = Date.now() - lastActivity;
+    if (idle >= SESSION_IDLE_TIMEOUT) {
+      clearInterval(sessionTimer);
+      sessionTimer = null;
+      closeModal('session-modal');
+      logout();
+      toast('Session expired due to inactivity');
+    } else if (idle >= SESSION_WARNING_AT) {
+      openModal('session-modal');
+    }
+  }, 30000);
+  document.getElementById('session-keepalive').onclick = async () => {
+    try {
+      await api('/api/auth/me');
+      lastActivity = Date.now();
+      closeModal('session-modal');
+    } catch (e) {}
+  };
+}
+
+// ===== CONFIRM MODAL =====
+let confirmCallback = null;
+function showConfirm(title, message, onConfirm) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-body').textContent = message;
+  confirmCallback = onConfirm;
+  openModal('confirm-modal');
+}
+function closeConfirm() {
+  confirmCallback = null;
+  closeModal('confirm-modal');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const okBtn = document.getElementById('confirm-ok');
+  if (okBtn)
+    okBtn.onclick = () => {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    };
+});
+
 // ===== AUTH =====
 function renderLogin(mode) {
   const isRegister = mode === 'register';
@@ -144,6 +200,7 @@ function renderLogin(mode) {
         state.user = u;
         await loadCategories();
         renderShell();
+        startSessionTimer();
         navigate('qa');
       }
     } catch (e) {
@@ -186,7 +243,7 @@ function renderShell() {
         <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
       </div>
       <div class="sidebar-footer">
-        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px">👤</span> ${esc(userName)} (${u.role})</div>
+        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon admin-user-icon" style="font-size:12px;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.12);border-radius:4px;font-weight:700;color:rgba(255,255,255,0.6)">${esc(userName.charAt(0).toUpperCase())}</span> ${esc(userName)} (${u.role})</div>
         <button class="nav-item" onclick="logout()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
     </nav>
@@ -269,8 +326,10 @@ async function renderQA(el) {
   });
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) {
-    list.innerHTML =
-      '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>';
+    const isSearch = state.qaFilters.search;
+    list.innerHTML = isSearch
+      ? '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No results found</div><div style="font-size:12px;color:#888;margin-top:4px">Try a different search term</div></div>'
+      : '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>';
     return;
   }
   list.innerHTML = state.qaEntries
@@ -287,7 +346,7 @@ async function renderQA(el) {
     )
     .join('');
   const totalPages = Math.ceil(state.qaTotal / 20);
-  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="filter-tab" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="filter-tab" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
+  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
   document.getElementById('qa-count').textContent = state.qaTotal;
   const prev = document.getElementById('qa-prev');
   if (prev && !prev.disabled)
@@ -378,10 +437,11 @@ function editQA(id) {
   if (d) showCreateQA(d);
 }
 async function deleteQA(id) {
-  if (!confirm('Delete?')) return;
-  await api(`/api/qa/${id}`, { method: 'DELETE' });
-  toast('Deleted');
-  navigate('qa');
+  showConfirm('Delete Entry', 'Are you sure you want to delete this QA entry?', async () => {
+    await api(`/api/qa/${id}`, { method: 'DELETE' });
+    toast('Deleted');
+    navigate('qa');
+  });
 }
 
 function exportCSV() {
@@ -428,9 +488,10 @@ async function showCreateCategory() {
   openModal('form-modal');
 }
 async function deleteCat(id) {
-  if (!confirm('Remove?')) return;
-  await api(`/api/categories/${id}`, { method: 'DELETE' });
-  navigate('categories');
+  showConfirm('Remove Sub-System', 'Are you sure you want to remove this sub-system?', async () => {
+    await api(`/api/categories/${id}`, { method: 'DELETE' });
+    navigate('categories');
+  });
 }
 
 // ===== USERS =====
@@ -496,10 +557,11 @@ async function approveUser(id) {
   toast('Approved');
 }
 async function rejectUser(id) {
-  if (!confirm('Reject & delete?')) return;
-  await api(`/api/users/${id}/reject`, { method: 'POST' });
-  navigate('users');
-  toast('Rejected');
+  showConfirm('Reject User', 'Are you sure you want to reject & delete this user?', async () => {
+    await api(`/api/users/${id}/reject`, { method: 'POST' });
+    navigate('users');
+    toast('Rejected');
+  });
 }
 async function toggleUser(id) {
   const r = await api(`/api/users/${id}/toggle`, { method: 'POST' });

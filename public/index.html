@@ -1,13 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IT Operations - Knowledge Base</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+    <meta
+      name="description"
+      content="IT Operations Knowledge Base - QA Library for issue tracking and resolution."
     />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z'/%3E%3C/svg%3E"
+    />
+    <title>IT Operations - Knowledge Base</title>
+    <link rel="stylesheet" href="/fonts/inter.css" />
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
@@ -16,6 +22,35 @@
     </div>
 
     <div class="modal-overlay" id="detail-modal"></div>
+    <div class="modal-overlay" id="confirm-modal">
+      <div class="modal confirm-modal">
+        <div class="modal-header">
+          <div class="modal-title" id="confirm-title">Confirm</div>
+          <button class="modal-close" onclick="closeConfirm()" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body" id="confirm-body">Are you sure?</div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="confirm-ok">OK</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay" id="session-modal">
+      <div class="modal session-warning-modal">
+        <div class="modal-header">
+          <div class="modal-title">⏰ Session Expiring</div>
+        </div>
+        <div class="modal-body">
+          <p>Your session will expire soon due to inactivity.</p>
+          <p style="margin-top: 8px; font-size: 12px; color: #888">
+            Click below to stay logged in.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="session-keepalive">Stay Logged In</button>
+        </div>
+      </div>
+    </div>
     <div class="modal-overlay" id="form-modal">
       <div class="modal">
         <div class="modal-header">
@@ -33,6 +68,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
+    <div class="app-footer">IT Operations KB v1.1.0</div>
     <script src="/js/app.js"></script>
   </body>
 </html>
