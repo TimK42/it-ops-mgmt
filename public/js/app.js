@@ -38,7 +38,7 @@ async function renderIssues(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   try { await loadIssues(); } catch(e) {}
   const statuses = [null,'Open','In Progress','Resolved','Closed'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.filters.status===s?'active':''}" data-if="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateIssue()">＋ New Issue</button></div><div class="table-container"><table><thead><tr><th></th><th>#</th><th>Issue</th><th>Sub-System</th><th>Status</th><th>Priority</th><th>FRACA</th><th>Updated</th><th></th></tr></thead><tbody id="issues-tbody"></tbody></table><div class="pagination"><div class="pagination-info">${state.issues.length} issue(s)</div></div></div>`;
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.filters.status===s?'active':''}" data-if="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateIssue()">＋ New Issue</button></div><div class="table-container"><table><thead><tr><th></th><th>#</th><th>Issue</th><th>Sub-System</th><th>Status</th><th>Severity</th><th>FRACA</th><th>Updated</th><th></th></tr></thead><tbody id="issues-tbody"></tbody></table><div class="pagination"><div class="pagination-info">${state.issues.length} issue(s)</div></div></div>`;
   el.querySelectorAll('[data-if]').forEach(b=>{b.onclick=()=>{state.filters.status=b.dataset.if||null;renderIssues(el);};});
   document.getElementById('global-search').oninput = debounce(e=>{state.filters.search=e.target.value;renderIssues(el);},300);
   renderIssueRows();
@@ -78,7 +78,7 @@ async function showIssueDetail(id) {
     <div class="modal-body">
       <div class="detail-meta">
         <div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(i.status)}">● ${i.status}</span></div>
-        <div><div class="detail-meta-label">Priority</div><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></div>
+        <div><div class="detail-meta-label">Severity</div><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></div>
         <div><div class="detail-meta-label">Sub-System</div>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</div>
         <div><div class="detail-meta-label">FRACA</div>${i.fraca?`<span style="font-size:13px;font-family:monospace;font-weight:600">${i.fraca}</span>`:'-'}</div>
         <div><div class="detail-meta-label">Updated</div><span style="font-size:13px">${timeAgo(i.updated_at)}</span></div>
@@ -105,7 +105,7 @@ async function showCreateIssue(data) {
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">FRACA</label><input class="form-input" id="f-fraca" value="${isEdit&&data.fraca?data.fraca:''}" placeholder="6-digit code" maxlength="6"></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status">${['Open','In Progress','Resolved','Closed'].map(s=>`<option value="${s}" ${isEdit&&data.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="f-prio">${['Critical','High','Medium','Low'].map(p=>`<option value="${p}" ${isEdit&&data.priority===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
+    <div class="form-group"><label class="form-label">Severity</label><select class="form-select" id="f-prio">${['Critical','High','Medium','Low'].map(p=>`<option value="${p}" ${isEdit&&data.priority===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
     ${isEdit?`<div class="form-group"><label class="form-label">Resolution</label><textarea class="form-textarea" id="f-res">${esc(data.resolution||'')}</textarea></div>`:''}`;
   modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-submit">${isEdit?'Update':'Create'}</button>`;
   document.getElementById('f-submit').onclick = async ()=>{
