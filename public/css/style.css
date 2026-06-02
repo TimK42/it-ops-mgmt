@@ -129,5 +129,5 @@ tr.row-click { cursor:pointer; }
 :focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
 
 /* Button reset for nav-item and filter-tab (now <button> elements) */
-.nav-item { border:none; cursor:pointer; font-family:inherit; width:100%; text-align:left; }
+.nav-item { border:none; cursor:pointer; font-family:inherit; width:100%; text-align:left; background:transparent; }
 .filter-tab { border:none; cursor:pointer; font-family:inherit; }
