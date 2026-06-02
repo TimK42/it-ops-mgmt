@@ -9,6 +9,62 @@ let state = {
   sessionExpired: false,
 };
 
+function initTheme() {
+  let theme = null;
+  try {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || stored === 'light') theme = stored;
+  } catch {}
+  if (!theme) {
+    if (typeof window.matchMedia === 'function') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } else {
+      theme = 'light';
+    }
+  }
+  document.documentElement.setAttribute('data-theme', theme);
+
+  if (typeof window.matchMedia === 'function') {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => {
+      let stored = null;
+      try {
+        stored = localStorage.getItem('theme');
+      } catch {}
+      if (!stored || (stored !== 'dark' && stored !== 'light')) {
+        const isDark = e.matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        const btn = document.getElementById('theme-toggle');
+        if (btn) {
+          btn.textContent = isDark ? '☀️' : '🌙';
+          btn.setAttribute('aria-pressed', String(isDark));
+        }
+      }
+    };
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', handler);
+    } else if (typeof mq.addListener === 'function') {
+      mq.addListener(handler);
+    }
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try {
+    localStorage.setItem('theme', next);
+  } catch {}
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    btn.setAttribute('aria-pressed', String(next === 'dark'));
+  }
+}
+
+initTheme();
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const u = await api('/api/auth/me');
@@ -296,6 +352,7 @@ function renderShell() {
           <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search" aria-label="Search QA entries"></div>
         </div>
         <div class="topbar-right">
+          <button class="btn btn-ghost" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" aria-pressed="${document.documentElement.getAttribute('data-theme') === 'dark'}">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
           <button class="btn btn-ghost" onclick="exportCSV()">📥 Export</button>
         </div>
       </header>
@@ -425,7 +482,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
   </div>`;
   openModal('detail-modal');
 }
