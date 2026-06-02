@@ -58,12 +58,7 @@ Password fields lack `autocomplete="current-password"` / `new-password"`. Userna
 
 ```html
 <!-- Current -->
-<input
-  class="form-input"
-  type="password"
-  id="auth-pass"
-  placeholder="Password"
-/>
+<input class="form-input" type="password" id="auth-pass" placeholder="Password" />
 
 <!-- Should be -->
 <input

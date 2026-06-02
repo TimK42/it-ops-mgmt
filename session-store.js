@@ -1,4 +1,4 @@
-const { Store } = require("express-session");
+const { Store } = require('express-session');
 
 class SQLiteStore extends Store {
   constructor(db) {
@@ -9,9 +9,7 @@ class SQLiteStore extends Store {
   get(sid, cb) {
     try {
       const row = this.db
-        .prepare(
-          "SELECT data FROM sessions WHERE sid = ? AND expires > datetime(?)",
-        )
+        .prepare('SELECT data FROM sessions WHERE sid = ? AND expires > datetime(?)')
         .get(sid, new Date().toISOString());
       if (!row) return cb(null, null);
       cb(null, JSON.parse(row.data));
@@ -40,7 +38,7 @@ class SQLiteStore extends Store {
 
   destroy(sid, cb) {
     try {
-      this.db.prepare("DELETE FROM sessions WHERE sid = ?").run(sid);
+      this.db.prepare('DELETE FROM sessions WHERE sid = ?').run(sid);
       cb(null);
     } catch (e) {
       cb(e);
@@ -53,9 +51,7 @@ class SQLiteStore extends Store {
         data.cookie && data.cookie._expires
           ? new Date(data.cookie._expires).toISOString()
           : new Date(Date.now() + 86400000).toISOString();
-      this.db
-        .prepare("UPDATE sessions SET expires = ? WHERE sid = ?")
-        .run(expires, sid);
+      this.db.prepare('UPDATE sessions SET expires = ? WHERE sid = ?').run(expires, sid);
       cb(null);
     } catch (e) {
       cb(e);

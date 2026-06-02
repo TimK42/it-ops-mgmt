@@ -10,8 +10,28 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Format check
+        run: npm run format
+
+      - name: Lint check
+        run: npm run lint
+
   test:
     runs-on: ubuntu-24.04
+    needs: lint
     strategy:
       matrix:
         node-version: [20, 22]

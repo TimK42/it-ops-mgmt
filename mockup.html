@@ -16,7 +16,7 @@
       }
       body {
         font-family:
-          "Inter",
+          'Inter',
           -apple-system,
           sans-serif;
         height: 100vh;
@@ -146,7 +146,7 @@
         font-size: 13px;
         outline: none;
         width: 100%;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', sans-serif;
       }
       .search-icon {
         color: #999;
@@ -165,7 +165,7 @@
         border-radius: 8px;
         font-size: 13px;
         font-weight: 600;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', sans-serif;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -178,7 +178,7 @@
         border-radius: 8px;
         font-size: 13px;
         font-weight: 500;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', sans-serif;
         cursor: pointer;
         color: #555;
         display: flex;
@@ -207,7 +207,7 @@
         border: 1px solid #e0e0e4;
         background: #fff;
         font-size: 12px;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', sans-serif;
         cursor: pointer;
         color: #555;
         font-weight: 500;
@@ -265,16 +265,16 @@
         cursor: pointer;
         vertical-align: middle;
       }
-      input[type="checkbox"] {
+      input[type='checkbox'] {
         display: none;
       }
-      input[type="checkbox"]:checked + .checkbox {
+      input[type='checkbox']:checked + .checkbox {
         background: #4f46e5;
         border-color: #4f46e5;
         position: relative;
       }
-      input[type="checkbox"]:checked + .checkbox::after {
-        content: "✓";
+      input[type='checkbox']:checked + .checkbox::after {
+        content: '✓';
         position: absolute;
         top: -1px;
         left: 2px;
@@ -451,7 +451,7 @@
         border: 1px solid #e0e0e4;
         background: #fff;
         font-size: 12px;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', sans-serif;
         cursor: pointer;
         color: #555;
         display: flex;
@@ -478,50 +478,35 @@
       <div class="sidebar-nav">
         <div class="nav-section">Main</div>
         <div class="nav-item active">
-          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)"
-            >⚠</span
-          >
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">⚠</span>
           Known Issues
           <span class="nav-badge">12</span>
         </div>
         <div class="nav-item">
-          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)"
-            >❓</span
-          >
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">❓</span>
           QA Library
           <span class="nav-badge">8</span>
         </div>
         <div class="nav-item">
-          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)"
-            >📋</span
-          >
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">📋</span>
           Categories
         </div>
         <div class="nav-section">Workspace</div>
         <div class="nav-item">
-          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)"
-            >📊</span
-          >
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">📊</span>
           Dashboard
         </div>
         <div class="nav-item">
-          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)"
-            >🏷</span
-          >
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">🏷</span>
           Tags
         </div>
         <div class="nav-item">
-          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)"
-            >⚙</span
-          >
+          <span class="nav-icon" style="background: rgba(255, 255, 255, 0.1)">⚙</span>
           Settings
         </div>
       </div>
       <div class="sidebar-footer">
-        <div
-          class="nav-item"
-          style="color: rgba(255, 255, 255, 0.4); font-size: 12px"
-        >
+        <div class="nav-item" style="color: rgba(255, 255, 255, 0.4); font-size: 12px">
           <span
             class="nav-icon"
             style="
@@ -567,9 +552,7 @@
             <button class="filter-btn">Category ▾</button>
             <button class="filter-btn">Priority ▾</button>
             <button class="filter-btn">Assignee ▾</button>
-            <button class="filter-btn" style="background: #f0f0f5">
-              Sort: Newest ▾
-            </button>
+            <button class="filter-btn" style="background: #f0f0f5">Sort: Newest ▾</button>
           </div>
         </div>
         <div class="table-container">
@@ -604,9 +587,7 @@
                     <div class="issue-icon bug">⚠</div>
                     <div class="issue-text">
                       <span class="issue-title">登入頁面 Safari 顯示異常</span
-                      ><span class="issue-desc"
-                        >CSS flexbox 在 Safari 15 不支援...</span
-                      >
+                      ><span class="issue-desc">CSS flexbox 在 Safari 15 不支援...</span>
                     </div>
                   </div>
                 </td>
@@ -634,9 +615,7 @@
                     <div class="issue-icon qa">❓</div>
                     <div class="issue-text">
                       <span class="issue-title">訂單匯出 CSV 亂碼問題</span
-                      ><span class="issue-desc"
-                        >中文檔名在 Excel 開啟時出現亂碼...</span
-                      >
+                      ><span class="issue-desc">中文檔名在 Excel 開啟時出現亂碼...</span>
                     </div>
                   </div>
                 </td>
@@ -666,9 +645,7 @@
                     <div class="issue-icon qa">❓</div>
                     <div class="issue-text">
                       <span class="issue-title">API 504 錯誤的回覆腳本</span
-                      ><span class="issue-desc"
-                        >同事回應客戶 timeout 問題時可參考...</span
-                      >
+                      ><span class="issue-desc">同事回應客戶 timeout 問題時可參考...</span>
                     </div>
                   </div>
                 </td>
@@ -696,9 +673,7 @@
                     <div class="issue-icon bug">⚠</div>
                     <div class="issue-text">
                       <span class="issue-title">報表下載按鈕點擊無反應</span
-                      ><span class="issue-desc"
-                        >Chrome 116+ 新版下載 API 變更...</span
-                      >
+                      ><span class="issue-desc">Chrome 116+ 新版下載 API 變更...</span>
                     </div>
                   </div>
                 </td>
@@ -725,11 +700,8 @@
                   <div class="issue-cell">
                     <div class="issue-icon qa">❓</div>
                     <div class="issue-text">
-                      <span class="issue-title"
-                        >忘記密碼流程 - 客服回覆範本</span
-                      ><span class="issue-desc"
-                        >step by step 引導客戶重置密碼...</span
-                      >
+                      <span class="issue-title">忘記密碼流程 - 客服回覆範本</span
+                      ><span class="issue-desc">step by step 引導客戶重置密碼...</span>
                     </div>
                   </div>
                 </td>
@@ -757,9 +729,7 @@
                     <div class="issue-icon bug">⚠</div>
                     <div class="issue-text">
                       <span class="issue-title">搜尋結果頁面分頁不準確</span
-                      ><span class="issue-desc"
-                        >第2頁之後顯示的結果與搜尋條件不符...</span
-                      >
+                      ><span class="issue-desc">第2頁之後顯示的結果與搜尋條件不符...</span>
                     </div>
                   </div>
                 </td>
