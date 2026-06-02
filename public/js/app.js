@@ -16,30 +16,36 @@ function initTheme() {
     if (stored === 'dark' || stored === 'light') theme = stored;
   } catch {}
   if (!theme) {
-    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (typeof window.matchMedia === 'function') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } else {
+      theme = 'light';
+    }
   }
   document.documentElement.setAttribute('data-theme', theme);
 
-  const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  const handler = (e) => {
-    let stored = null;
-    try {
-      stored = localStorage.getItem('theme');
-    } catch {}
-    if (!stored || (stored !== 'dark' && stored !== 'light')) {
-      const isDark = e.matches;
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      const btn = document.getElementById('theme-toggle');
-      if (btn) {
-        btn.textContent = isDark ? '☀️' : '🌙';
-        btn.setAttribute('aria-pressed', String(isDark));
+  if (typeof window.matchMedia === 'function') {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => {
+      let stored = null;
+      try {
+        stored = localStorage.getItem('theme');
+      } catch {}
+      if (!stored || (stored !== 'dark' && stored !== 'light')) {
+        const isDark = e.matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        const btn = document.getElementById('theme-toggle');
+        if (btn) {
+          btn.textContent = isDark ? '☀️' : '🌙';
+          btn.setAttribute('aria-pressed', String(isDark));
+        }
       }
+    };
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', handler);
+    } else if (typeof mq.addListener === 'function') {
+      mq.addListener(handler);
     }
-  };
-  if (typeof mq.addEventListener === 'function') {
-    mq.addEventListener('change', handler);
-  } else if (typeof mq.addListener === 'function') {
-    mq.addListener(handler);
   }
 }
 

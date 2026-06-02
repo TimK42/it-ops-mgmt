@@ -759,6 +759,7 @@ tr.row-click {
   font-size: 12px;
   margin-bottom: 12px;
   display: none;
+  border: 1px solid transparent;
 }
 .login-error.show {
   display: block;
