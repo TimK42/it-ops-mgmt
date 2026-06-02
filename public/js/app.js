@@ -1,4 +1,4 @@
-let state = { page:'qa', qaEntries:[], categories:[], qaFilters:{status:null,search:''} };
+let state = { page:'qa', qaEntries:[], categories:[], qaFilters:{status:'Published',search:''} };
 
 document.addEventListener('DOMContentLoaded', async () => { await loadCategories(); navigate('qa'); });
 
