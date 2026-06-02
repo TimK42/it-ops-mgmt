@@ -38,7 +38,7 @@ async function renderIssues(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   try { await loadIssues(); } catch(e) {}
   const statuses = [null,'Open','In Progress','Resolved','Closed'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.filters.status===s?'active':''}" data-if="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateIssue()">＋ New Issue</button></div><div class="table-container"><table><thead><tr><th></th><th>#</th><th>Issue</th><th>Category</th><th>Status</th><th>Priority</th><th>Assignee</th><th>Updated</th><th></th></tr></thead><tbody id="issues-tbody"></tbody></table><div class="pagination"><div class="pagination-info">${state.issues.length} issue(s)</div></div></div>`;
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.filters.status===s?'active':''}" data-if="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateIssue()">＋ New Issue</button></div><div class="table-container"><table><thead><tr><th></th><th>#</th><th>Issue</th><th>Sub-System</th><th>Status</th><th>Priority</th><th>Assignee</th><th>Updated</th><th></th></tr></thead><tbody id="issues-tbody"></tbody></table><div class="pagination"><div class="pagination-info">${state.issues.length} issue(s)</div></div></div>`;
   el.querySelectorAll('[data-if]').forEach(b=>{b.onclick=()=>{state.filters.status=b.dataset.if||null;renderIssues(el);};});
   document.getElementById('global-search').oninput = debounce(e=>{state.filters.search=e.target.value;renderIssues(el);},300);
   renderIssueRows();
@@ -79,7 +79,7 @@ async function showIssueDetail(id) {
       <div class="detail-meta">
         <div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(i.status)}">● ${i.status}</span></div>
         <div><div class="detail-meta-label">Priority</div><span class="badge ${priorityClass(i.priority)}">${i.priority}</span></div>
-        <div><div class="detail-meta-label">Category</div>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</div>
+        <div><div class="detail-meta-label">Sub-System</div>${i.category_name?`<span class="tag" style="background:${i.category_color}15;color:${i.category_color}">${i.category_icon} ${esc(i.category_name)}</span>`:'-'}</div>
         <div><div class="detail-meta-label">Assignee</div>${i.assignee?`<span class="assignee"><span class="avatar">${initials(i.assignee)}</span>${esc(i.assignee)}</span>`:'-'}</div>
         <div><div class="detail-meta-label">Updated</div><span style="font-size:13px">${timeAgo(i.updated_at)}</span></div>
         <div><div class="detail-meta-label">Created</div><span style="font-size:13px">${timeAgo(i.created_at)}</span></div>
@@ -102,7 +102,7 @@ async function showCreateIssue(data) {
   modal.querySelector('.modal-body').innerHTML = `
     <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-title" value="${isEdit?esc(data.title):''}"></div>
     <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="f-desc">${isEdit?esc(data.description||''):''}</textarea></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="f-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Assignee</label><input class="form-input" id="f-assign" value="${isEdit?esc(data.assignee||''):''}" placeholder="Name"></div></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status">${['Open','In Progress','Resolved','Closed'].map(s=>`<option value="${s}" ${isEdit&&data.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="f-prio">${['Critical','High','Medium','Low'].map(p=>`<option value="${p}" ${isEdit&&data.priority===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
@@ -165,7 +165,7 @@ async function showQADetail(id) {
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer?`<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>`:''}
-      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Category</div>${q.category_name?`<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>`:'-'}</div><div><div class="detail-meta-label">Tags</div>${q.tags?q.tags.split(',').map(t=>`<span class="tag">#${t.trim()}</span>`).join(' '):'-'}</div></div>
+      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name?`<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>`:'-'}</div><div><div class="detail-meta-label">Tags</div>${q.tags?q.tags.split(',').map(t=>`<span class="tag">#${t.trim()}</span>`).join(' '):'-'}</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button><button class="btn btn-sm" style="background:#f0f0f5" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="deleteQA(${q.id})">Delete</button></div>
   </div>`;
@@ -180,7 +180,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit?esc(data.title):''}"></div>
     <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit?esc(data.question):''}</textarea></div>
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit?esc(data.answer||''):''}</textarea></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Category</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map(c=>`<option value="${c.id}" ${isEdit&&data.category_id===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published','Draft','Archived'].map(s=>`<option value="${s}" ${isEdit&&data.status===s?'selected':''}>${s}</option>`).join('')}</select></div></div>
     <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit?esc(data.tags||''):''}" placeholder="e.g., password,account"></div>`;
   modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit?'Update':'Create'}</button>`;
@@ -201,12 +201,12 @@ async function deleteQA(id) { if(!confirm('Delete?')) return; await api(`/api/qa
 // ===== CATEGORIES =====
 async function renderCategories(el) {
   await loadCategories();
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} categories</div><button class="btn btn-primary btn-sm" onclick="showCreateCategory()">＋ Add Category</button></div>
+  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" onclick="showCreateCategory()">＋ Add Sub-System</button></div>
     <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>Issues</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map(c=>`<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.issue_count||0}</td><td>${c.qa_count||0}</td><td><button class="btn btn-ghost btn-sm" onclick="deleteCat(${c.id})">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');
-  modal.querySelector('.modal-title').textContent = 'New Category';
+  modal.querySelector('.modal-title').textContent = 'New Sub-System';
   modal.querySelector('.modal-body').innerHTML = `<div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-cat-name"></div><div class="form-row"><div class="form-group"><label class="form-label">Color</label><input class="form-input" id="f-cat-color" type="color" value="#6366f1"></div><div class="form-group"><label class="form-label">Icon</label><input class="form-input" id="f-cat-icon" value="📋"></div></div>`;
   modal.querySelector('.modal-footer').innerHTML = `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-cat-submit">Create</button>`;
   document.getElementById('f-cat-submit').onclick = async ()=>{
