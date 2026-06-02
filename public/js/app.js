@@ -26,7 +26,7 @@ function initTheme() {
     try {
       stored = localStorage.getItem('theme');
     } catch {}
-    if (!stored) {
+    if (!stored || (stored !== 'dark' && stored !== 'light')) {
       document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
       const btn = document.getElementById('theme-toggle');
       if (btn) btn.textContent = e.matches ? '☀️' : '🌙';
@@ -50,8 +50,9 @@ function toggleTheme() {
   if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
 }
 
+initTheme();
+
 document.addEventListener('DOMContentLoaded', async () => {
-  initTheme();
   try {
     const u = await api('/api/auth/me');
     state.user = u;
