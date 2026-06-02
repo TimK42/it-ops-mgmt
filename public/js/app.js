@@ -109,6 +109,8 @@ let lastActivity = Date.now();
 let sessionMonitorId = null;
 let sessionWarned = false;
 
+let activityHandler;
+
 function startActivityTracking() {
   lastActivity = Date.now();
   sessionWarned = false;
@@ -116,8 +118,11 @@ function startActivityTracking() {
   const handler = () => {
     lastActivity = Date.now();
   };
-  events.forEach((e) => document.removeEventListener(e, handler));
+  if (activityHandler) {
+    events.forEach((e) => document.removeEventListener(e, activityHandler));
+  }
   events.forEach((e) => document.addEventListener(e, handler, { passive: true }));
+  activityHandler = handler;
   clearInterval(sessionMonitorId);
   sessionMonitorId = setInterval(checkSessionIdle, 30000);
 }
