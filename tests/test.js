@@ -208,7 +208,7 @@ async function run() {
     // Get real category ID for testing
     let catId = 1;
     try {
-      const db = require('./db').getDb();
+      const db = require('../db').getDb();
       const cat = db.prepare('SELECT id FROM categories LIMIT 1').get();
       if (cat) catId = cat.id;
     } catch {
@@ -284,7 +284,10 @@ async function run() {
     const css = r.body;
     assert(css.includes('.skip-link'), 'CSS: .skip-link');
     assert(css.includes(':focus-visible'), 'CSS: :focus-visible');
-    assert(css.includes('background:transparent'), 'CSS: background:transparent');
+    assert(
+      css.includes('background: transparent'),
+      'CSS: background: transparent (Prettier format)',
+    );
   } finally {
     server.kill();
   }

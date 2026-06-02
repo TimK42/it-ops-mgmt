@@ -60,7 +60,7 @@ router.post('/register', (req, res) => {
   if (username.length < 2) return res.status(400).json({ error: 'Username too short' });
   if (password.length < 4) return res.status(400).json({ error: 'Password too short (min 4)' });
   const r = role || 'Viewer';
-  if (!['Admin', 'Contributor', 'Viewer'].includes(r))
+  if (!['Contributor', 'Viewer'].includes(r))
     return res.status(400).json({ error: 'Invalid role' });
 
   const db = getDb();
