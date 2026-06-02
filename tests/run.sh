@@ -119,10 +119,12 @@ echo "Server PID: $SPID"
 
 echo ""
 echo ">>> Static File Serving"
-for path in / /css/style.css /js/app.js /nonexistent-page; do
+for path in / /css/style.css /js/app.js; do
   STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$BASE$path")
   [ "$STATUS" = "200" ] && pass "GET $path => $STATUS" || fail "GET $path => $STATUS (expected 200)"
 done
+STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/nonexistent-page")
+[ "$STATUS" = "404" ] && pass "GET /nonexistent-page => 404" || fail "GET /nonexistent-page => $STATUS (expected 404)"
 CT=$(curl -s "$BASE/" | head -c 20)
 echo "$CT" | grep -q '<!DOCTYPE' && pass "Response is HTML document" || fail "Response is not HTML"
 
@@ -290,8 +292,8 @@ echo "$JS" | grep -q '<header class="topbar">' && pass "JS: topbar <header>" || 
 echo "$JS" | grep -q 'aria-label="Search QA entries"' && pass "JS: search aria-label" || fail "JS: search aria-label"
 echo "$JS" | grep -q 'aria-label="Close"' && pass "JS: close aria-label" || fail "JS: close aria-label"
 echo "$JS" | grep -q 'aria-label="Toggle sidebar"' && pass "JS: toggle aria-label" || fail "JS: toggle aria-label"
-echo "$JS" | grep -q 'tabindex="0"' && pass "JS: tabindex=0" || fail "JS: tabindex=0"
-echo "$JS" | grep -q 'role="button"' && pass "JS: role=button" || fail "JS: role=button"
+echo "$JS" | grep -q 'tabindex="0"' && fail "JS: has tabindex=0 (should be removed)" || pass "JS: no tabindex=0"
+echo "$JS" | grep -q 'role="button"' && fail "JS: has role=button (should be removed)" || pass "JS: no role=button"
 echo "$JS" | grep -q 'esc(t.trim())' && pass "JS: esc() XSS prevention" || fail "JS: esc() XSS prevention"
 echo "$JS" | grep -q '<h1>' && pass "JS: h1 heading" || fail "JS: h1 heading"
 echo "$JS" | grep -q 'autofocus' && pass "JS: autofocus" || fail "JS: autofocus"
@@ -299,7 +301,7 @@ echo "$JS" | grep -q '<div class="nav-item" onclick' && fail "JS: uses <div oncl
 echo "$JS" | grep -q '<button class="nav-item"' && pass "JS: nav <button> elements" || fail "JS: nav <button> missing"
 echo "$JS" | grep -q 'skip-link' && pass "JS: skip-link present" || fail "JS: skip-link missing"
 echo "$JS" | grep -q 'tabindex="-1"' && pass "JS: tabindex=-1 for main" || fail "JS: tabindex=-1 missing"
-echo "$JS" | grep -q 'Enter' && echo "$JS" | grep -q 'event.key' && pass "JS: keyboard handler" || fail "JS: keyboard handler"
+echo "$JS" | grep -q 'onkeydown=' || echo "$JS" | grep -q 'onkeyup=' && fail "JS: has inline keyboard handlers" || pass "JS: no inline keyboard handlers"
 
 CSS=$(curl -sf "$BASE/css/style.css")
 echo "$CSS" | grep -q '.skip-link' && pass "CSS: .skip-link" || fail "CSS: .skip-link"

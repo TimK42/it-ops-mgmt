@@ -6,7 +6,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.user = u;
     await loadCategories();
     renderShell();
-    navigate('qa');
+    const path = window.location.pathname;
+    if (path === '/' || path === '') navigate('qa');
+    else if (path === '/qa') navigate('qa');
+    else if (path === '/categories') navigate('categories');
+    else if (path === '/users') navigate('users');
+    else if (path === '/dashboard') navigate('dashboard');
+    else if (path.startsWith('/qa/')) {
+      const parts = path.split('/').filter(Boolean);
+      const id = parts.length === 2 && /^\d+$/.test(parts[1]) ? parseInt(parts[1]) : 0;
+      if (id > 0) { navigate('qa'); showQADetail(id); }
+      else navigate('404');
+    } else navigate('404');
   } catch (e) {
     renderLogin();
   }
@@ -41,11 +52,11 @@ function renderLogin(mode) {
         <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
-        <div class="form-group"><input class="form-input" id="auth-user" placeholder="Username" autofocus></div>
-        <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password"></div>
+        <div class="form-group"><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
+        <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? `<div class="form-group"><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
-        <div class="login-link">${isRegister ? '<a onclick="renderLogin()">← Back to sign in</a>' : '<a onclick="renderLogin(\'register\')">Create account</a>'}</div>
+        <div class="login-link">${isRegister ? '<a href="#" onclick="event.preventDefault();renderLogin()">← Back to sign in</a>' : '<a href="#" onclick="event.preventDefault();renderLogin(\'register\')">Create account</a>'}</div>
       </div>
     </div>`;
   const err = document.getElementById('login-error');
@@ -114,7 +125,7 @@ function renderShell() {
       <header class="topbar">
         <div class="topbar-left">
           <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
-          <div><div class="topbar-title" id="page-title">QA Library</div><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
+          <div><h1 class="topbar-title" id="page-title">QA Library</h1><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
           <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search" aria-label="Search QA entries"></div>
         </div>
         <div class="topbar-right">
@@ -145,6 +156,13 @@ function navigate(page) {
   else if (page === 'categories') renderCategories(el);
   else if (page === 'users') renderUsers(el);
   else if (page === 'dashboard') renderDashboard(el);
+  else if (page === '404') render404(el);
+  else render404(el);
+}
+
+function render404(el) {
+  document.getElementById('page-title').textContent = 'Page Not Found';
+  el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Page not found</div><button class="btn btn-primary" onclick="navigate(\'qa\')">Go to QA Library</button></div>';
 }
 
 // ===== QA =====
@@ -157,7 +175,7 @@ async function renderQA(el) {
   el.querySelectorAll('[data-qf]').forEach(b => { b.onclick = () => { state.qaFilters.status = b.dataset.qf || null; state.qaPage = 1; renderQA(el); }; });
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
-  list.innerHTML = state.qaEntries.map(q => `<div class="qa-card" onclick="showQADetail(${q.id})" tabindex="0" role="button" onkeydown="if(event.key==='Enter'||event.key===' ')showQADetail(${q.id})" onkeyup="if(event.key===' ')event.preventDefault()"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''}<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></div>`).join('');
+  list.innerHTML = state.qaEntries.map(q => `<a href="/qa/${q.id}" class="qa-card" onclick="if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.pushState(null,'','/qa/'+${q.id});showQADetail(${q.id})}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags ? q.tags.split(',').map(t => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''}<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`).join('');
   const totalPages = Math.ceil(state.qaTotal / 20);
   list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="filter-tab" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="filter-tab" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
   document.getElementById('qa-count').textContent = state.qaTotal;
