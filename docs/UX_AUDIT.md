@@ -2,7 +2,7 @@
 
 > **Round 2:** 2026-06-03 03:56 HKT · via Browser (Playwright) snapshot + curl + source inspection  
 > **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L) — see below for per-issue status  
-> **Auth:** Admin (admin/0000)  
+> **Auth:** Admin (admin/0000)
 
 ---
 
@@ -145,14 +145,14 @@ Both login and register forms render on `http://localhost:3000/#` with toggle li
 
 ## Summary
 
-| Issue           | Round 1 | Round 2 |
-| --------------- | ------- | ------- |
-| 🔴 Critical     | 4       | 0       |
-| 🟧 High         | 5       | 1 (H1)  |
-| 🟨 Medium       | 5       | 2 (R2-1, R2-2) |
-| 🟩 Low          | 5       | 1 (R2-3) |
-| **Total Open**  | **19**  | **4**   |
-| **Fixed**       | —       | **18**  |
+| Issue          | Round 1 | Round 2        |
+| -------------- | ------- | -------------- |
+| 🔴 Critical    | 4       | 0              |
+| 🟧 High        | 5       | 1 (H1)         |
+| 🟨 Medium      | 5       | 2 (R2-1, R2-2) |
+| 🟩 Low         | 5       | 1 (R2-3)       |
+| **Total Open** | **19**  | **4**          |
+| **Fixed**      | —       | **18**         |
 
 ### Priority for Next Round
 
