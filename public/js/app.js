@@ -146,6 +146,7 @@ async function renderQA(el) {
   const statuses = [null,'Published','Draft','Archived'];
   el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map(s=>`<button class="filter-tab ${state.qaFilters.status===s?'active':''}" data-qf="${s||''}">${s||'All'}</button>`).join('')}</div><button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button></div><div class="qa-list" id="qa-list"></div>`;
   el.querySelectorAll('[data-qf]').forEach(b=>{b.onclick=()=>{state.qaFilters.status=b.dataset.qf||null;renderQA(el);};});
+  document.getElementById('global-search').oninput = debounce(e=>{state.qaFilters.search=e.target.value;renderQA(el);},300);
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) { list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No QA entries</div></div>'; return; }
   list.innerHTML = state.qaEntries.map(q => `<div class="qa-card" onclick="showQADetail(${q.id})"><div class="qa-card-title">${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name?`<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>`:''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${q.tags?q.tags.split(',').map(t=>`<span class="tag">#${t.trim()}</span>`).join(''):''}<span style="font-size:11px;color:#888;margin-left:auto">${timeAgo(q.updated_at)}</span></div></div>`).join('');

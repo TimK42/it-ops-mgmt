@@ -11,7 +11,11 @@ router.get('/', (req, res) => {
   if (status) { sql += ' AND q.status=?'; p.push(status); }
   if (category_id) { sql += ' AND q.category_id=?'; p.push(category_id); }
   if (tag) { sql += ' AND q.tags LIKE ?'; p.push(`%${tag}%`); }
-  if (search) { sql += ' AND (q.title LIKE ? OR q.question LIKE ?)'; const s=`%${search}%`; p.push(s,s); }
+  if (search) { 
+    const clean = search.replace(/^#+/, ''); // strip # for tag matching
+    sql += ' AND (q.title LIKE ? OR q.question LIKE ? OR q.tags LIKE ?)'; 
+    const s=`%${clean}%`; p.push(s,s,s); 
+  }
   sql += sort === 'oldest' ? ' ORDER BY q.created_at ASC' : ' ORDER BY q.created_at DESC';
   res.json(db.prepare(sql).all(...p));
 });
