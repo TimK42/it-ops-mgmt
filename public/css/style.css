@@ -942,7 +942,6 @@ tr.row-click {
 [data-theme='dark'] #global-search {
   background-color: rgb(37, 37, 59);
   color: rgb(224, 224, 224);
-  border-color: rgb(74, 74, 98);
 }
 
 .modal-sm {
