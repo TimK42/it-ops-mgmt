@@ -148,6 +148,13 @@ async function run() {
     });
     assert(r.status === 400, 'Register short password => 400');
 
+    // Admin role should be rejected during registration
+    r = await req('POST', '/api/auth/register', {
+      body: { username: 'node_test_admin', password: 'test1234', role: 'Admin' },
+    });
+    assert(r.status === 400, 'Register with Admin role => 400');
+    assert(r.json?.error === 'Invalid role', 'Register Admin => error message is Invalid role');
+
     // Pending account login blocked
     r = await req('POST', '/api/auth/login', {
       body: { username: 'node_test_v', password: 'test1234' },

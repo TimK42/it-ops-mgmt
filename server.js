@@ -30,10 +30,15 @@ app.use(
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session middleware
+// Fail fast in production if SESSION_SECRET is missing
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is required in production');
+}
+
 app.use(
   session({
     store: new SQLiteStore(getDb()),
-    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'),
     resave: false,
     saveUninitialized: false,
     cookie: {
