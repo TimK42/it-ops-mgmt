@@ -66,7 +66,29 @@ function toggleTheme() {
 
 initTheme();
 
+window.addEventListener('popstate', () => {
+  if (state.user) return;
+  const path = window.location.pathname;
+  if (path === '/register' || path === '/register/') renderLogin('register');
+  else if (path === '/' || path === '') renderLogin();
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
+  const initPath = window.location.pathname;
+  if (initPath === '/register' || initPath === '/register/') {
+    try {
+      const u = await api('/api/auth/me');
+      if (u && u.id) {
+        history.replaceState(null, '', '/qa');
+        window.location.reload();
+        return;
+      }
+    } catch (e) {
+      /* not authenticated, continue to register */
+    }
+    renderLogin('register');
+    return;
+  }
   try {
     const u = await api('/api/auth/me');
     state.user = u;
@@ -251,6 +273,10 @@ function closeConfirm() {
 // ===== AUTH =====
 function renderLogin(mode) {
   const isRegister = mode === 'register';
+  const targetPath = isRegister ? '/register' : '/';
+  if (window.location.pathname !== targetPath) {
+    history.pushState(null, '', targetPath);
+  }
   const expiredMsg = state.sessionExpired
     ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
     : '';
@@ -267,7 +293,7 @@ function renderLogin(mode) {
         <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? `<div class="form-group"><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
-        <div class="login-link">${isRegister ? '<a href="#" onclick="event.preventDefault();renderLogin()">← Back to sign in</a>' : '<a href="#" onclick="event.preventDefault();renderLogin(\'register\')">Create account</a>'}</div>
+        <div class="login-link">${isRegister ? '<a href="/" onclick="if(!event.ctrlKey&&!event.metaKey){event.preventDefault();renderLogin()}">← Back to sign in</a>' : '<a href="/register" onclick="if(!event.ctrlKey&&!event.metaKey){event.preventDefault();renderLogin(\'register\')}">Create account</a>'}</div>
       </div>
     </div>`;
   const err = document.getElementById('login-error');
