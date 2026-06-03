@@ -302,15 +302,16 @@ async function run() {
     // ═══ ACCESSIBILITY ═══
     console.log('\n>>> Accessibility');
 
-    // Static HTML has no skip-link
+    // Static HTML has skip-link (no-JS fallback a11y)
     const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html'), 'utf-8');
-    assert(!html.includes('skip-link'), 'Static HTML: no skip-link (dynamic)');
+    assert(html.includes('skip-link'), 'Static HTML: skip-link present');
+    assert(html.includes('id="main-content"'), 'Static HTML: main-content id present');
+    assert(html.includes('<main'), 'Static HTML: <main> landmark present');
 
     // JS checks
     r = await req('GET', '/js/app.js');
     const js = r.body;
     assert(js.includes('aria-label="Main navigation"'), 'JS: nav aria-label');
-    assert(js.includes('main-content'), 'JS: main-content id');
     assert(js.includes('<header class="topbar">'), 'JS: topbar <header>');
     assert(js.includes('for="global-search"'), 'JS: search label for');
     assert(js.includes('type="search"'), 'JS: search type="search"');
@@ -329,8 +330,9 @@ async function run() {
       'JS: nav uses <button> not <div onclick>',
     );
     assert(js.includes('<button class="nav-item"'), 'JS: nav <button> elements');
-    assert(js.includes('skip-link'), 'JS: skip-link present');
-    assert(js.includes('tabindex="-1"'), 'JS: tabindex=-1 for main');
+    assert(js.includes('for="auth-user"'), 'JS: auth-user label present');
+    assert(js.includes('for="auth-pass"'), 'JS: auth-pass label present');
+    assert(js.includes('for="auth-role"'), 'JS: auth-role label present');
     assert(
       !js.includes('onkeydown=') && !js.includes('onkeyup='),
       'JS: no inline keyboard handlers',

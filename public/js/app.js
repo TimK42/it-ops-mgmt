@@ -300,9 +300,9 @@ function renderLogin(mode) {
         ${fallbackError}${expiredMsg}
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
-        <div class="form-group"><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
-        <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
-        ${isRegister ? `<div class="form-group"><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
+        <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
+        <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
+        ${isRegister ? `<div class="form-group"><label for="auth-role" class="sr-only">Role</label><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
         <div class="login-link">${isRegister ? '<a href="/" onclick="if(!event.ctrlKey&&!event.metaKey){event.preventDefault();renderLogin()}">← Back to sign in</a>' : '<a href="/register" onclick="if(!event.ctrlKey&&!event.metaKey){event.preventDefault();renderLogin(\'register\')}">Create account</a>'}</div>
       </div>
@@ -390,9 +390,7 @@ function renderShell() {
       </div>
       <div class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></div>
     </nav>
-    <a href="#main-content" class="skip-link">Skip to content</a>
-    <main id="main-content" class="main" tabindex="-1">
-      <header class="topbar">
+    <header class="topbar">
         <div class="topbar-left">
           <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
           <div><h1 class="topbar-title" id="page-title">QA Library</h1><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
@@ -403,7 +401,7 @@ function renderShell() {
         </div>
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
-    </main>`;
+    `;
 }
 
 function navigate(page) {
