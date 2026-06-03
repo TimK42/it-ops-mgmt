@@ -1,7 +1,9 @@
 # IT Ops Management — UI/UX Audit Report
 
-> **Round 2:** 2026-06-03 03:56 HKT · via Browser (Playwright) snapshot + curl + source inspection  
-> **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L) — see below for per-issue status  
+> **Round 3:** 2026-06-03 12:40 HKT · via Browser (CDP) snapshot + JS evaluate + curl  
+> **Round 2:** 2026-06-03 03:56 HKT · via Browser (Playwright)  
+> **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L)  
+> **Pages audited:** Login, Register, QA Library, QA Detail, Categories, Users, Dashboard, 404  
 > **Auth:** Admin (set via env, should be changed before deployment)
 
 ---
@@ -40,7 +42,7 @@ X-Content-Type-Options: nosniff
 
 ### H1. No Dark Mode
 
-**❌ UNFIXED** — No `prefers-color-scheme` support, no `data-theme` toggle, no dark variant in CSS. This is the only remaining Round 1 high-priority issue.
+**✅ FIXED** — Full dark mode with `data-theme="dark"` on `<html>`, toggle button with `aria-pressed`, light/dark CSS custom properties. Body: `rgb(15,15,26)` bg / `rgb(224,224,224)` text. Cards: `rgb(26,26,46)`. Toggle persists across navigation. Verified in Round 3.
 
 ### H2. Missing `autocomplete` Attributes
 
@@ -125,38 +127,108 @@ X-Content-Type-Options: nosniff
 
 ### R2-3. 🟩 Register Form Uses Same URL as Login
 
-**Severity:** Low · **Page:** Login/Register  
-Both login and register forms render on `http://localhost:3000/#` with toggle link "Create account". No unique URL for registration — can't link directly to registration page.
+**✅ FIXED** — Register now loads at `/register` as a unique URL with `<h1>Create Account</h1>`, role dropdown (Viewer/Contributor), and back-to-login link. Verified in Round 3.
 
 ---
 
-## ✅ Positive Findings (Round 2, new since Round 1)
+## 🆕 New Issues Found (Round 3)
 
-- **Self-hosted Inter font** — zero external requests, good for internal/air-gapped deployment
-- **Custom confirmation modal** — consistent with app design, replaces browser native `confirm()`
-- **Skip-to-content link** — first focusable element on every page
-- **QA cards as semantic links** — `<a href="/qa/{id}">` with proper right-click behavior
-- **Full security headers** via helmet, including CSP with strict directives
-- **Session idle monitoring** — proactive warning, not just silent expiration
-- **404 inside app shell** — user can navigate away without losing context
-- **Dynamic autocomplete attributes** — `current-password` for login, `new-password` for register
+### R3-H1. 🟧 PWA Completely Missing
+
+**Severity:** High · **Page:** All  
+**Symptom:** No `manifest.json` (returns HTML), no service worker (`sw.js` returns HTML), no `<meta name="theme-color">`, no `<meta name="apple-mobile-web-app-capable">`, no `apple-mobile-web-app-status-bar-style`.  
+**Evidence:** `curl localhost:3000/manifest.json` returns HTML doc, not JSON. No `<link rel="manifest">` in `<head>`. `navigator.serviceWorker.controller` is null.  
+**Fix:** Add `manifest.json` with icons/colors/display, register service worker with cache-first strategy, add `theme-color` meta for light+dark modes, add Apple web app meta tags.
+
+### R3-H2. 🟧 No `<label>` Elements on Login/Register Forms (No-JS Fallback)
+
+**Severity:** High · **Page:** Login, Register  
+**Symptom:** All form inputs (`#auth-user`, `#auth-pass`, `#auth-role`) lack associated `<label>` elements. Only placeholder text provides field purpose. WCAG 1.3.1 (Info and Relationships) violation.  
+**Evidence:** `document.querySelectorAll('label[for="auth-user"]').length === 0` for all three inputs.  
+**Fix:** Add `<label for="auth-user">Username</label>`, `<label for="auth-pass">Password</label>`, `<label for="auth-role">Role</label>` to the no-JS HTML fallback. Can use `.sr-only` for visual hidden labels.
+
+### R3-H3. 🟧 QA Library Controls Leak to All Pages
+
+**Severity:** High · **Page:** Dashboard, Categories, Users, 404, QA Detail  
+**Symptom:** The `#global-search` input (placeholder "Search QA entries") and "📥 Export" button appear on every page — Dashboard, Categories, Users, QA Detail, and 404. These are QA Library-only controls.  
+**Evidence:** Snapshot shows `textbox "Search QA entries"` and `button "📥 Export"` in `<main>` on all 5 non-QA pages.  
+**Fix:** Conditionally render search and export controls only when `state.page === 'qa'`. Move them from the global header area into the QA page render function.
+
+### R3-M1. 🟨 QA Detail Page Heading is "QA Library" Instead of Entry Title
+
+**Severity:** Medium · **Page:** QA Detail (`/qa/:id`)  
+**Symptom:** When viewing a QA entry detail, the `<h1>` still reads "QA Library". The entry title appears only in the detail panel text.  
+**Fix:** Update `<h1>` to the entry's question title when viewing a detail page.
+
+### R3-M2. 🟨 Users Page Has No Pagination (109 Users Loaded at Once)
+
+**Severity:** Medium · **Page:** Users  
+**Symptom:** All 109 users rendered in a single table with no pagination. Long DOM with 109 rows × 5 columns. Scroll performance degrades.  
+**Fix:** Add pagination (20/page) matching QA Library pattern, or implement virtual scrolling.
+
+### R3-M3. 🟨 QA Library Search Input Transparent in Dark Mode
+
+**Severity:** Medium · **Page:** QA Library (dark mode)  
+**Symptom:** `#global-search` computed `backgroundColor` is `rgba(0, 0, 0, 0)` (transparent) in dark mode.  
+**Evidence:** `getComputedStyle(document.getElementById('global-search')).backgroundColor` returns transparent. Card backgrounds are `rgb(26, 26, 46)` but input inherits body `rgb(15, 15, 26)` with no explicit bg, causing visual ambiguity.  
+**Fix:** Add explicit `background-color` to search input in `[data-theme="dark"]` CSS (e.g., `rgb(26, 26, 46)`).
+
+### R3-M4. 🟨 No Heading Hierarchy — All Pages Only Have h1
+
+**Severity:** Medium · **Page:** All authenticated pages  
+**Symptom:** Every page has exactly one `<h1>` and zero `<h2>`/`<h3>`. Sections like "IT Operations / Knowledge Base", filter tabs, result counts, table headers are not structured with headings.  
+**Fix:** Add `<h2>` for page sections (e.g., "Filters", "Results", "Sub-Systems List", "User Management").
+
+### R3-L1. 🟩 `INPUT#global-search` Missing `<label>`
+
+**Severity:** Low · **Page:** QA Library (and all pages due to control leak)  
+**Symptom:** Search input has `placeholder="Search..."` but no associated `<label>` element. WCAG 1.3.1.  
+**Fix:** Add `<label for="global-search" class="sr-only">Search QA entries</label>`.
+
+### R3-L2. 🟩 Global Search Uses `type="text"` Instead of `type="search"`
+
+**Severity:** Low · **Page:** All pages with search  
+**Symptom:** `#global-search` is `type="text"`. Mobile browsers show standard keyboard instead of search variant with "go" button; no native clear button (×).  
+**Fix:** Change to `type="search"` and add `inputmode="search"`.
+
+### R3-L3. 🟩 Login/Register Pages Have No `<main>` or Skip-Link
+
+**Severity:** Low · **Page:** Login, Register  
+**Symptom:** Pre-SPA HTML fallback for login/register has no `<main>` landmark, no `#main-content`, no skip-to-content link. SPA pages have these correctly.  
+**Fix:** Add `<main id="main-content">` wrapper and `<a href="#main-content" class="skip-link">Skip to content</a>` to no-JS HTML.
+
+---
+
+## ✅ Positive Findings (Round 3)
+
+- **Dark mode fully implemented** — `data-theme` toggle with `aria-pressed`, light/dark CSS variables, persists across navigation. No flash of unstyled content.
+- **Register page has unique URL** — `/register` route with role-based dropdown, distinct from login page.
+- **Semantic SPA shell** — `<nav aria-label="Main navigation">`, `<main id="main-content">`, `<header>`, skip-link all present on authenticated pages.
+- **ACR accessibility** — No images without alt, no `target="_blank"` without `rel="noopener"`, `html[lang="en"]` correct.
+- **Autocomplete attributes** — `username`/`current-password` on login, `username`/`new-password` on register.
+- **Responsive sidebar** — Sidebar collapses to hamburger on mobile (375px), no horizontal scroll.
+- **Self-hosted fonts** — Inter loaded locally, zero external requests.
+- **404 with app shell** — Returns HTTP 404 with full navigation and "Go to QA Library" button.
+- **Role dropdown on register** — Only Viewer/Contributor options (no Admin), correct security posture.
 
 ---
 
 ## Summary
 
-| Issue          | Round 1 | Round 2        |
-| -------------- | ------- | -------------- |
-| 🔴 Critical    | 4       | 0              |
-| 🟧 High        | 5       | 0              |
-| 🟨 Medium      | 5       | 2 (R2-1, R2-2) |
-| 🟩 Low         | 5       | 1 (R2-3)       |
-| **Total Open** | **19**  | **4**          |
-| **Fixed**      | —       | **18**         |
+| Issue          | Round 1 | Round 2        | Round 3                       |
+| -------------- | ------- | -------------- | ----------------------------- |
+| 🔴 Critical    | 4       | 0              | 0                             |
+| 🟧 High        | 5       | 0              | 3 (R3-H1, H2, H3)             |
+| 🟨 Medium      | 5       | 2 (R2-1, R2-2) | 4 (R3-M1–M4) + 2 (R2-1, R2-2) |
+| 🟩 Low         | 5       | 0 (R2-3 FIXED) | 3 (R3-L1–L3)                  |
+| **Total Open** | **19**  | **3**          | **12**                        |
+| **Fixed**      | —       | **21**         | **+2 (H1, R2-3)**             |
 
 ### Priority for Next Round
 
-1. ~~**H1**~~ — Dark mode (CSS custom properties + data-theme toggle) — ✅ Resolved in PR #26
-2. **R2-1** — Fix sidebar QA count bug
-3. **R2-2** — Dashboard content improvement
-4. **R2-3** — Register page URL (nice to have)
+1. **R3-H3** — Remove QA Library controls from non-QA pages (search + export leak)
+2. **R3-H2** — Add `<label>` elements to login/register forms
+3. **R3-H1** — PWA manifest + service worker + meta tags
+4. **R2-2** — Dashboard content improvement
+5. **R2-1** — Fix sidebar QA count bug
+6. **R3-M1–M4** — Heading hierarchy, QA detail heading, Users pagination, dark mode search bg

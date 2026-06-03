@@ -61,7 +61,9 @@ function req(method, urlPath, opts = {}) {
     );
     r.on('error', () => resolve({ status: -1, body: '', json: null, setCookie: [], headers: {} }));
     if (opts.formBody) {
-      const qs = Object.entries(opts.formBody).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+      const qs = Object.entries(opts.formBody)
+        .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+        .join('&');
       r.write(qs);
     } else if (opts.body) {
       r.write(opts.contentType ? JSON.stringify(opts.body) : JSON.stringify(opts.body));
