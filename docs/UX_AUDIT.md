@@ -281,14 +281,14 @@ No HSTS `preload` directive. No `X-XSS-Protection` (deprecated but still common)
 
 ## Open Issues — Priority Order
 
-| #   | ID    | Sev | Description                                | Page       | Fix                                 |
-| --- | ----- | --- | ------------------------------------------ | ---------- | ----------------------------------- |
-| 1   | R4-H1 | 🟧  | QA Detail renders below full QA Library    | QA Detail  | Hide QA Library list on detail view |
-| 2   | R4-H2 | 🟧  | QA Detail panel persists across navigation | Global     | Close modal in `navigate()`         |
-| 3   | R3-H1 | 🟧  | PWA completely missing                     | All        | manifest.json, SW, meta tags        |
-| 4   | R4-M1 | 🟨  | Login SPA form missing `<form>` element    | Login      | Wrap in `<form>`                    |
-| 5   | R2-2  | 🟨  | Dashboard very sparse                      | Dashboard  | Add recent entries, charts          |
-| 6   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta       | All        | Add meta tags                       |
+| #   | ID    | Sev | Description                                | Page      | Fix                                 |
+| --- | ----- | --- | ------------------------------------------ | --------- | ----------------------------------- |
+| 1   | R4-H1 | 🟧  | QA Detail renders below full QA Library    | QA Detail | Hide QA Library list on detail view |
+| 2   | R4-H2 | 🟧  | QA Detail panel persists across navigation | Global    | Close modal in `navigate()`         |
+| 3   | R3-H1 | 🟧  | PWA completely missing                     | All       | manifest.json, SW, meta tags        |
+| 4   | R4-M1 | 🟨  | Login SPA form missing `<form>` element    | Login     | Wrap in `<form>`                    |
+| 5   | R2-2  | 🟨  | Dashboard very sparse                      | Dashboard | Add recent entries, charts          |
+| 6   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta       | All       | Add meta tags                       |
 
 ---
 
