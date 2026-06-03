@@ -455,7 +455,10 @@ function renderLogin(mode) {
     }
   });
   document.getElementById('auth-user').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('auth-pass').focus(); }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('auth-pass').focus();
+    }
   });
   // Password Enter submits natively via <form> — no manual handler needed
 }
