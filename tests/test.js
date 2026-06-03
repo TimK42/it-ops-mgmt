@@ -150,7 +150,7 @@ async function run() {
 
     // Admin role should be rejected during registration
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'node_test_admin', password: 'test1234', role: 'Admin' },
+      body: { username: `admin_test_${Date.now()}`, password: 'test1234', role: 'Admin' },
     });
     assert(r.status === 400, 'Register with Admin role => 400');
     assert(r.json?.error === 'Invalid role', 'Register Admin => error message is Invalid role');

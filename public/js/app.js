@@ -299,6 +299,7 @@ function renderLogin(mode) {
         });
         state.user = u;
         await loadCategories();
+        await loadQATotalCount();
         renderShell();
         startActivityTracking();
         navigate('qa');
