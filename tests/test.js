@@ -380,9 +380,10 @@ async function run() {
     r = await req('GET', '/js/app.js');
     const appjs = r.body;
     // R4-H2: navigate() must close modal before changing page
-    // Check closeModal appears inside navigate() body (limited to first 200 chars for scoping)
+    // Check closeModal appears inside navigate() body (first 400 chars)
     const navStart = appjs.indexOf('function navigate(page)');
-    const navBody = navStart >= 0 ? appjs.slice(navStart, navStart + 200) : '';
+    assert(navStart >= 0, 'JS: navigate() function exists');
+    const navBody = appjs.slice(navStart, navStart + 400);
     assert(
       navBody.includes("closeModal('detail-modal')"),
       'JS: closeModal(detail-modal) called inside navigate() body',

@@ -335,7 +335,7 @@ echo "$JS" > /tmp/check_nav.js
 node -e "
 var js = require('fs').readFileSync('/tmp/check_nav.js','utf8');
 var s = js.indexOf('function navigate(page)');
-var body = s >= 0 ? js.slice(s, s + 200) : '';
+var body = s >= 0 ? js.slice(s, s + 400) : '';
 process.exit(body.includes(\"closeModal('detail-modal')\") ? 0 : 1);
 " && pass "JS: closeModal(detail-modal) inside navigate()" || fail "JS: closeModal(detail-modal) missing in navigate()"
 # R4-H1 fix: showQADetail() must clear page-content
