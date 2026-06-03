@@ -88,6 +88,10 @@ document.addEventListener('click', (e) => {
       break;
     case 'sidebar-toggle':
       document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+      break;
+    case 'close-sidebar':
+      closeSidebar();
       break;
     case 'theme-toggle':
       toggleTheme();
@@ -499,6 +503,7 @@ function renderShell() {
       </div>
       <div class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></div>
     </nav>
+    <div class="sidebar-overlay" id="sidebar-overlay" data-action="close-sidebar"></div>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <main id="main-content" class="main" tabindex="-1">
       <header class="topbar">
@@ -515,8 +520,16 @@ function renderShell() {
     </main>`;
 }
 
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (sidebar) sidebar.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+}
+
 function navigate(page) {
   closeModal('detail-modal');
+  closeSidebar();
   state.page = page;
   document.querySelectorAll('.nav-item').forEach((e) => e.classList.remove('active'));
   const n = document.querySelector(`[data-nav="${page}"]`);
