@@ -528,6 +528,10 @@ async function loadQA(signal) {
 
 async function showQADetail(id) {
   const q = await api(`/api/qa/${id}`);
+  // Ensure entry is in qaEntries so editQA works for deep links
+  if (!state.qaEntries.find((e) => e.id === q.id)) {
+    state.qaEntries.push(q);
+  }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
     <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal');history.pushState(null,'','/qa');navigate('qa')" aria-label="Close">✕</button></div>
