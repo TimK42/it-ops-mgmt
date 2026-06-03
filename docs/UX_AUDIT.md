@@ -21,7 +21,7 @@
 | 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) |
 | 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   |
 | **Total Open** | **19**  | **3**   | **10**  | **7**     |
-| **Fixed**      | —       | 19      | 2       | 6 (R3)  |
+| **Fixed**      | —       | 19      | 2       | 6 (R3)    |
 
 ---
 
@@ -281,28 +281,28 @@ No HSTS `preload` directive. No `X-XSS-Protection` (deprecated but still common)
 
 ## Open Issues — Priority Order
 
-| # | ID | Sev | Description | Page | Fix |
-|---|----|-----|-------------|------|-----|
-| 1 | R4-H1 | 🟧 | QA Detail renders below full QA Library | QA Detail | Hide QA Library list on detail view |
-| 2 | R4-H2 | 🟧 | QA Detail panel persists across navigation | Global | Close modal in `navigate()` |
-| 3 | R3-H1 | 🟧 | PWA completely missing | All | manifest.json, SW, meta tags |
-| 4 | R4-M1 | 🟨 | Login SPA form missing `<form>` element | Login | Wrap in `<form>` |
-| 5 | R3-M3 | 🟨 | Search input invisible in dark mode | QA Library | CSS: explicit dark bg on input |
-| 6 | R2-2 | 🟨 | Dashboard very sparse | Dashboard | Add recent entries, charts |
-| 7 | R4-M2 | 🟨 | Missing theme-color / Apple PWA meta | All | Add meta tags |
+| #   | ID    | Sev | Description                                | Page       | Fix                                 |
+| --- | ----- | --- | ------------------------------------------ | ---------- | ----------------------------------- |
+| 1   | R4-H1 | 🟧  | QA Detail renders below full QA Library    | QA Detail  | Hide QA Library list on detail view |
+| 2   | R4-H2 | 🟧  | QA Detail panel persists across navigation | Global     | Close modal in `navigate()`         |
+| 3   | R3-H1 | 🟧  | PWA completely missing                     | All        | manifest.json, SW, meta tags        |
+| 4   | R4-M1 | 🟨  | Login SPA form missing `<form>` element    | Login      | Wrap in `<form>`                    |
+| 5   | R3-M3 | 🟨  | Search input invisible in dark mode        | QA Library | CSS: explicit dark bg on input      |
+| 6   | R2-2  | 🟨  | Dashboard very sparse                      | Dashboard  | Add recent entries, charts          |
+| 7   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta       | All        | Add meta tags                       |
 
 ---
 
 ## Previously Fixed (all rounds)
 
-| Issue | Fix PR/Commit | Note |
-|-------|---------------|------|
-| R3-H2 (Login labels) | — | Labels added to no-JS HTML |
-| R3-H3 (Controls leak) | — | Search/Export conditioned per page |
-| R3-M1 (QA Detail heading) | — | H1 updated to entry title |
-| R3-M2 (Users pagination) | PR #43 (#33) | 20/page pagination |
-| R3-M4 (Secondary headings) | #31 | H2 sections on all pages |
-| R3-L1 (Search label) | — | `<label for="global-search">` |
-| R3-L2 (Search type) | — | Changed to `type="search"` |
-| R2-1 (Sidebar QA count) | PR #42 (#35) | `loadQATotalCount()` |
-| All 19 Round 1 issues | Various | Full semantic + a11y + security |
+| Issue                      | Fix PR/Commit | Note                               |
+| -------------------------- | ------------- | ---------------------------------- |
+| R3-H2 (Login labels)       | —             | Labels added to no-JS HTML         |
+| R3-H3 (Controls leak)      | —             | Search/Export conditioned per page |
+| R3-M1 (QA Detail heading)  | —             | H1 updated to entry title          |
+| R3-M2 (Users pagination)   | PR #43 (#33)  | 20/page pagination                 |
+| R3-M4 (Secondary headings) | #31           | H2 sections on all pages           |
+| R3-L1 (Search label)       | —             | `<label for="global-search">`      |
+| R3-L2 (Search type)        | —             | Changed to `type="search"`         |
+| R2-1 (Sidebar QA count)    | PR #42 (#35)  | `loadQATotalCount()`               |
+| All 19 Round 1 issues      | Various       | Full semantic + a11y + security    |
