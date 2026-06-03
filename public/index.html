@@ -21,8 +21,28 @@
           <div class="login-sub">Knowledge Base</div>
           <div class="login-error" id="login-error"></div>
           <form method="POST" action="/api/auth/login" id="login-form">
-            <div class="form-group"><input class="form-input" name="username" placeholder="Username" autocomplete="username" autofocus></div>
-            <div class="form-group"><input class="form-input" type="password" name="password" placeholder="Password" autocomplete="current-password"></div>
+            <div class="form-group">
+              <label for="login-user" class="sr-only">Username</label>
+              <input
+                id="login-user"
+                class="form-input"
+                name="username"
+                placeholder="Username"
+                autocomplete="username"
+                autofocus
+              />
+            </div>
+            <div class="form-group">
+              <label for="login-pass" class="sr-only">Password</label>
+              <input
+                id="login-pass"
+                class="form-input"
+                type="password"
+                name="password"
+                placeholder="Password"
+                autocomplete="current-password"
+              />
+            </div>
             <button class="btn btn-primary" type="submit">Sign In</button>
           </form>
           <div class="login-link"><a href="/register">Create account</a></div>

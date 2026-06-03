@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const parts = path.split('/').filter(Boolean);
       const id = parts.length === 2 && /^\d+$/.test(parts[1]) ? parseInt(parts[1]) : 0;
       if (id > 0) {
-        navigate('qa');
+        state.page = 'qa';
         showQADetail(id);
       } else navigate('404');
     } else navigate('404');
@@ -278,11 +278,15 @@ function renderLogin(mode) {
     history.pushState(null, '', targetPath);
   }
   const params = new URLSearchParams(window.location.search);
-  const errMap = { invalid: 'Invalid username or password', pending: 'Account pending approval', disabled: 'Account disabled', missing: 'Fill in all fields' };
+  const errMap = {
+    invalid: 'Invalid username or password',
+    pending: 'Account pending approval',
+    disabled: 'Account disabled',
+    missing: 'Fill in all fields',
+  };
   const urlErr = params.get('error');
-  const fallbackError = urlErr && errMap[urlErr]
-    ? `<div class="login-error show">${errMap[urlErr]}</div>`
-    : '';
+  const fallbackError =
+    urlErr && errMap[urlErr] ? `<div class="login-error show">${errMap[urlErr]}</div>` : '';
   if (urlErr) history.replaceState(null, '', targetPath);
   const expiredMsg = state.sessionExpired
     ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
@@ -392,30 +396,14 @@ function renderShell() {
         <div class="topbar-left">
           <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
           <div><h1 class="topbar-title" id="page-title">QA Library</h1><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
-          <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search" aria-label="Search QA entries"></div>
         </div>
         <div class="topbar-right">
           <button class="btn btn-ghost" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" aria-pressed="${document.documentElement.getAttribute('data-theme') === 'dark'}">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
-          <button class="btn btn-ghost" onclick="exportCSV()">📥 Export</button>
+
         </div>
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
     </main>`;
-
-  // Bind search
-  const search = document.getElementById('global-search');
-  if (search) {
-    search.addEventListener(
-      'input',
-      debounce(() => {
-        if (state.page === 'qa') {
-          state.qaFilters.search = search.value;
-          state.qaPage = 1;
-          navigate('qa');
-        }
-      }, 300),
-    );
-  }
 }
 
 function navigate(page) {
@@ -446,17 +434,33 @@ function render404(el) {
 }
 
 // ===== QA =====
+let qaAbortController = null;
+
 async function renderQA(el) {
+  // Cancel stale in-flight fetch before starting a new one
+  if (qaAbortController) qaAbortController.abort();
+  qaAbortController = new AbortController();
+  const signal = qaAbortController.signal;
+
   el.innerHTML = '<div class="loading">Loading...</div>';
   try {
-    const res = await loadQA();
+    const res = await loadQA(signal);
+    // Guard against stale fetch: abort or page changed while waiting
+    if (signal.aborted || state.page !== 'qa') return;
     state.qaEntries = res.data;
     state.qaTotal = res.total;
     state.qaPage = res.page;
-  } catch (e) {}
+  } catch (e) {
+    if (e.name === 'AbortError' || state.page !== 'qa') return;
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading entries</div></div>`;
+    return;
+  }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div><div class="qa-list" id="qa-list"></div>`;
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"></div><button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
+  // Restore search input value after re-render
+  const s = document.getElementById('global-search');
+  if (s && state.qaFilters.search) s.value = state.qaFilters.search;
   el.querySelectorAll('[data-qf]').forEach((b) => {
     b.onclick = () => {
       state.qaFilters.status = b.dataset.qf || null;
@@ -464,6 +468,20 @@ async function renderQA(el) {
       renderQA(el);
     };
   });
+
+  // Bind search
+  const search = document.getElementById('global-search');
+  if (search) {
+    search.addEventListener(
+      'input',
+      debounce(() => {
+        if (state.page !== 'qa') return;
+        state.qaFilters.search = search.value;
+        state.qaPage = 1;
+        renderQA(el);
+      }, 300),
+    );
+  }
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) {
     const emptyText = state.qaFilters.search ? 'No results found' : 'No QA entries';
@@ -499,20 +517,24 @@ async function renderQA(el) {
       renderQA(el);
     };
 }
-async function loadQA() {
+async function loadQA(signal) {
   const p = new URLSearchParams();
   if (state.qaFilters.status) p.set('status', state.qaFilters.status);
   if (state.qaFilters.search) p.set('search', state.qaFilters.search);
   p.set('_page', state.qaPage);
   p.set('_per_page', '20');
-  return api(`/api/qa?${p}`);
+  return api(`/api/qa?${p}`, { signal });
 }
 
 async function showQADetail(id) {
   const q = await api(`/api/qa/${id}`);
+  // Ensure entry is in qaEntries so editQA works for deep links
+  if (!state.qaEntries.find((e) => e.id === q.id)) {
+    state.qaEntries.push(q);
+  }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
-    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal')" aria-label="Close">✕</button></div>
+    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal');history.replaceState(null,'','/qa');navigate('qa')" aria-label="Close">✕</button></div>
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
@@ -525,7 +547,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal')">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal');history.replaceState(null,'','/qa');navigate('qa')">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
   </div>`;
   openModal('detail-modal');
 }

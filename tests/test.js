@@ -61,7 +61,9 @@ function req(method, urlPath, opts = {}) {
     );
     r.on('error', () => resolve({ status: -1, body: '', json: null, setCookie: [], headers: {} }));
     if (opts.formBody) {
-      const qs = Object.entries(opts.formBody).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+      const qs = Object.entries(opts.formBody)
+        .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+        .join('&');
       r.write(qs);
     } else if (opts.body) {
       r.write(opts.contentType ? JSON.stringify(opts.body) : JSON.stringify(opts.body));
@@ -310,7 +312,9 @@ async function run() {
     assert(js.includes('aria-label="Main navigation"'), 'JS: nav aria-label');
     assert(js.includes('main-content'), 'JS: main-content id');
     assert(js.includes('<header class="topbar">'), 'JS: topbar <header>');
-    assert(js.includes('aria-label="Search QA entries"'), 'JS: search aria-label');
+    assert(js.includes('for="global-search"'), 'JS: search label for');
+    assert(js.includes('type="search"'), 'JS: search type="search"');
+    assert(js.includes('inputmode="search"'), 'JS: search inputmode="search"');
     assert(js.includes('aria-label="Close"'), 'JS: close aria-label');
     assert(js.includes('aria-label="Toggle sidebar"'), 'JS: toggle aria-label');
     assert(js.includes('aria-label="Toggle theme"'), 'JS: theme toggle aria-label');
