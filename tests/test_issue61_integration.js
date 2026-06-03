@@ -32,7 +32,9 @@ function req(method, urlPath, opts = {}) {
           let json = null;
           try {
             json = JSON.parse(body);
-          } catch {}
+          } catch {
+            /* body not valid JSON */
+          }
           const setCookie = res.headers['set-cookie'] || [];
           resolve({
             status: res.statusCode,
