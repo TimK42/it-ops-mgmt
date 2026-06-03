@@ -14,8 +14,20 @@
     />
   </head>
   <body>
-    <div id="app" class="app-loading">
-      <div class="loading">Loading...</div>
+    <div id="app">
+      <div class="login-page" id="login-fallback">
+        <div class="login-card">
+          <h1>IT Operations</h1>
+          <div class="login-sub">Knowledge Base</div>
+          <div class="login-error" id="login-error"></div>
+          <form method="POST" action="/api/auth/login" id="login-form">
+            <div class="form-group"><input class="form-input" name="username" placeholder="Username" autocomplete="username" autofocus></div>
+            <div class="form-group"><input class="form-input" type="password" name="password" placeholder="Password" autocomplete="current-password"></div>
+            <button class="btn btn-primary" type="submit">Sign In</button>
+          </form>
+          <div class="login-link"><a href="/register">Create account</a></div>
+        </div>
+      </div>
     </div>
 
     <div class="modal-overlay" id="detail-modal"></div>

@@ -277,6 +277,13 @@ function renderLogin(mode) {
   if (window.location.pathname !== targetPath) {
     history.pushState(null, '', targetPath);
   }
+  const params = new URLSearchParams(window.location.search);
+  const errMap = { invalid: 'Invalid username or password', pending: 'Account pending approval', disabled: 'Account disabled', missing: 'Fill in all fields' };
+  const urlErr = params.get('error');
+  const fallbackError = urlErr && errMap[urlErr]
+    ? `<div class="login-error show">${errMap[urlErr]}</div>`
+    : '';
+  if (urlErr) history.replaceState(null, '', targetPath);
   const expiredMsg = state.sessionExpired
     ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
     : '';
@@ -286,7 +293,7 @@ function renderLogin(mode) {
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
         <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
-        ${expiredMsg}
+        ${fallbackError}${expiredMsg}
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
         <div class="form-group"><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>

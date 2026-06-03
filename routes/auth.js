@@ -27,20 +27,31 @@ router.get('/me', (req, res) => {
 // POST /api/auth/login
 router.post('/login', (req, res) => {
   const { username, password, remember } = req.body;
-  if (!username || !password)
+  const isFormPost = req.is('application/x-www-form-urlencoded');
+  if (!username || !password) {
+    if (isFormPost) return res.redirect('/?error=missing');
     return res.status(400).json({ error: 'Username and password required' });
+  }
 
   const db = getDb();
   const u = db.prepare('SELECT * FROM users WHERE username = ?').get(username);
   if (!u || !bcrypt.compareSync(password, u.password)) {
+    if (isFormPost) return res.redirect('/?error=invalid');
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  if (u.status === 'pending') return res.status(403).json({ error: 'Account pending approval' });
-  if (u.status === 'disabled') return res.status(403).json({ error: 'Account disabled' });
+  if (u.status === 'pending') {
+    if (isFormPost) return res.redirect('/?error=pending');
+    return res.status(403).json({ error: 'Account pending approval' });
+  }
+  if (u.status === 'disabled') {
+    if (isFormPost) return res.redirect('/?error=disabled');
+    return res.status(403).json({ error: 'Account disabled' });
+  }
 
   req.session.userId = u.id;
   req.session.role = u.role;
   if (remember) req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+  if (isFormPost) return res.redirect('/qa');
   res.json({ id: u.id, username: u.username, role: u.role });
 });
 
