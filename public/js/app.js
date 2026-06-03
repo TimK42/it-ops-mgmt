@@ -652,8 +652,12 @@ async function showQADetail(id) {
   try {
     q = await api(`/api/qa/${id}`);
   } catch {
-    document.getElementById('detail-modal').querySelector('.modal-body').innerHTML =
-      '<p class="text-danger">Failed to load QA entry.</p>';
+    if (!state.user) {
+      closeModal('detail-modal');
+    } else {
+      document.getElementById('detail-modal').querySelector('.modal-body').innerHTML =
+        '<p class="text-danger">Failed to load QA entry.</p>';
+    }
     return;
   }
   // Ensure entry is in qaEntries so editQA works for deep links

@@ -331,7 +331,13 @@ echo ""
 echo ">>> QA Detail Fix Code Checks"
 # R4-H2 fix: navigate() must close modal (verified by grep context-scoped check)
 echo "$JS" | grep -q 'function navigate(page)' && pass "JS: navigate() function exists" || fail "JS: navigate() function missing"
-echo "$JS" | grep -A3 'function navigate(page)' | tail -3 | grep -q "closeModal('detail-modal')" && pass "JS: closeModal(detail-modal) inside navigate()" || fail "JS: closeModal(detail-modal) missing in navigate()"
+echo "$JS" > /tmp/check_nav.js
+node -e "
+var js = require('fs').readFileSync('/tmp/check_nav.js','utf8');
+var s = js.indexOf('function navigate(page)');
+var body = s >= 0 ? js.slice(s, s + 200) : '';
+process.exit(body.includes(\"closeModal('detail-modal')\") ? 0 : 1);
+" && pass "JS: closeModal(detail-modal) inside navigate()" || fail "JS: closeModal(detail-modal) missing in navigate()"
 # R4-H1 fix: showQADetail() must clear page-content
 echo "$JS" | grep -q "page-content').innerHTML = ''" && pass "JS: showQADetail() clears page-content" || fail "JS: showQADetail() missing page-content clear"
 
