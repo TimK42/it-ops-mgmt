@@ -34,13 +34,21 @@ function req(method, urlPath, opts = {}) {
             json = JSON.parse(body);
           } catch {}
           const setCookie = res.headers['set-cookie'] || [];
-          resolve({ status: res.statusCode, body, json, setCookie: Array.isArray(setCookie) ? setCookie : [setCookie], headers: res.headers });
+          resolve({
+            status: res.statusCode,
+            body,
+            json,
+            setCookie: Array.isArray(setCookie) ? setCookie : [setCookie],
+            headers: res.headers,
+          });
         });
-      }
+      },
     );
     r.on('error', () => resolve({ status: -1, body: '', json: null, setCookie: [], headers: {} }));
     if (opts.formBody) {
-      const qs = Object.entries(opts.formBody).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+      const qs = Object.entries(opts.formBody)
+        .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+        .join('&');
       r.write(qs);
     } else if (opts.body) {
       r.write(opts.contentType ? JSON.stringify(opts.body) : JSON.stringify(opts.body));
@@ -119,7 +127,10 @@ async function run() {
     console.log('\n>>> FIX 4 — CSS: Responsive users table');
     assert(css.includes('.users-table'), 'CSS: .users-table class exists');
     assert(css.includes('@media (max-width: 480px)'), 'CSS: 480px media query for users table');
-    assert(css.includes('attr(data-label)'), 'CSS: data-label content attribute for mobile headers');
+    assert(
+      css.includes('attr(data-label)'),
+      'CSS: data-label content attribute for mobile headers',
+    );
     assert(css.includes('clip-path: inset(50%)'), 'CSS: screen-reader only pattern in users table');
     assert(css.includes('flex-wrap: wrap'), 'CSS: actions cell wraps on mobile');
 
