@@ -255,6 +255,10 @@ function closeConfirm() {
 // ===== AUTH =====
 function renderLogin(mode) {
   const isRegister = mode === 'register';
+  const targetPath = isRegister ? '/register' : '/';
+  if (window.location.pathname !== targetPath) {
+    history.pushState(null, '', targetPath);
+  }
   const expiredMsg = state.sessionExpired
     ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
     : '';
