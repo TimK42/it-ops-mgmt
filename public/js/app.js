@@ -516,6 +516,7 @@ function renderShell() {
 }
 
 function navigate(page) {
+  closeModal('detail-modal');
   state.page = page;
   document.querySelectorAll('.nav-item').forEach((e) => e.classList.remove('active'));
   const n = document.querySelector(`[data-nav="${page}"]`);
@@ -643,7 +644,24 @@ async function loadQA(signal) {
 }
 
 async function showQADetail(id) {
-  const q = await api(`/api/qa/${id}`);
+  document.getElementById('page-content').innerHTML = '';
+  openModal('detail-modal');
+  document.getElementById('detail-modal').innerHTML =
+    '<div class="modal"><div class="modal-header"><div class="detail-banner"><div class="modal-title">Loading…</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div><div class="modal-body"><div class="loading">Loading...</div></div></div>';
+  let q;
+  try {
+    q = await api(`/api/qa/${id}`);
+  } catch {
+    if (!state.user) {
+      closeModal('detail-modal');
+    } else {
+      document.getElementById('detail-modal').querySelector('.modal-body').innerHTML =
+        '<p class="text-danger">Failed to load QA entry.</p>';
+    }
+    return;
+  }
+  // Guard: if user navigated away while fetch was in flight, skip update
+  if (!document.getElementById('detail-modal').classList.contains('open')) return;
   // Ensure entry is in qaEntries so editQA works for deep links
   if (!state.qaEntries.find((e) => e.id === q.id)) {
     state.qaEntries.push(q);
@@ -666,7 +684,6 @@ async function showQADetail(id) {
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
   </div>`;
-  openModal('detail-modal');
 }
 
 async function showCreateQA(data) {

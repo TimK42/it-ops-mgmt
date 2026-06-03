@@ -350,6 +350,51 @@ async function run() {
       css.includes('background: transparent'),
       'CSS: background: transparent (Prettier format)',
     );
+
+    // ═══ QA DETAIL SPA ROUTE (R4-H1) ═══
+    console.log('\n>>> QA Detail SPA Route');
+    r = await req('GET', '/qa/1');
+    // SPA catch-all route returns 404 with app shell for non-static paths
+    assert(r.status === 404, 'GET /qa/1 => 404 (SPA catch-all)');
+    assert(
+      (r.headers['content-type'] || '').includes('text/html'),
+      'GET /qa/1 => Content-Type includes html',
+    );
+    assert(r.body.includes('<div id="app"'), 'GET /qa/1 => contains app shell');
+    assert(r.body.includes('id="login-fallback"'), 'GET /qa/1 => login fallback present');
+    assert(r.body.includes('skip-link'), 'GET /qa/1 => skip-link present');
+
+    // ═══ SPA CATEGORIES ROUTE (R4-H2) ═══
+    console.log('\n>>> SPA Categories Route');
+    r = await req('GET', '/categories');
+    assert(r.status === 404, 'GET /categories => 404 (SPA catch-all)');
+    assert(
+      (r.headers['content-type'] || '').includes('text/html'),
+      'GET /categories => Content-Type includes html',
+    );
+    assert(r.body.includes('<div id="app"'), 'GET /categories => contains app shell');
+    assert(r.body.includes('skip-link'), 'GET /categories => skip-link present');
+
+    // ═══ QA DETAIL FIX CODE CHECK (R4-H1 & R4-H2) ═══
+    console.log('\n>>> QA Detail Fix Code');
+    r = await req('GET', '/js/app.js');
+    const appjs = r.body;
+    // R4-H2: navigate() must close modal before changing page
+    // Check closeModal appears inside navigate() body (first 400 chars)
+    const navStart = appjs.indexOf('function navigate(page)');
+    assert(navStart >= 0, 'JS: navigate() function exists');
+    const navBody = appjs.slice(navStart, navStart + 400);
+    assert(
+      navBody.includes("closeModal('detail-modal')"),
+      'JS: closeModal(detail-modal) called inside navigate() body',
+    );
+    // R4-H1: showQADetail() must clear page-content before loading QA detail
+    assert(
+      appjs.includes("page-content').innerHTML = ''"),
+      'JS: showQADetail() clears page-content before rendering',
+    );
+    // closeModal function must still exist
+    assert(appjs.includes('function closeModal('), 'JS: closeModal() function exists');
   } finally {
     server.kill();
   }
