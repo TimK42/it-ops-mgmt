@@ -451,7 +451,7 @@ async function renderQA(el) {
     state.qaTotal = res.total;
     state.qaPage = res.page;
   } catch (e) {
-    if (e.name === 'AbortError') return;
+    if (e.name === 'AbortError' || state.page !== 'qa') return;
     el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading entries</div></div>`;
     return;
   }

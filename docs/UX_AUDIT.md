@@ -173,10 +173,10 @@ X-Content-Type-Options: nosniff
 **Evidence:** `getComputedStyle(document.getElementById('global-search')).backgroundColor` returns transparent. Card backgrounds are `rgb(26, 26, 46)` but input inherits body `rgb(15, 15, 26)` with no explicit bg, causing visual ambiguity.  
 **Fix:** Add explicit `background-color` to search input in `[data-theme="dark"]` CSS (e.g., `rgb(26, 26, 46)`).
 
-### R3-M4. 🟨 No Heading Hierarchy — All Pages Only Have h1
+### R3-M4. 🟨 Missing Secondary Headings — Pages Have h1 But No h2/h3
 
 **Severity:** Medium · **Page:** All authenticated pages  
-**Symptom:** Every page has exactly one `<h1>` and zero `<h2>`/`<h3>`. Sections like "IT Operations / Knowledge Base", filter tabs, result counts, table headers are not structured with headings.  
+**Symptom:** Every page has a valid `<h1>` (resolved per R3-M1), but zero `<h2>`/`<h3>`. Sections like filter tabs, result counts, table headers are not structured with secondary headings.  
 **Fix:** Add `<h2>` for page sections (e.g., "Filters", "Results", "Sub-Systems List", "User Management").
 
 ### R3-L1. 🟩 `INPUT#global-search` Missing `<label>`
