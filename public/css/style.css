@@ -854,7 +854,7 @@ tr.row-click {
     min-width: 72px;
     flex-shrink: 0;
   }
-  .admin-table td[data-label=""]:before {
+  .admin-table td[data-label='']:before {
     content: none;
   }
   .admin-table td:last-child {

@@ -412,13 +412,22 @@ async function run() {
     assert(appjs.includes('function closeModal('), 'JS: closeModal() function exists');
 
     // Mobile overflow fix (#61) JS checks
-    assert(appjs.includes('data-label="Username"'), 'JS: renderUsers() data-label for Username (#61)');
+    assert(
+      appjs.includes('data-label="Username"'),
+      'JS: renderUsers() data-label for Username (#61)',
+    );
     assert(appjs.includes('data-label="Role"'), 'JS: renderUsers() data-label for Role (#61)');
     assert(appjs.includes('data-label="Status"'), 'JS: renderUsers() data-label for Status (#61)');
-    assert(appjs.includes('data-label="Created"'), 'JS: renderUsers() data-label for Created (#61)');
+    assert(
+      appjs.includes('data-label="Created"'),
+      'JS: renderUsers() data-label for Created (#61)',
+    );
     assert(appjs.includes('data-label="Icon"'), 'JS: renderCategories() data-label for Icon (#61)');
     assert(appjs.includes('data-label="Name"'), 'JS: renderCategories() data-label for Name (#61)');
-    assert(appjs.includes('data-label="Color"'), 'JS: renderCategories() data-label for Color (#61)');
+    assert(
+      appjs.includes('data-label="Color"'),
+      'JS: renderCategories() data-label for Color (#61)',
+    );
     assert(appjs.includes('data-label="QA"'), 'JS: renderCategories() data-label for QA (#61)');
     assert(
       appjs.includes('class="color-hex-label"'),
