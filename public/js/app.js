@@ -71,7 +71,7 @@ document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
   const action = btn.dataset.action;
-  if (btn.dataset.allowNav) {
+  if (btn.hasAttribute('data-allow-nav')) {
     // For links (<a>): only intercept without Ctrl/Cmd/Shift
     if (e.ctrlKey || e.metaKey || e.shiftKey) return;
   }
