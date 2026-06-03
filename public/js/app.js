@@ -80,24 +80,60 @@ document.addEventListener('click', (e) => {
   const page = btn.dataset.page;
   const modal = btn.dataset.modal;
   switch (action) {
-    case 'navigate': navigate(page || id); break;
-    case 'sidebar-toggle': document.getElementById('sidebar').classList.toggle('open'); break;
-    case 'theme-toggle': toggleTheme(); break;
-    case 'logout': logout(); break;
-    case 'close-modal': closeModal(modal); break;
-    case 'close-confirm': closeConfirm(); break;
-    case 'stay-logged-in': stayLoggedIn(); break;
-    case 'login-link': renderLogin(page || undefined); break;
-    case 'export-csv': exportCSV(); break;
-    case 'create-qa': showCreateQA(); break;
-    case 'edit-qa': editQA(id); break;
-    case 'delete-qa': deleteQA(id); break;
-    case 'create-category': showCreateCategory(); break;
-    case 'delete-cat': deleteCat(id); break;
-    case 'create-user': showCreateUser(); break;
-    case 'approve-user': approveUser(id); break;
-    case 'reject-user': rejectUser(id); break;
-    case 'toggle-user': toggleUser(id); break;
+    case 'navigate':
+      navigate(page || id);
+      break;
+    case 'sidebar-toggle':
+      document.getElementById('sidebar').classList.toggle('open');
+      break;
+    case 'theme-toggle':
+      toggleTheme();
+      break;
+    case 'logout':
+      logout();
+      break;
+    case 'close-modal':
+      closeModal(modal);
+      break;
+    case 'close-confirm':
+      closeConfirm();
+      break;
+    case 'stay-logged-in':
+      stayLoggedIn();
+      break;
+    case 'login-link':
+      renderLogin(page || undefined);
+      break;
+    case 'export-csv':
+      exportCSV();
+      break;
+    case 'create-qa':
+      showCreateQA();
+      break;
+    case 'edit-qa':
+      editQA(id);
+      break;
+    case 'delete-qa':
+      deleteQA(id);
+      break;
+    case 'create-category':
+      showCreateCategory();
+      break;
+    case 'delete-cat':
+      deleteCat(id);
+      break;
+    case 'create-user':
+      showCreateUser();
+      break;
+    case 'approve-user':
+      approveUser(id);
+      break;
+    case 'reject-user':
+      rejectUser(id);
+      break;
+    case 'toggle-user':
+      toggleUser(id);
+      break;
     case 'qa-card': {
       history.pushState(null, '', '/qa/' + id);
       showQADetail(id);
