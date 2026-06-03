@@ -788,6 +788,11 @@ async function renderUsers(el) {
   if (!state.users || state.users.length === 0) {
     el.innerHTML = '<div class="loading">Loading...</div>';
     await loadUsers();
+    if (!state.users || state.users.length === 0) {
+      el.innerHTML =
+        '<div class="error-msg">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
+      return;
+    }
   }
   const users = state.users;
   const totalPages = Math.ceil(users.length / state.usersPerPage);
