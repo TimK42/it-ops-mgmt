@@ -516,6 +516,7 @@ function renderShell() {
 }
 
 function navigate(page) {
+  closeModal('detail-modal');
   state.page = page;
   document.querySelectorAll('.nav-item').forEach((e) => e.classList.remove('active'));
   const n = document.querySelector(`[data-nav="${page}"]`);
@@ -643,6 +644,7 @@ async function loadQA(signal) {
 }
 
 async function showQADetail(id) {
+  document.getElementById('page-content').innerHTML = '';
   const q = await api(`/api/qa/${id}`);
   // Ensure entry is in qaEntries so editQA works for deep links
   if (!state.qaEntries.find((e) => e.id === q.id)) {
