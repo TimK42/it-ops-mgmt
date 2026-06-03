@@ -66,8 +66,26 @@ function toggleTheme() {
 
 initTheme();
 
+window.addEventListener('popstate', () => {
+  if (state.user) return;
+  const path = window.location.pathname;
+  if (path === '/register' || path === '/register/') renderLogin('register');
+  else if (path === '/' || path === '') renderLogin();
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
-  if (window.location.pathname === '/register') {
+  const initPath = window.location.pathname;
+  if (initPath === '/register' || initPath === '/register/') {
+    try {
+      const u = await api('/api/auth/me');
+      if (u && u.id) {
+        history.replaceState(null, '', '/qa');
+        window.location.reload();
+        return;
+      }
+    } catch (e) {
+      /* not authenticated, continue to register */
+    }
     renderLogin('register');
     return;
   }
