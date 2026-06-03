@@ -66,6 +66,52 @@ function toggleTheme() {
 
 initTheme();
 
+// Centralized click delegation — replaces all inline onclick handlers
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  if (btn.dataset.allowNav) {
+    // For links (<a>): only intercept without Ctrl/Cmd/Shift
+    if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+  }
+  e.preventDefault();
+  const id = btn.dataset.id ? Number(btn.dataset.id) : null;
+  const page = btn.dataset.page;
+  const modal = btn.dataset.modal;
+  switch (action) {
+    case 'navigate': navigate(page || id); break;
+    case 'sidebar-toggle': document.getElementById('sidebar').classList.toggle('open'); break;
+    case 'theme-toggle': toggleTheme(); break;
+    case 'logout': logout(); break;
+    case 'close-modal': closeModal(modal); break;
+    case 'close-confirm': closeConfirm(); break;
+    case 'stay-logged-in': stayLoggedIn(); break;
+    case 'login-link': renderLogin(page || undefined); break;
+    case 'export-csv': exportCSV(); break;
+    case 'create-qa': showCreateQA(); break;
+    case 'edit-qa': editQA(id); break;
+    case 'delete-qa': deleteQA(id); break;
+    case 'create-category': showCreateCategory(); break;
+    case 'delete-cat': deleteCat(id); break;
+    case 'create-user': showCreateUser(); break;
+    case 'approve-user': approveUser(id); break;
+    case 'reject-user': rejectUser(id); break;
+    case 'toggle-user': toggleUser(id); break;
+    case 'qa-card': {
+      history.pushState(null, '', '/qa/' + id);
+      showQADetail(id);
+      break;
+    }
+    case 'close-detail': {
+      closeModal('detail-modal');
+      history.replaceState(null, '', '/qa');
+      navigate('qa');
+      break;
+    }
+  }
+});
+
 window.addEventListener('popstate', () => {
   if (state.user) return;
   const path = window.location.pathname;
@@ -304,7 +350,7 @@ function renderLogin(mode) {
         <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? `<div class="form-group"><label for="auth-role" class="sr-only">Role</label><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
-        <div class="login-link">${isRegister ? '<a href="/" onclick="if(!event.ctrlKey&&!event.metaKey){event.preventDefault();renderLogin()}">← Back to sign in</a>' : '<a href="/register" onclick="if(!event.ctrlKey&&!event.metaKey){event.preventDefault();renderLogin(\'register\')}">Create account</a>'}</div>
+        <div class="login-link">${isRegister ? '<a href="/" data-action="login-link" data-allow-nav>← Back to sign in</a>' : '<a href="/register" data-action="login-link" data-page="register" data-allow-nav>Create account</a>'}</div>
       </div>
     </div>`;
   const err = document.getElementById('login-error');
@@ -379,14 +425,14 @@ function renderShell() {
       </div>
       <div class="sidebar-nav">
         <div class="nav-section">Main</div>
-        <button class="nav-item active" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
-        ${isAdmin ? `<button class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" onclick="navigate('users')"><span class="nav-icon">👥</span> Users</button>` : ''}
+        <button class="nav-item active" data-nav="qa" data-action="navigate" data-page="qa"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
+        ${isAdmin ? `<button class="nav-item" data-nav="categories" data-action="navigate" data-page="categories"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" data-action="navigate" data-page="users"><span class="nav-icon">👥</span> Users</button>` : ''}
         <div class="nav-section">Workspace</div>
-        <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
+        <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
       </div>
       <div class="sidebar-footer">
         <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px"><span class="admin-user-icon">${esc(userName)[0].toUpperCase()}</span></span> ${esc(userName)} (${u.role})</div>
-        <button class="nav-item" onclick="logout()" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
+        <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
       <div class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></div>
     </nav>
@@ -394,11 +440,11 @@ function renderShell() {
     <main id="main-content" class="main" tabindex="-1">
       <header class="topbar">
         <div class="topbar-left">
-          <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
+          <button class="sidebar-toggle" data-action="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
           <div><h1 class="topbar-title" id="page-title">QA Library</h1><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
         </div>
         <div class="topbar-right">
-          <button class="btn btn-ghost" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" aria-pressed="${document.documentElement.getAttribute('data-theme') === 'dark'}">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
+          <button class="btn btn-ghost" id="theme-toggle" data-action="theme-toggle" aria-label="Toggle theme" aria-pressed="${document.documentElement.getAttribute('data-theme') === 'dark'}">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
 
         </div>
       </header>
@@ -430,7 +476,7 @@ function navigate(page) {
 function render404(el) {
   document.getElementById('page-title').textContent = 'Page Not Found';
   el.innerHTML =
-    '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Page not found</div><button class="btn btn-primary" onclick="navigate(\'qa\')">Go to QA Library</button></div>';
+    '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Page not found</div><button class="btn btn-primary" data-action="navigate" data-page="qa">Go to QA Library</button></div>';
 }
 
 // ===== QA =====
@@ -457,7 +503,7 @@ async function renderQA(el) {
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"></div><button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
   // Restore search input value after re-render
   const s = document.getElementById('global-search');
   if (s && state.qaFilters.search) s.value = state.qaFilters.search;
@@ -491,7 +537,7 @@ async function renderQA(el) {
   list.innerHTML = state.qaEntries
     .map(
       (q) =>
-        `<a href="/qa/${q.id}" class="qa-card" onclick="if(!event.ctrlKey&&!event.metaKey&&!event.shiftKey){event.preventDefault();history.pushState(null,'','/qa/'+${q.id});showQADetail(${q.id})}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
+        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
           q.tags
             ? q.tags
                 .split(',')
@@ -534,7 +580,7 @@ async function showQADetail(id) {
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
-    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal');history.replaceState(null,'','/qa');navigate('qa')" aria-label="Close">✕</button></div>
+    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div>
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
@@ -547,7 +593,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal');history.replaceState(null,'','/qa');navigate('qa')">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
   </div>`;
   openModal('detail-modal');
 }
@@ -564,7 +610,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
     <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account"></div>`;
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
+    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
   document.getElementById('f-q-submit').onclick = async () => {
     const body = {
       title: document.getElementById('f-q-title').value,
@@ -626,8 +672,8 @@ function exportCSV() {
 // ===== CATEGORIES =====
 async function renderCategories(el) {
   await loadCategories();
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" onclick="showCreateCategory()">＋ Add Sub-System</button></div>
-    <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" onclick="deleteCat(${c.id})">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" data-action="create-category">＋ Add Sub-System</button></div>
+    <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');
@@ -635,7 +681,7 @@ async function showCreateCategory() {
   modal.querySelector('.modal-body').innerHTML =
     `<div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-cat-name"></div><div class="form-row"><div class="form-group"><label class="form-label">Color</label><input class="form-input" id="f-cat-color" type="color" value="#6366f1"></div><div class="form-group"><label class="form-label">Icon</label><input class="form-input" id="f-cat-icon" value="📋"></div></div>`;
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-cat-submit">Create</button>`;
+    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-cat-submit">Create</button>`;
   document.getElementById('f-cat-submit').onclick = async () => {
     const body = {
       name: document.getElementById('f-cat-name').value,
@@ -670,7 +716,7 @@ async function renderUsers(el) {
     el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading users</div></div>`;
     return;
   }
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" onclick="showCreateUser()">＋ New User</button></div>
+  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
     <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${users
       .map(
         (u) => `<tr>
@@ -678,7 +724,7 @@ async function renderUsers(el) {
       <td><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
       <td><span class="badge ${u.status === 'active' ? 'status-resolved' : u.status === 'pending' ? 'status-open' : 'status-closed'}">${u.status}</span></td>
       <td style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
-      <td style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" onclick="approveUser(${u.id})">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" onclick="rejectUser(${u.id})">Reject</button>` : `<button class="btn btn-sm btn-ghost" onclick="toggleUser(${u.id})">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
+      <td style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
     </tr>`,
       )
       .join('')}</tbody></table></div>`;
@@ -694,7 +740,7 @@ function showCreateUser() {
     </div>
     <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option><option value="Admin">Admin</option></select></div>`;
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
+    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
   document.getElementById('f-u-submit').onclick = async () => {
     const username = document.getElementById('f-u-name').value.trim();
     const password = document.getElementById('f-u-pass').value;

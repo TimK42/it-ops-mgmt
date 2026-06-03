@@ -58,13 +58,13 @@
       <div class="modal">
         <div class="modal-header">
           <div class="modal-title">New Entry</div>
-          <button class="modal-close" onclick="closeModal('form-modal')" aria-label="Close">
+          <button class="modal-close" data-action="close-modal" data-modal="form-modal" aria-label="Close">
             ✕
           </button>
         </div>
         <div class="modal-body"></div>
         <div class="modal-footer">
-          <button class="btn btn-ghost btn-sm" onclick="closeModal('form-modal')">Cancel</button>
+          <button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button>
           <button class="btn btn-primary btn-sm">Save</button>
         </div>
       </div>
@@ -74,11 +74,11 @@
       <div class="modal modal-sm">
         <div class="modal-header">
           <div class="modal-title" id="confirm-title">Confirm</div>
-          <button class="modal-close" onclick="closeConfirm()" aria-label="Close">✕</button>
+          <button class="modal-close" data-action="close-confirm" aria-label="Close">✕</button>
         </div>
         <div class="modal-body" id="confirm-message"></div>
         <div class="modal-footer custom-modal-footer" id="confirm-actions">
-          <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">Cancel</button>
+          <button class="btn btn-ghost btn-sm" data-action="close-confirm">Cancel</button>
           <button class="btn btn-sm btn-danger" id="confirm-ok">Confirm</button>
         </div>
       </div>
@@ -96,8 +96,8 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
-          <button class="btn btn-primary btn-sm" onclick="stayLoggedIn()">Stay Logged In</button>
+          <button class="btn btn-ghost btn-sm" data-action="logout">Sign Out</button>
+          <button class="btn btn-primary btn-sm" data-action="stay-logged-in">Stay Logged In</button>
         </div>
       </div>
     </div>
