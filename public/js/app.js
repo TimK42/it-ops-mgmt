@@ -445,11 +445,15 @@ async function renderQA(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   try {
     const res = await loadQA(signal);
+    // Guard against stale fetch: abort or page changed while waiting
+    if (signal.aborted || state.page !== 'qa') return;
     state.qaEntries = res.data;
     state.qaTotal = res.total;
     state.qaPage = res.page;
   } catch (e) {
     if (e.name === 'AbortError') return;
+    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading entries</div></div>`;
+    return;
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
