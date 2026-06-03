@@ -530,7 +530,7 @@ async function showQADetail(id) {
   const q = await api(`/api/qa/${id}`);
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
-    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal');navigate('qa')" aria-label="Close">✕</button></div>
+    <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" onclick="closeModal('detail-modal');history.pushState(null,'','/qa');navigate('qa')" aria-label="Close">✕</button></div>
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
@@ -543,7 +543,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal');navigate('qa')">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" onclick="closeModal('detail-modal');history.pushState(null,'','/qa');navigate('qa')">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" onclick="editQA(${q.id})">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteQA(${q.id})">Delete</button>` : ''}</div>
   </div>`;
   openModal('detail-modal');
 }
