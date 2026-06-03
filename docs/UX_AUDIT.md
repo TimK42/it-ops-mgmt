@@ -122,7 +122,7 @@
 
 **Severity:** Medium · **Page:** QA Library (dark mode)  
 **Symptom:** `searchColor: rgb(0,0,0)` (black text) on `rgba(26,26,46,0.8)` (transparent dark background). Text is invisible.  
-**📌 R4 STILL OPEN**
+**✅ FIXED (PR #58)** — CSS uses `var(--bg-muted)` background with `var(--text)` color in dark mode. Text is readable.
 
 ### R3-M4. 🟨 Missing Secondary Headings
 
@@ -287,9 +287,8 @@ No HSTS `preload` directive. No `X-XSS-Protection` (deprecated but still common)
 | 2   | R4-H2 | 🟧  | QA Detail panel persists across navigation | Global     | Close modal in `navigate()`         |
 | 3   | R3-H1 | 🟧  | PWA completely missing                     | All        | manifest.json, SW, meta tags        |
 | 4   | R4-M1 | 🟨  | Login SPA form missing `<form>` element    | Login      | Wrap in `<form>`                    |
-| 5   | R3-M3 | 🟨  | Search input invisible in dark mode        | QA Library | CSS: explicit dark bg on input      |
-| 6   | R2-2  | 🟨  | Dashboard very sparse                      | Dashboard  | Add recent entries, charts          |
-| 7   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta       | All        | Add meta tags                       |
+| 5   | R2-2  | 🟨  | Dashboard very sparse                      | Dashboard  | Add recent entries, charts          |
+| 6   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta       | All        | Add meta tags                       |
 
 ---
 
