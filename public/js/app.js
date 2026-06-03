@@ -3,6 +3,7 @@ let state = {
   qaEntries: [],
   categories: [],
   qaTotal: 0,
+  qaTotalCount: null,
   qaPage: 1,
   qaFilters: { status: 'Published', search: '' },
   user: null,
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const u = await api('/api/auth/me');
     state.user = u;
-    await loadCategories();
+    await Promise.all([loadCategories(), loadQATotalCount()]);
     startActivityTracking();
     renderShell();
     const path = window.location.pathname;
@@ -156,6 +157,14 @@ async function loadCategories() {
   try {
     state.categories = await api('/api/categories');
   } catch (e) {}
+}
+async function loadQATotalCount() {
+  try {
+    const s = await api('/api/stats');
+    state.qaTotalCount = s && s.qa && typeof s.qa.total === 'number' ? s.qa.total : 0;
+  } catch (e) {
+    state.qaTotalCount = 0;
+  }
 }
 
 // Session idle tracking
@@ -290,6 +299,7 @@ function renderLogin(mode) {
         });
         state.user = u;
         await loadCategories();
+        await loadQATotalCount();
         renderShell();
         startActivityTracking();
         navigate('qa');
@@ -332,7 +342,7 @@ function renderShell() {
       </div>
       <div class="sidebar-nav">
         <div class="nav-section">Main</div>
-        <button class="nav-item active" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">0</span></button>
+        <button class="nav-item active" data-nav="qa" onclick="navigate('qa')"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
         ${isAdmin ? `<button class="nav-item" data-nav="categories" onclick="navigate('categories')"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" onclick="navigate('users')"><span class="nav-icon">👥</span> Users</button>` : ''}
         <div class="nav-section">Workspace</div>
         <button class="nav-item" data-nav="dashboard" onclick="navigate('dashboard')"><span class="nav-icon">📊</span> Dashboard</button>
@@ -442,7 +452,7 @@ async function renderQA(el) {
     .join('');
   const totalPages = Math.ceil(state.qaTotal / 20);
   list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
-  document.getElementById('qa-count').textContent = state.qaTotal;
+
   const prev = document.getElementById('qa-prev');
   if (prev && !prev.disabled)
     prev.onclick = () => {

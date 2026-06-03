@@ -30,16 +30,25 @@ app.use(
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session middleware
+// Production safeguards
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required in production');
+  }
+  app.set('trust proxy', 1); // Trust Fly.io reverse proxy for secure cookies
+}
+
 app.use(
   session({
     store: new SQLiteStore(getDb()),
-    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'),
     resave: false,
     saveUninitialized: false,
     cookie: {
       maxAge: 16 * 60 * 60 * 1000, // 16h idle
       httpOnly: true,
       sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
     },
   }),
 );
