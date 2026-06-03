@@ -383,7 +383,10 @@ async function run() {
     // Check closeModal appears inside navigate() body (limited to first 200 chars for scoping)
     const navStart = appjs.indexOf('function navigate(page)');
     const navBody = navStart >= 0 ? appjs.slice(navStart, navStart + 200) : '';
-    assert(navBody.includes('closeModal'), 'JS: closeModal() called inside navigate() body');
+    assert(
+      navBody.includes("closeModal('detail-modal')"),
+      'JS: closeModal(detail-modal) called inside navigate() body',
+    );
     // R4-H1: showQADetail() must clear page-content before loading QA detail
     assert(
       appjs.includes("page-content').innerHTML = ''"),
