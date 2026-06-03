@@ -30,9 +30,12 @@ app.use(
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session middleware
-// Fail fast in production if SESSION_SECRET is missing
-if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
-  throw new Error('SESSION_SECRET environment variable is required in production');
+// Production safeguards
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET environment variable is required in production');
+  }
+  app.set('trust proxy', 1); // Trust Fly.io reverse proxy for secure cookies
 }
 
 app.use(
