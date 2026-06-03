@@ -282,8 +282,10 @@ echo "$QF" | grep -q '"data"' && pass "QA filter works" || fail "QA filter faile
 
 echo ""
 echo ">>> HTML / JS / CSS Accessibility"
-# Static HTML must NOT have skip-link (dynamic only)
-grep -q 'skip-link' public/index.html && fail "Static HTML has skip-link" || pass "Static HTML: no skip-link"
+# Static HTML has skip-link + <main> (no-JS fallback a11y)
+grep -q 'skip-link' public/index.html && pass "Static HTML: skip-link present" || fail "Static HTML: skip-link missing"
+grep -q 'id="main-content"' public/index.html && pass "Static HTML: main-content id" || fail "Static HTML: main-content id missing"
+grep -q '<main' public/index.html && pass "Static HTML: <main> landmark" || fail "Static HTML: <main> landmark missing"
 
 JS=$(curl -sf "$BASE/js/app.js")
 echo "$JS" | grep -q 'aria-label="Main navigation"' && pass "JS: nav aria-label" || fail "JS: nav aria-label"
@@ -301,6 +303,9 @@ echo "$JS" | grep -q '<h1>' && pass "JS: h1 heading" || fail "JS: h1 heading"
 echo "$JS" | grep -q 'autofocus' && pass "JS: autofocus" || fail "JS: autofocus"
 echo "$JS" | grep -q '<div class="nav-item" onclick' && fail "JS: uses <div onclick> nav" || pass "JS: nav uses <button>"
 echo "$JS" | grep -q '<button class="nav-item"' && pass "JS: nav <button> elements" || fail "JS: nav <button> missing"
+echo "$JS" | grep -q 'for="auth-user"' && pass "JS: auth-user label" || fail "JS: auth-user label missing"
+echo "$JS" | grep -q 'for="auth-pass"' && pass "JS: auth-pass label" || fail "JS: auth-pass label missing"
+echo "$JS" | grep -q 'for="auth-role"' && pass "JS: auth-role label" || fail "JS: auth-role label missing"
 echo "$JS" | grep -q 'skip-link' && pass "JS: skip-link present" || fail "JS: skip-link missing"
 echo "$JS" | grep -q 'tabindex="-1"' && pass "JS: tabindex=-1 for main" || fail "JS: tabindex=-1 missing"
 echo "$JS" | grep -q 'onkeydown=' || echo "$JS" | grep -q 'onkeyup=' && fail "JS: has inline keyboard handlers" || pass "JS: no inline keyboard handlers"
