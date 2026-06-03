@@ -708,7 +708,7 @@ tr.row-click {
 }
 @media (max-width: 768px) {
   .sidebar-overlay {
-    display: none;
+    display: block;
     position: fixed;
     top: 0;
     left: 0;
@@ -717,11 +717,12 @@ tr.row-click {
     background: rgba(0, 0, 0, 0.5);
     z-index: 99;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.3s;
   }
   .sidebar-overlay.open {
-    display: block;
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
