@@ -22,7 +22,11 @@ function assert(cond, msg) {
 function req(method, urlPath, opts = {}) {
   return new Promise((resolve) => {
     const headers = {};
-    if (opts.body) headers['Content-Type'] = 'application/json';
+    if (opts.formBody) {
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    } else if (opts.body) {
+      headers['Content-Type'] = opts.contentType || 'application/json';
+    }
     if (opts.cookie) headers['Cookie'] = opts.cookie;
 
     const r = http.request(
@@ -56,7 +60,12 @@ function req(method, urlPath, opts = {}) {
       },
     );
     r.on('error', () => resolve({ status: -1, body: '', json: null, setCookie: [], headers: {} }));
-    if (opts.body) r.write(JSON.stringify(opts.body));
+    if (opts.formBody) {
+      const qs = Object.entries(opts.formBody).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+      r.write(qs);
+    } else if (opts.body) {
+      r.write(opts.contentType ? JSON.stringify(opts.body) : JSON.stringify(opts.body));
+    }
     r.end();
   });
 }
@@ -101,9 +110,6 @@ async function run() {
     r = await req('GET', '/js/app.js');
     assert(r.status === 200, 'GET /js/app.js => 200');
 
-    r = await req('GET', '/nonexistent-page');
-    assert(r.status === 404, 'SPA catch-all => 404');
-
     // ═══ SPA REGISTER ROUTE ═══
     console.log('\n>>> SPA Register Route');
     r = await req('GET', '/register');
@@ -113,7 +119,15 @@ async function run() {
       'GET /register => Content-Type includes html',
     );
     assert(r.body.includes('<div id="app"'), 'GET /register => contains app shell');
-    // Register form is rendered client-side by app.js, not in static HTML
+
+    // ═══ NO-JS FALLBACK ═══
+    console.log('\n>>> No-JS Fallback');
+    r = await req('GET', '/');
+    assert(r.body.includes('id="login-fallback"'), 'GET / => login fallback present');
+    assert(r.body.includes('id="login-form"'), 'GET / => login form present');
+    r = await req('GET', '/nonexistent-page');
+    assert(r.status === 404, 'Catch-all => 404');
+    assert(r.body.includes('id="login-fallback"'), 'Catch-all 404 => login fallback present');
 
     // ═══ AUTH ═══
     console.log('\n>>> Auth');
@@ -136,6 +150,25 @@ async function run() {
 
     r = await req('GET', '/api/auth/me');
     assert(r.status === 401, '/me without cookie => 401');
+
+    // Form POST (no-JS fallback)
+    r = await req('POST', '/api/auth/login', {
+      formBody: { username: 'admin', password: '0000' },
+    });
+    assert(r.status === 302, 'Form login POST correct => 302');
+    assert(r.headers['location'] === '/qa', 'Form login redirect => /qa');
+
+    r = await req('POST', '/api/auth/login', {
+      formBody: { username: 'admin', password: 'wrong' },
+    });
+    assert(r.status === 302, 'Form login wrong pw => 302');
+    assert(r.headers['location'] === '/?error=invalid', 'Form login wrong pw => /?error=invalid');
+
+    r = await req('POST', '/api/auth/login', {
+      formBody: { username: '', password: '' },
+    });
+    assert(r.status === 302, 'Form login empty fields => 302');
+    assert(r.headers['location'] === '/?error=missing', 'Form login empty => /?error=missing');
 
     // ═══ REGISTRATION ═══
     console.log('\n>>> Registration');
