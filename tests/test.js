@@ -362,8 +362,8 @@ async function run() {
       'CSS: mobile card layout with data-label pseudo-elements (#61)',
     );
     assert(
-      css.includes('.color-hex-label') && css.includes('display: none'),
-      'CSS: .color-hex-label hidden at mobile (#61)',
+      css.includes('.color-hex-label') && css.includes('clip: rect(0, 0, 0, 0)'),
+      'CSS: .color-hex-label visually-hidden at mobile (#61)',
     );
 
     // ═══ QA DETAIL SPA ROUTE (R4-H1) ═══
