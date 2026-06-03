@@ -45,6 +45,7 @@ app.use(
       maxAge: 16 * 60 * 60 * 1000, // 16h idle
       httpOnly: true,
       sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
     },
   }),
 );
