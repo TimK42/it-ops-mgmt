@@ -457,9 +457,7 @@ function renderLogin(mode) {
   document.getElementById('auth-user').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('auth-pass').focus();
   });
-  document.getElementById('auth-pass').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('login-form').dispatchEvent(new Event('submit'));
-  });
+  // Password Enter submits natively via <form> — no manual handler needed
 }
 
 async function logout() {
