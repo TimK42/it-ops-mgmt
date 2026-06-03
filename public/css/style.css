@@ -702,6 +702,18 @@ tr.row-click {
   color: rgba(255, 255, 255, 0.7);
   flex-shrink: 0;
 }
+.sidebar-toggle {
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
 @media (max-width: 768px) {
   .sidebar {
     display: none;
@@ -756,18 +768,6 @@ tr.row-click {
   .pagination-btn {
     min-height: 44px;
     padding: 10px 14px;
-  }
-  .sidebar-toggle {
-    min-width: 44px;
-    min-height: 44px;
-    font-size: 22px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: inherit;
   }
   .login-link a {
     min-height: 44px;

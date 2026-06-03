@@ -3,7 +3,7 @@
 **App:** it-ops-mgmt (IT Operations Knowledge Base) v1.1.0  
 **Date:** 2026-06-03 (updated with quantitative measurements)  
 **Viewport:** 355×812 (iPhone SE / Portrait)  
-**Auth:** admin / 0000  
+**Auth:** test-user / test-password-placeholder  
 **Sidebar:** Collapsed by default (`display: none` at this viewport)  
 **Theme tested:** Light and Dark  
 **Methodology:** Automated measurements + visual inspection
@@ -295,9 +295,9 @@
 | Severity | Count | IDs                                                                                            |
 | -------- | ----- | ---------------------------------------------------------------------------------------------- |
 | Critical | 1     | #46                                                                                            |
-| High     | 12    | #3, #5, #10, #14, #17, #18, #19, #25, #35, #36, #37, #38, #40, #41, #42                        |
-| Medium   | 16    | #1, #2, #4, #7, #11, #12, #13, #20, #21, #26, #27, #29, #31, #32, #33, #34, #39, #44, #47, #49 |
-| Low      | 8     | #6, #8, #15, #16, #22, #23, #24, #28, #30, #43, #45, #48, #50                                  |
+| High     | 15    | #3, #5, #10, #14, #17, #18, #19, #25, #35, #36, #37, #38, #40, #41, #42                        |
+| Medium   | 20    | #1, #2, #4, #7, #11, #12, #13, #20, #21, #26, #27, #29, #31, #32, #33, #34, #39, #44, #47, #49 |
+| Low      | 13    | #6, #8, #15, #16, #22, #23, #24, #28, #30, #43, #45, #48, #50                                  |
 
 ---
 
