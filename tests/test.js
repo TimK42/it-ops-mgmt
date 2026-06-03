@@ -104,6 +104,20 @@ async function run() {
     r = await req('GET', '/nonexistent-page');
     assert(r.status === 404, 'SPA catch-all => 404');
 
+    // ═══ SPA REGISTER ROUTE ═══
+    console.log('\n>>> SPA Register Route');
+    r = await req('GET', '/register');
+    assert(r.status === 200, 'GET /register => 200');
+    assert(
+      (r.headers['content-type'] || '').includes('text/html'),
+      'GET /register => Content-Type includes html',
+    );
+    assert(
+      r.body.includes('<div id="app"'),
+      'GET /register => contains app shell',
+    );
+    // Register form is rendered client-side by app.js, not in static HTML
+
     // ═══ AUTH ═══
     console.log('\n>>> Auth');
     let cookie = await login('admin', '0000');

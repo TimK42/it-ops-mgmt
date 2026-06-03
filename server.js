@@ -95,6 +95,11 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
+app.get('/register', (req, res) => {
+  const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
+  res.type('html').send(html);
+});
+
 app.get('/*path', (req, res) => {
   if (req.path.startsWith('/api/') || req.path === '/api')
     return res.status(404).json({ error: 'Not found' });

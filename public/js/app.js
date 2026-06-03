@@ -67,6 +67,10 @@ function toggleTheme() {
 initTheme();
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (window.location.pathname === '/register') {
+    renderLogin('register');
+    return;
+  }
   try {
     const u = await api('/api/auth/me');
     state.user = u;
