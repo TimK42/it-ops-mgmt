@@ -392,30 +392,16 @@ function renderShell() {
         <div class="topbar-left">
           <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
           <div><h1 class="topbar-title" id="page-title">QA Library</h1><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
-          <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search..." id="global-search" aria-label="Search QA entries"></div>
         </div>
         <div class="topbar-right">
           <button class="btn btn-ghost" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" aria-pressed="${document.documentElement.getAttribute('data-theme') === 'dark'}">${document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙'}</button>
-          <button class="btn btn-ghost" onclick="exportCSV()">📥 Export</button>
+
         </div>
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
     </main>`;
 
-  // Bind search
-  const search = document.getElementById('global-search');
-  if (search) {
-    search.addEventListener(
-      'input',
-      debounce(() => {
-        if (state.page === 'qa') {
-          state.qaFilters.search = search.value;
-          state.qaPage = 1;
-          navigate('qa');
-        }
-      }, 300),
-    );
-  }
+
 }
 
 function navigate(page) {
@@ -456,7 +442,7 @@ async function renderQA(el) {
   } catch (e) {}
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div><div class="qa-list" id="qa-list"></div>`;
+  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search" aria-label="Search QA entries"></div><button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
   el.querySelectorAll('[data-qf]').forEach((b) => {
     b.onclick = () => {
       state.qaFilters.status = b.dataset.qf || null;
@@ -464,6 +450,19 @@ async function renderQA(el) {
       renderQA(el);
     };
   });
+
+  // Bind search
+  const search = document.getElementById('global-search');
+  if (search) {
+    search.addEventListener(
+      'input',
+      debounce(() => {
+        state.qaFilters.search = search.value;
+        state.qaPage = 1;
+        renderQA(el);
+      }, 300),
+    );
+  }
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) {
     const emptyText = state.qaFilters.search ? 'No results found' : 'No QA entries';
