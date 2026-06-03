@@ -22,7 +22,9 @@
           <div class="login-error" id="login-error"></div>
           <form method="POST" action="/api/auth/login" id="login-form">
             <div class="form-group">
+              <label for="login-user" class="sr-only">Username</label>
               <input
+                id="login-user"
                 class="form-input"
                 name="username"
                 placeholder="Username"
@@ -31,7 +33,9 @@
               />
             </div>
             <div class="form-group">
+              <label for="login-pass" class="sr-only">Password</label>
               <input
+                id="login-pass"
                 class="form-input"
                 type="password"
                 name="password"

@@ -434,14 +434,23 @@ function render404(el) {
 }
 
 // ===== QA =====
+let qaAbortController = null;
+
 async function renderQA(el) {
+  // Cancel stale in-flight fetch before starting a new one
+  if (qaAbortController) qaAbortController.abort();
+  qaAbortController = new AbortController();
+  const signal = qaAbortController.signal;
+
   el.innerHTML = '<div class="loading">Loading...</div>';
   try {
-    const res = await loadQA();
+    const res = await loadQA(signal);
     state.qaEntries = res.data;
     state.qaTotal = res.total;
     state.qaPage = res.page;
-  } catch (e) {}
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+  }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
   el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search" aria-label="Search QA entries"></div><button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
@@ -504,13 +513,13 @@ async function renderQA(el) {
       renderQA(el);
     };
 }
-async function loadQA() {
+async function loadQA(signal) {
   const p = new URLSearchParams();
   if (state.qaFilters.status) p.set('status', state.qaFilters.status);
   if (state.qaFilters.search) p.set('search', state.qaFilters.search);
   p.set('_page', state.qaPage);
   p.set('_per_page', '20');
-  return api(`/api/qa?${p}`);
+  return api(`/api/qa?${p}`, { signal });
 }
 
 async function showQADetail(id) {
