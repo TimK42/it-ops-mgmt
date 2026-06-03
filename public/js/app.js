@@ -8,6 +8,9 @@ let state = {
   qaFilters: { status: 'Published', search: '' },
   user: null,
   sessionExpired: false,
+  users: [],
+  usersPage: 1,
+  usersPerPage: 20,
 };
 
 function initTheme() {
@@ -145,6 +148,20 @@ document.addEventListener('click', (e) => {
       navigate('qa');
       break;
     }
+    case 'users-prev':
+      if (state.usersPage > 1) {
+        state.usersPage--;
+        history.pushState(null, '', '/users');
+        navigate('users');
+      }
+      break;
+    case 'users-next':
+      if (state.usersPage < Math.ceil(state.users.length / state.usersPerPage)) {
+        state.usersPage++;
+        history.pushState(null, '', '/users');
+        navigate('users');
+      }
+      break;
   }
 });
 
@@ -759,15 +776,20 @@ async function deleteCat(id) {
 // ===== USERS =====
 async function renderUsers(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
-  let users = [];
   try {
-    users = await api('/api/users');
+    state.users = await api('/api/users');
   } catch (e) {
     el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading users</div></div>`;
     return;
   }
+  const users = state.users;
+  const totalPages = Math.ceil(users.length / state.usersPerPage);
+  if (state.usersPage > totalPages && totalPages > 0) state.usersPage = totalPages;
+  const start = (state.usersPage - 1) * state.usersPerPage;
+  const end = Math.min(start + state.usersPerPage, users.length);
+  const pageUsers = users.slice(start, end);
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
-    <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${users
+    <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
       .map(
         (u) => `<tr>
       <td><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
@@ -777,7 +799,16 @@ async function renderUsers(el) {
       <td style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
     </tr>`,
       )
-      .join('')}</tbody></table></div>`;
+      .join('')}</tbody></table></div>
+    ${
+      totalPages > 1
+        ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
+      <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
+      <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
+      <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
+    </div>`
+        : ''
+    }`;
 }
 function showCreateUser() {
   const modal = document.getElementById('form-modal');
@@ -805,6 +836,7 @@ function showCreateUser() {
         body: JSON.stringify({ username, password, role }),
       });
       closeModal('form-modal');
+      state.usersPage = 1;
       navigate('users');
       toast('User created');
     } catch (e) {
