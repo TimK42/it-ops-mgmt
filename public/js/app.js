@@ -151,15 +151,13 @@ document.addEventListener('click', (e) => {
     case 'users-prev':
       if (state.usersPage > 1) {
         state.usersPage--;
-        history.pushState(null, '', '/users');
-        navigate('users');
+        renderUsers(document.getElementById('page-content'));
       }
       break;
     case 'users-next':
-      if (state.usersPage < Math.ceil(state.users.length / state.usersPerPage)) {
+      if (state.usersPage < Math.ceil((state.users || []).length / (state.usersPerPage || 1))) {
         state.usersPage++;
-        history.pushState(null, '', '/users');
-        navigate('users');
+        renderUsers(document.getElementById('page-content'));
       }
       break;
   }
@@ -285,6 +283,16 @@ async function loadQATotalCount() {
     state.qaTotalCount = s && s.qa && typeof s.qa.total === 'number' ? s.qa.total : 0;
   } catch (e) {
     state.qaTotalCount = 0;
+  }
+}
+async function loadUsers() {
+  try {
+    const data = await api('/api/users');
+    state.users = data;
+    state.usersPage = 1;
+  } catch (e) {
+    state.users = [];
+    toast('Failed to load users');
   }
 }
 
@@ -525,8 +533,10 @@ function navigate(page) {
     });
     renderQA(el);
   } else if (page === 'categories') renderCategories(el);
-  else if (page === 'users') renderUsers(el);
-  else if (page === 'dashboard') renderDashboard(el);
+  else if (page === 'users') {
+    state.users = [];
+    renderUsers(el);
+  } else if (page === 'dashboard') renderDashboard(el);
   else if (page === '404') render404(el);
   else render404(el);
 }
@@ -775,12 +785,9 @@ async function deleteCat(id) {
 
 // ===== USERS =====
 async function renderUsers(el) {
-  el.innerHTML = '<div class="loading">Loading...</div>';
-  try {
-    state.users = await api('/api/users');
-  } catch (e) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading users</div></div>`;
-    return;
+  if (!state.users || state.users.length === 0) {
+    el.innerHTML = '<div class="loading">Loading...</div>';
+    await loadUsers();
   }
   const users = state.users;
   const totalPages = Math.ceil(users.length / state.usersPerPage);
