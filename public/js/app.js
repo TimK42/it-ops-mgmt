@@ -696,15 +696,9 @@ async function showCreateQA(data) {
           body: JSON.stringify(body),
         });
         toast('Updated');
-        await loadQATotalCount();
-        const badgeEdit = document.getElementById('qa-count');
-        if (badgeEdit) badgeEdit.textContent = state.qaTotalCount;
       } else {
         await api('/api/qa', { method: 'POST', body: JSON.stringify(body) });
         toast('Created');
-        await loadQATotalCount();
-        const badgeCreate = document.getElementById('qa-count');
-        if (badgeCreate) badgeCreate.textContent = state.qaTotalCount;
       }
       closeModal('form-modal');
       navigate('qa');
@@ -723,9 +717,6 @@ async function deleteQA(id) {
   showConfirm('Delete', 'Are you sure you want to delete this entry?', async () => {
     await api(`/api/qa/${id}`, { method: 'DELETE' });
     toast('Deleted');
-    await loadQATotalCount();
-    const badge = document.getElementById('qa-count');
-    if (badge) badge.textContent = state.qaTotalCount;
     navigate('qa');
   });
 }
