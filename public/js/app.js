@@ -645,12 +645,15 @@ async function loadQA(signal) {
 
 async function showQADetail(id) {
   document.getElementById('page-content').innerHTML = '';
+  openModal('detail-modal');
+  document.getElementById('detail-modal').innerHTML =
+    '<div class="modal"><div class="modal-header"><div class="detail-banner"><div class="modal-title">Loading…</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div><div class="modal-body"><div class="loading">Loading...</div></div></div>';
   let q;
   try {
     q = await api(`/api/qa/${id}`);
   } catch {
-    closeModal('detail-modal');
-    navigate('qa');
+    document.getElementById('detail-modal').querySelector('.modal-body').innerHTML =
+      '<p class="text-danger">Failed to load QA entry.</p>';
     return;
   }
   // Ensure entry is in qaEntries so editQA works for deep links
@@ -675,7 +678,6 @@ async function showQADetail(id) {
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
   </div>`;
-  openModal('detail-modal');
 }
 
 async function showCreateQA(data) {
