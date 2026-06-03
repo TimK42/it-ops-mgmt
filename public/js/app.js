@@ -278,11 +278,15 @@ function renderLogin(mode) {
     history.pushState(null, '', targetPath);
   }
   const params = new URLSearchParams(window.location.search);
-  const errMap = { invalid: 'Invalid username or password', pending: 'Account pending approval', disabled: 'Account disabled', missing: 'Fill in all fields' };
+  const errMap = {
+    invalid: 'Invalid username or password',
+    pending: 'Account pending approval',
+    disabled: 'Account disabled',
+    missing: 'Fill in all fields',
+  };
   const urlErr = params.get('error');
-  const fallbackError = urlErr && errMap[urlErr]
-    ? `<div class="login-error show">${errMap[urlErr]}</div>`
-    : '';
+  const fallbackError =
+    urlErr && errMap[urlErr] ? `<div class="login-error show">${errMap[urlErr]}</div>` : '';
   if (urlErr) history.replaceState(null, '', targetPath);
   const expiredMsg = state.sessionExpired
     ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
@@ -400,8 +404,6 @@ function renderShell() {
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
     </main>`;
-
-
 }
 
 function navigate(page) {
@@ -443,6 +445,9 @@ async function renderQA(el) {
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
   el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search" aria-label="Search QA entries"></div><button class="btn btn-ghost btn-sm" onclick="exportCSV()">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" onclick="showCreateQA()">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
+  // R3-H3 fix: restore search input value after re-render
+  const s = document.getElementById('global-search');
+  if (s && state.qaFilters.search) s.value = state.qaFilters.search;
   el.querySelectorAll('[data-qf]').forEach((b) => {
     b.onclick = () => {
       state.qaFilters.status = b.dataset.qf || null;
