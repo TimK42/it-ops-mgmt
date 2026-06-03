@@ -329,7 +329,7 @@ curl -s "$BASE/categories" | grep -q '<div id="app"' && pass "GET /categories: a
 
 echo ""
 echo ">>> QA Detail Fix Code Checks"
-# R4-H2 fix: navigate() must close modal (verified by grep context-scoped check)
+# R4-H2 fix: navigate() must close modal (verified by node index/slice check)
 echo "$JS" | grep -q 'function navigate(page)' && pass "JS: navigate() function exists" || fail "JS: navigate() function missing"
 echo "$JS" > /tmp/check_nav.js
 node -e "
