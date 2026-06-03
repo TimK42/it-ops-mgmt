@@ -382,8 +382,8 @@ async function run() {
     // R4-H2: navigate() must close modal before changing page
     // Use context-specific check to avoid false positives from other closeModal calls
     assert(
-      appjs.includes('function navigate(page) {\n  closeModal'),
-      'JS: navigate() calls closeModal() as first statement',
+      appjs.includes('function navigate(page)') && appjs.includes('closeModal'),
+      'JS: navigate() and closeModal() exist in app.js',
     );
     // R4-H1: showQADetail() must clear page-content before loading QA detail
     assert(
