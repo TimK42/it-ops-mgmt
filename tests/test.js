@@ -380,12 +380,12 @@ async function run() {
     r = await req('GET', '/js/app.js');
     const appjs = r.body;
     // R4-H2: navigate() must close modal before changing page
-    // Use context-specific check to avoid false positives from other closeModal calls
-    const navIdx = appjs.indexOf('function navigate(page)');
-    const closeIdx = appjs.indexOf('closeModal', navIdx);
+    // Check closeModal appears inside navigate() body (limited to first 200 chars for scoping)
+    const navStart = appjs.indexOf('function navigate(page)');
+    const navBody = navStart >= 0 ? appjs.slice(navStart, navStart + 200) : '';
     assert(
-      navIdx >= 0 && closeIdx > navIdx,
-      'JS: closeModal() call found after function navigate(page)',
+      navBody.includes('closeModal'),
+      'JS: closeModal() called inside navigate() body',
     );
     // R4-H1: showQADetail() must clear page-content before loading QA detail
     assert(
