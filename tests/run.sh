@@ -289,6 +289,7 @@ grep -q '<main' public/index.html && pass "Static HTML: <main> landmark" || fail
 
 JS=$(curl -sf "$BASE/js/app.js")
 echo "$JS" | grep -q 'aria-label="Main navigation"' && pass "JS: nav aria-label" || fail "JS: nav aria-label"
+echo "$JS" | grep -q 'main-content' && pass "JS: main-content id" || fail "JS: main-content id"
 echo "$JS" | grep -q '<header class="topbar">' && pass "JS: topbar <header>" || fail "JS: topbar <header>"
 echo "$JS" | grep -q 'for="global-search"' && pass "JS: search label for" || fail "JS: search label for"
 echo "$JS" | grep -q 'type="search"' && pass 'JS: search type="search"' || fail 'JS: search type="search"'
@@ -305,6 +306,8 @@ echo "$JS" | grep -q '<button class="nav-item"' && pass "JS: nav <button> elemen
 echo "$JS" | grep -q 'for="auth-user"' && pass "JS: auth-user label" || fail "JS: auth-user label missing"
 echo "$JS" | grep -q 'for="auth-pass"' && pass "JS: auth-pass label" || fail "JS: auth-pass label missing"
 echo "$JS" | grep -q 'for="auth-role"' && pass "JS: auth-role label" || fail "JS: auth-role label missing"
+echo "$JS" | grep -q 'skip-link' && pass "JS: skip-link present" || fail "JS: skip-link missing"
+echo "$JS" | grep -q 'tabindex="-1"' && pass "JS: tabindex=-1 for main" || fail "JS: tabindex=-1 missing"
 echo "$JS" | grep -q 'onkeydown=' || echo "$JS" | grep -q 'onkeyup=' && fail "JS: has inline keyboard handlers" || pass "JS: no inline keyboard handlers"
 
 CSS=$(curl -sf "$BASE/css/style.css")

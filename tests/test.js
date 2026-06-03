@@ -313,6 +313,7 @@ async function run() {
     const js = r.body;
     assert(js.includes('aria-label="Main navigation"'), 'JS: nav aria-label');
     assert(js.includes('<header class="topbar">'), 'JS: topbar <header>');
+    assert(js.includes('main-content'), 'JS: main-content id');
     assert(js.includes('for="global-search"'), 'JS: search label for');
     assert(js.includes('type="search"'), 'JS: search type="search"');
     assert(js.includes('inputmode="search"'), 'JS: search inputmode="search"');
@@ -333,6 +334,8 @@ async function run() {
     assert(js.includes('for="auth-user"'), 'JS: auth-user label present');
     assert(js.includes('for="auth-pass"'), 'JS: auth-pass label present');
     assert(js.includes('for="auth-role"'), 'JS: auth-role label present');
+    assert(js.includes('skip-link'), 'JS: skip-link present');
+    assert(js.includes('tabindex="-1"'), 'JS: tabindex=-1 for main');
     assert(
       !js.includes('onkeydown=') && !js.includes('onkeyup='),
       'JS: no inline keyboard handlers',

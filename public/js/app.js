@@ -390,7 +390,9 @@ function renderShell() {
       </div>
       <div class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></div>
     </nav>
-    <header class="topbar">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <main id="main-content" class="main" tabindex="-1">
+      <header class="topbar">
         <div class="topbar-left">
           <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">☰</button>
           <div><h1 class="topbar-title" id="page-title">QA Library</h1><div class="topbar-breadcrumb">IT Operations / <span>Knowledge Base</span></div></div>
@@ -401,7 +403,7 @@ function renderShell() {
         </div>
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
-    `;
+    </main>`;
 }
 
 function navigate(page) {
