@@ -149,6 +149,9 @@ body {
   font-size: 20px;
   font-weight: 700;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(360px, 50vw);
 }
 .topbar-breadcrumb {
   font-size: 12px;

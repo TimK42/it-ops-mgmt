@@ -571,7 +571,7 @@ async function renderQA(el) {
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><div class="qa-list" id="qa-list"></div>`;
+  el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
   // Restore search input value after re-render
   const s = document.getElementById('global-search');
   if (s && state.qaFilters.search) s.value = state.qaFilters.search;
@@ -647,6 +647,7 @@ async function showQADetail(id) {
     state.qaEntries.push(q);
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
+  document.getElementById('page-title').textContent = q.question;
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
     <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div>
     <div class="modal-body">
@@ -741,7 +742,7 @@ function exportCSV() {
 async function renderCategories(el) {
   await loadCategories();
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" data-action="create-category">＋ Add Sub-System</button></div>
-    <div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+    <h2 class="sr-only">Sub-Systems List</h2><div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');
@@ -792,7 +793,7 @@ async function renderUsers(el) {
   const end = Math.min(start + state.usersPerPage, users.length);
   const pageUsers = users.slice(start, end);
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
-    <div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
+    <h2 class="sr-only">Users List</h2><div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
       .map(
         (u) => `<tr>
       <td><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
@@ -871,7 +872,7 @@ async function renderDashboard(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   try {
     const s = await api('/api/stats');
-    el.innerHTML = `<div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px">
+    el.innerHTML = `<h2 class="sr-only">Statistics</h2><div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px">
       <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.qa.total}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">QA Entries</div></div>
       <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.categories}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Sub-Systems</div></div>
     </div>`;
