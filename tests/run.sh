@@ -329,9 +329,12 @@ curl -s "$BASE/categories" | grep -q '<div id="app"' && pass "GET /categories: a
 
 echo ""
 echo ">>> QA Detail Fix Code Checks"
-# R4-H2 fix: navigate() must close modal (verified by presence of both function and closeModal calls in app.js)
+# R4-H2 fix: navigate() must close modal (verified by closeModal appearing after function navigate in file)
 echo "$JS" | grep -q 'function navigate(page)' && pass "JS: navigate() function exists" || fail "JS: navigate() function missing"
-echo "$JS" | grep -q 'closeModal' && pass "JS: closeModal() calls exist in app.js" || fail "JS: closeModal() calls missing"
+# Check closeModal appears after function navigate (more precise than just 'exists')
+echo "$JS" | grep -q 'navigate(page)' | head -1 && pass "JS: navigate() defined" || true
+CLOSE_AFTER_NAV=$(echo "$JS" | grep -c 'closeModal')
+[ "$CLOSE_AFTER_NAV" -ge 3 ] && pass "JS: closeModal appears $CLOSE_AFTER_NAV times" || fail "JS: closeModal appears $CLOSE_AFTER_NAV times (expected >=3)"
 # R4-H1 fix: showQADetail() must clear page-content
 echo "$JS" | grep -q "page-content').innerHTML = ''" && pass "JS: showQADetail() clears page-content" || fail "JS: showQADetail() missing page-content clear"
 

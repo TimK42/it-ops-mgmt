@@ -645,7 +645,14 @@ async function loadQA(signal) {
 
 async function showQADetail(id) {
   document.getElementById('page-content').innerHTML = '';
-  const q = await api(`/api/qa/${id}`);
+  let q;
+  try {
+    q = await api(`/api/qa/${id}`);
+  } catch {
+    closeModal('detail-modal');
+    navigate('qa');
+    return;
+  }
   // Ensure entry is in qaEntries so editQA works for deep links
   if (!state.qaEntries.find((e) => e.id === q.id)) {
     state.qaEntries.push(q);
