@@ -400,7 +400,7 @@ function renderLogin(mode) {
     : '';
   state.sessionExpired = false;
   document.getElementById('app').innerHTML = `
-    <div class="login-page">
+    <form class="login-page" id="login-form">
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
         <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
@@ -413,10 +413,11 @@ function renderLogin(mode) {
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
         <div class="login-link">${isRegister ? '<a href="/" data-action="login-link" data-allow-nav>← Back to sign in</a>' : '<a href="/register" data-action="login-link" data-page="register" data-allow-nav>Create account</a>'}</div>
       </div>
-    </div>`;
+    </form>`;
   const err = document.getElementById('login-error');
   const suc = document.getElementById('login-success');
-  document.getElementById('auth-submit').onclick = async () => {
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
     const username = document.getElementById('auth-user').value.trim();
     const password = document.getElementById('auth-pass').value;
     err.classList.remove('show');
@@ -452,13 +453,14 @@ function renderLogin(mode) {
       err.textContent = e.message;
       err.classList.add('show');
     }
-  };
+  });
   document.getElementById('auth-user').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('auth-pass').focus();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('auth-pass').focus();
+    }
   });
-  document.getElementById('auth-pass').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('auth-submit').click();
-  });
+  // Password Enter submits natively via <form> — no manual handler needed
 }
 
 async function logout() {
