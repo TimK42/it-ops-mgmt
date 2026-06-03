@@ -16,41 +16,41 @@
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <main id="main-content" class="main" tabindex="-1">
-    <div id="app">
-      <div class="login-page" id="login-fallback">
-        <div class="login-card">
-          <h1>IT Operations</h1>
-          <div class="login-sub">Knowledge Base</div>
-          <div class="login-error" id="login-error"></div>
-          <form method="POST" action="/api/auth/login" id="login-form">
-            <div class="form-group">
-              <label for="login-user" class="sr-only">Username</label>
-              <input
-                id="login-user"
-                class="form-input"
-                name="username"
-                placeholder="Username"
-                autocomplete="username"
-                autofocus
-              />
-            </div>
-            <div class="form-group">
-              <label for="login-pass" class="sr-only">Password</label>
-              <input
-                id="login-pass"
-                class="form-input"
-                type="password"
-                name="password"
-                placeholder="Password"
-                autocomplete="current-password"
-              />
-            </div>
-            <button class="btn btn-primary" type="submit">Sign In</button>
-          </form>
-          <div class="login-link"><a href="/register">Create account</a></div>
+      <div id="app">
+        <div class="login-page" id="login-fallback">
+          <div class="login-card">
+            <h1>IT Operations</h1>
+            <div class="login-sub">Knowledge Base</div>
+            <div class="login-error" id="login-error"></div>
+            <form method="POST" action="/api/auth/login" id="login-form">
+              <div class="form-group">
+                <label for="login-user" class="sr-only">Username</label>
+                <input
+                  id="login-user"
+                  class="form-input"
+                  name="username"
+                  placeholder="Username"
+                  autocomplete="username"
+                  autofocus
+                />
+              </div>
+              <div class="form-group">
+                <label for="login-pass" class="sr-only">Password</label>
+                <input
+                  id="login-pass"
+                  class="form-input"
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  autocomplete="current-password"
+                />
+              </div>
+              <button class="btn btn-primary" type="submit">Sign In</button>
+            </form>
+            <div class="login-link"><a href="/register">Create account</a></div>
+          </div>
         </div>
       </div>
-    </div>
     </main>
 
     <div class="modal-overlay" id="detail-modal"></div>
