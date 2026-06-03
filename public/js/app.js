@@ -275,7 +275,7 @@ function renderLogin(mode) {
         <div class="form-group"><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? `<div class="form-group"><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
-        <div class="login-link">${isRegister ? '<a href="#" onclick="event.preventDefault();renderLogin()">← Back to sign in</a>' : '<a href="#" onclick="event.preventDefault();renderLogin(\'register\')">Create account</a>'}</div>
+        <div class="login-link">${isRegister ? '<a href="/" onclick="event.preventDefault();renderLogin()">← Back to sign in</a>' : '<a href="/register" onclick="event.preventDefault();renderLogin(\'register\')">Create account</a>'}</div>
       </div>
     </div>`;
   const err = document.getElementById('login-error');
