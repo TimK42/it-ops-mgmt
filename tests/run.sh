@@ -315,6 +315,28 @@ echo "$CSS" | grep -q '.skip-link' && pass "CSS: .skip-link" || fail "CSS: .skip
 echo "$CSS" | grep -q ':focus-visible' && pass "CSS: :focus-visible" || fail "CSS: :focus-visible"
 echo "$CSS" | grep -qE 'background:\s*transparent' && pass "CSS: background:transparent" || fail "CSS: background:transparent"
 
+echo ""
+echo ">>> QA Detail SPA Routes"
+# R4-H1: /qa/1 should serve SPA shell
+QAD=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/qa/1")
+[ "$QAD" = "404" ] && pass "GET /qa/1 => 404 (SPA catch-all)" || fail "GET /qa/1 => $QAD (expected 404)"
+curl -s "$BASE/qa/1" | grep -q '<div id="app"' && pass "GET /qa/1: app shell present" || fail "GET /qa/1: missing app shell"
+
+# R4-H2: /categories should serve SPA shell
+CATR=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/categories")
+[ "$CATR" = "404" ] && pass "GET /categories => 404 (SPA catch-all)" || fail "GET /categories => $CATR (expected 404)"
+curl -s "$BASE/categories" | grep -q '<div id="app"' && pass "GET /categories: app shell present" || fail "GET /categories: missing app shell"
+
+echo ""
+echo ">>> QA Detail Fix Code Checks"
+# R4-H2 fix: navigate() must close modal as first statement (context-specific to avoid false positives from other closeModal calls)
+echo "$JS" | grep -q 'function navigate(page) {' && pass "JS: navigate() function exists" || fail "JS: navigate() function missing"
+# The line right after 'function navigate(page) {' should be '  closeModal' (first statement)
+NAV_CONTEXT=$(echo "$JS" | grep -A1 'function navigate(page) {' | tail -1)
+echo "$NAV_CONTEXT" | grep -q 'closeModal' && pass "JS: navigate() first statement is closeModal()" || fail "JS: navigate() first statement is NOT closeModal()"
+# R4-H1 fix: showQADetail() must clear page-content
+echo "$JS" | grep -q "page-content').innerHTML = ''" && pass "JS: showQADetail() clears page-content" || fail "JS: showQADetail() missing page-content clear"
+
 # ── Cleanup ──
 kill $SPID 2>/dev/null
 
