@@ -721,6 +721,9 @@ tr.row-click {
   .search-box {
     width: 100%;
   }
+  .search-box input {
+    min-height: 44px;
+  }
   .detail-meta {
     grid-template-columns: 1fr;
   }
@@ -781,7 +784,7 @@ tr.row-click {
   .login-card .btn {
     min-height: 44px;
   }
-  .login-card label:has(input[type='checkbox']) {
+  .login-card label[for='auth-remember'] {
     min-height: 44px;
     padding: 10px 0;
   }
@@ -853,8 +856,6 @@ tr.row-click {
   margin-top: 12px;
 }
 .login-link a {
-  display: inline-block;
-  padding: 10px 4px;
   color: var(--primary);
   cursor: pointer;
   text-decoration: none;
