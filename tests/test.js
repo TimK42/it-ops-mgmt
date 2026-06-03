@@ -313,6 +313,8 @@ async function run() {
     assert(js.includes('main-content'), 'JS: main-content id');
     assert(js.includes('<header class="topbar">'), 'JS: topbar <header>');
     assert(js.includes('for="global-search"'), 'JS: search label for');
+    assert(js.includes('type="search"'), 'JS: search type="search"');
+    assert(js.includes('inputmode="search"'), 'JS: search inputmode="search"');
     assert(js.includes('aria-label="Close"'), 'JS: close aria-label');
     assert(js.includes('aria-label="Toggle sidebar"'), 'JS: toggle aria-label');
     assert(js.includes('aria-label="Toggle theme"'), 'JS: theme toggle aria-label');
