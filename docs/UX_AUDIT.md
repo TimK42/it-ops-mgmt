@@ -5,7 +5,7 @@
 > **Round 2:** 2026-06-03 03:56 HKT  
 > **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L)  
 > **Pages audited:** Login, Register, QA Library, QA Detail (5 entries), Categories, Users, Dashboard, 404  
-> **Auth:** Admin (admin / 0000 — seeded credentials, dev only)  
+> **Auth:** Admin (seeded credentials, dev only — change before deployment)  
 > **Viewports:** 375×812 (mobile), 1440×900 (desktop)  
 > **Themes:** Light + Dark (toggled on every page)  
 > **DB:** Fresh seed — 5 QA entries, 4 categories, 1 admin user
