@@ -289,7 +289,7 @@ JS=$(curl -sf "$BASE/js/app.js")
 echo "$JS" | grep -q 'aria-label="Main navigation"' && pass "JS: nav aria-label" || fail "JS: nav aria-label"
 echo "$JS" | grep -q 'main-content' && pass "JS: main-content id" || fail "JS: main-content id"
 echo "$JS" | grep -q '<header class="topbar">' && pass "JS: topbar <header>" || fail "JS: topbar <header>"
-echo "$JS" | grep -q 'aria-label="Search QA entries"' && pass "JS: search aria-label" || fail "JS: search aria-label"
+echo "$JS" | grep -q 'for="global-search"' && pass "JS: search label for" || fail "JS: search label for"
 echo "$JS" | grep -q 'aria-label="Close"' && pass "JS: close aria-label" || fail "JS: close aria-label"
 echo "$JS" | grep -q 'aria-label="Toggle sidebar"' && pass "JS: toggle aria-label" || fail "JS: toggle aria-label"
 echo "$JS" | grep -q 'tabindex="0"' && fail "JS: has tabindex=0 (should be removed)" || pass "JS: no tabindex=0"
