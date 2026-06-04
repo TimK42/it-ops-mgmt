@@ -180,6 +180,25 @@ body {
   font-size: 14px;
   flex-shrink: 0;
 }
+.search-clear {
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  flex-shrink: 0;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.search-clear:hover {
+  color: var(--text);
+}
 .topbar-right {
   display: flex;
   align-items: center;
@@ -484,7 +503,7 @@ tr.row-click {
   background: var(--surface);
   border-radius: var(--radius-lg);
   width: 640px;
-  max-width: 90vw;
+  max-width: min(640px, 95vw);
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
@@ -556,6 +575,12 @@ tr.row-click {
 .form-textarea {
   min-height: 80px;
   resize: vertical;
+}
+.form-error {
+  color: #dc2626;
+  font-size: 11px;
+  margin-top: 4px;
+  min-height: 0;
 }
 .form-row {
   display: grid;
