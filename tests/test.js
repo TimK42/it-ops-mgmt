@@ -484,10 +484,16 @@ async function run() {
     // Problem 1: Users table overflow
     // .table-container must have overflow-x: auto instead of overflow: hidden
     const tcStart = styleCss.indexOf('.table-container');
-    const tcBlock = styleCss.slice(tcStart, styleCss.indexOf('}', tcStart));
-    assert(tcBlock.includes('overflow-x: auto'), 'CSS: .table-container has overflow-x: auto');
+    if (tcStart === -1) throw new Error('Could not find .table-container in CSS');
+    const tcEnd = styleCss.indexOf('}', tcStart);
+    if (tcEnd === -1) throw new Error('Could not find end of .table-container block');
+    const tcBlock = styleCss.slice(tcStart, tcEnd);
     assert(
-      !tcBlock.includes('overflow: hidden'),
+      /overflow-x\s*:\s*auto/.test(tcBlock),
+      'CSS: .table-container has overflow-x: auto',
+    );
+    assert(
+      !/overflow\s*:\s*hidden/.test(tcBlock),
       'CSS: .table-container no longer has overflow: hidden',
     );
 
@@ -498,17 +504,20 @@ async function run() {
     if (mqStart === -1) throw new Error('Could not find @media (max-width: 768px) block in CSS');
     const mqBlock = styleCss.slice(mqStart);
     const ttStart = mqBlock.indexOf('.topbar-title');
-    const ttBlock = mqBlock.slice(ttStart, mqBlock.indexOf('}', ttStart));
+    if (ttStart === -1) throw new Error('Could not find .topbar-title in mobile CSS block');
+    const ttEnd = mqBlock.indexOf('}', ttStart);
+    if (ttEnd === -1) throw new Error('Could not find end of .topbar-title block');
+    const ttBlock = mqBlock.slice(ttStart, ttEnd);
     assert(
-      ttBlock.includes('white-space: normal'),
+      /white-space\s*:\s*normal/.test(ttBlock),
       'CSS (mobile): .topbar-title white-space: normal',
     );
     assert(
-      ttBlock.includes('word-break: break-word'),
+      /word-break\s*:\s*break-word/.test(ttBlock),
       'CSS (mobile): .topbar-title word-break: break-word',
     );
     assert(
-      ttBlock.includes('overflow-wrap: break-word'),
+      /overflow-wrap\s*:\s*break-word/.test(ttBlock),
       'CSS (mobile): .topbar-title overflow-wrap: break-word',
     );
 
@@ -520,9 +529,18 @@ async function run() {
 
     // Problem 3b: .content max-width 100vw on mobile
     const ctStart = mqBlock.indexOf('.content');
-    const ctBlock = mqBlock.slice(ctStart, mqBlock.indexOf('}', ctStart));
-    assert(ctBlock.includes('max-width: 100vw'), 'CSS (mobile): .content max-width: 100vw');
-    assert(ctBlock.includes('overflow-x: hidden'), 'CSS (mobile): .content overflow-x: hidden');
+    if (ctStart === -1) throw new Error('Could not find .content in mobile CSS block');
+    const ctEnd = mqBlock.indexOf('}', ctStart);
+    if (ctEnd === -1) throw new Error('Could not find end of .content block');
+    const ctBlock = mqBlock.slice(ctStart, ctEnd);
+    assert(
+      /max-width\s*:\s*100vw/.test(ctBlock),
+      'CSS (mobile): .content max-width: 100vw',
+    );
+    assert(
+      /overflow-x\s*:\s*hidden/.test(ctBlock),
+      'CSS (mobile): .content overflow-x: hidden',
+    );
   } finally {
     server.kill();
   }
