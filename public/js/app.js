@@ -15,10 +15,10 @@ let state = {
 };
 
 function updateThemeColor(theme) {
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) {
+  const metas = document.querySelectorAll('meta[name="theme-color"]');
+  metas.forEach((meta) => {
     meta.setAttribute('content', theme === 'dark' ? '#0f0f1a' : '#4f46e5');
-  }
+  });
 }
 
 function initTheme() {
