@@ -34,7 +34,7 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   // Network-only for API routes (session-based, no offline data benefit)
-  // Cache-first for static assets
+  // Stale-while-revalidate for static assets
   const url = new URL(event.request.url);
   if (url.pathname.startsWith('/api/')) {
     // Network-only: no caching to avoid leaking auth data between sessions
@@ -53,7 +53,7 @@ self.addEventListener('fetch', (event) => {
         const fetchPromise = fetch(event.request)
           .then((response) => {
             if (response.ok) {
-              caches.open(CACHE).then((cache) => cache.put(event.request, response));
+              caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
             }
             return response;
           })
