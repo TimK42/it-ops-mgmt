@@ -451,8 +451,8 @@ async function run() {
       'JS: renderLogin() includes auth-pass-confirm field (#63)',
     );
     assert(
-      appjs.includes('Passwords do not match'),
-      'JS: renderLogin() validates password match (#63)',
+      appjs.includes("confirmErr.textContent = 'Passwords do not match'"),
+      'JS: renderLogin() register password-match validation (#63)',
     );
     assert(
       appjs.includes('Title is required'),
