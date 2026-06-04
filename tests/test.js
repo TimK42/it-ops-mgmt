@@ -600,7 +600,7 @@ async function run() {
     // Verify min-height is NOT media-query-scoped (affects all views including tablet ≥768px)
     const desktopNavMatch = styleCss.match(/\.nav-item[^{]*\{[^}]*min-height\s*:\s*44px[^}]*\}/);
     assert(
-      desktopNavMatch && desktopNavMatch.index < styleCss.lastIndexOf('max-width: 768px'),
+      desktopNavMatch && desktopNavMatch.index < mqStart,
       'CSS: .nav-item min-height:44px is in global scope (not just mobile @media)',
     );
   } finally {
