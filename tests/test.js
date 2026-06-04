@@ -532,6 +532,23 @@ async function run() {
     const ctBlock = mqBlock.slice(ctStart, ctEnd);
     assert(/max-width\s*:\s*100vw/.test(ctBlock), 'CSS (mobile): .content max-width: 100vw');
     assert(/overflow-x\s*:\s*hidden/.test(ctBlock), 'CSS (mobile): .content overflow-x: hidden');
+
+    // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
+    console.log('\n>>> Issue #79 Remove scrollbar-gutter');
+
+    // .content block (desktop style) should NOT have scrollbar-gutter
+    const contentDesktop = styleCss.slice(styleCss.indexOf('.content'));
+    const cdEnd = contentDesktop.indexOf('}');
+    if (cdEnd === -1) throw new Error('Could not find end of .content (desktop) block');
+    const cdBlock = contentDesktop.slice(0, cdEnd);
+    assert(
+      !/scrollbar-gutter\s*:\s*stable/.test(cdBlock),
+      'CSS: .content no scrollbar-gutter: stable',
+    );
+    assert(
+      /overflow-wrap\s*:\s*break-word/.test(cdBlock),
+      'CSS: .content still has overflow-wrap: break-word',
+    );
   } finally {
     server.kill();
   }
