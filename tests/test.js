@@ -508,6 +508,7 @@ async function run() {
       else if (styleCss[mqClose] === '}') depth--;
       mqClose++;
     }
+    if (depth > 0) throw new Error('Could not find matching closing brace of mobile media query');
     const mqBlock = styleCss.slice(mqOpen + 1, mqClose - 1);
     const ttStart = mqBlock.indexOf('.topbar-title');
     if (ttStart === -1) throw new Error('Could not find .topbar-title in mobile CSS block');
@@ -529,7 +530,7 @@ async function run() {
 
     // Problem 3: Page switch — body overflow-x hidden on mobile
     assert(
-      /body\s*\{[^}]*overflow-x:\s*hidden\s*;/.test(mqBlock),
+      /(?:^|\s)body\s*\{[^}]*overflow-x:\s*hidden\s*;/.test(mqBlock),
       'CSS (mobile): body overflow-x: hidden',
     );
 
@@ -552,7 +553,7 @@ async function run() {
     console.log('\n>>> Issue #84 Mobile scrollbar gutter fix — body & .main overrides');
 
     // Extract body block inside mobile media query (whitespace-tolerant regex)
-    const bodyMatch = mqBlock.match(/body\s*\{[^}]*\}/);
+    const bodyMatch = mqBlock.match(/(?:^|\s)body\s*\{[^}]*\}/m);
     if (!bodyMatch) throw new Error('Could not find body block in mobile CSS block');
     const bodyBlock = bodyMatch[0];
     assert(/height\s*:\s*auto/.test(bodyBlock), 'CSS (mobile): body height: auto (#84)');
