@@ -57,7 +57,7 @@ self.addEventListener('fetch', (event) => {
             }
             return response;
           })
-          .catch(() => cached);
+          .catch(() => cached || new Response(null, { status: 503 }));
         return cached || fetchPromise;
       }),
     );
