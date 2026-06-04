@@ -605,7 +605,7 @@ async function run() {
     );
 
     // ═══ ISSUE #88: TABLET BUTTON SIZES — .btn & .btn-sm WCAG 44px ═══
-    console.log('\n>>> Issue #88 Table buttons .btn & .btn-sm 44px touch target');
+    console.log('\n>>> Issue #88 Tablet buttons .btn & .btn-sm 44px touch target');
 
     // Check global .btn has min-height: 44px
     const btnMatch = styleCss.match(/\.btn\s*\{[^}]*\}/);
