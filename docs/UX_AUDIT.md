@@ -1,27 +1,29 @@
 # IT Ops Management — UI/UX Audit Report
 
+> **Round 5:** 2026-06-04 11:10 HKT · via CDP snapshot + JS evaluate + curl  
 > **Round 4:** 2026-06-03 17:26 HKT · via Browser (CDP) snapshot + JS evaluate + curl  
 > **Round 3:** 2026-06-03 12:40 HKT  
 > **Round 2:** 2026-06-03 03:56 HKT  
 > **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L)  
-> **Pages audited:** Login, Register, QA Library, QA Detail (5 entries), Categories, Users, Dashboard, 404  
-> **Auth:** Admin (seeded credentials, dev only — change before deployment)  
-> **Viewports:** 375×812 (mobile), 1440×900 (desktop)  
-> **Themes:** Light + Dark (toggled on every page)  
-> **DB:** Fresh seed — 5 QA entries, 4 categories, 1 admin user
+> **Pages audited:** QA Library, QA Detail, Categories, Users, Dashboard, Login, Register, 404  
+> **Auth:** Admin (105 QA entries, 4 categories, users exist)  
+> **Viewports:** 416×902 (mobile portrait), 1000×542 (desktop collapsed)  
+> **Themes:** Light + Dark (toggled, verified CSS custom properties)  
+> **DB:** Seeded — 105 QA entries, 4 categories, multiple users  
+> **Focus:** Fix verification for PRs #62, #64, #72, #57 + remaining open issues
 
 ---
 
 ## Status Summary
 
-| Issue          | Round 1 | Round 2 | Round 3 | Round 4   |
-| -------------- | ------- | ------- | ------- | --------- |
-| 🔴 Critical    | 4       | 0       | 0       | 0         |
-| 🟧 High        | 5       | 0       | 3       | 2 (NEW)   |
-| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) |
-| 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   |
-| **Total Open** | **19**  | **3**   | **10**  | **7**     |
-| **Fixed**      | —       | 19      | 2       | 6 (R3)    |
+| Issue          | Round 1 | Round 2 | Round 3 | Round 4 | Round 5 |
+| -------------- | ------- | ------- | ------- | ------- | ------- |
+| 🔴 Critical    | 4       | 0       | 0       | 0       | 0       |
+| 🟧 High        | 5       | 0       | 3       | 2 (NEW) | 1 (2 ↘) |
+| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) | 2 (2 ↘) |
+| 🟩 Low         | 5       | 1       | 3       | 1 (NEW) | 1       |
+| **Total Open** | **19**  | **3**   | **10**  | **7**   | **4**   |
+| **Fixed**      | —       | 19      | 2       | 6 (R3)  | 3 (R4)  |
 
 ---
 
@@ -275,33 +277,126 @@ X-Frame-Options: SAMEORIGIN
 X-Permitted-Cross-Domain-Policies: none
 ```
 
-No HSTS `preload` directive. No `X-XSS-Protection` (deprecated but still common). `script-src 'unsafe-inline'` weakens CSP (mitigated by `script-src-attr 'none'`).
+> No HSTS `preload` directive. No `X-XSS-Protection` (deprecated but still common). `script-src 'unsafe-inline'` weakens CSP (mitigated by `script-src-attr 'none'`).
+
+---
+
+## 🆕 Round 5 Findings — Fix Verification (2026-06-04)
+
+**Focus:** Verify fixes from PRs #57, #62, #64, #72, #61 + remaining open issues
+**Viewport:** 416×902 (mobile portrait) — session persisted through full reload
+
+### R4-H1. ✅ FIXED & VERIFIED — QA Detail No Longer Below QA Library
+
+QA Detail now renders as a clean overlay with only the detail content. No QA Library list, filters, search, or pagination visible behind/above the detail.
+
+**Evidence (416×902):**
+```
+main
+  ├── ☰ Toggle sidebar
+  ├── ❓ [entry title] (no H1 "QA Library")
+  ├── IT Operations / Knowledge Base
+  ├── 🌙 Toggle theme
+  ├── ✕ Close (44×44)
+  └── QA detail content (Question, Answer, Status, Sub-System, Tags, meta)
+```
+No QA Library list elements (filters, entries, pagination) present.
+
+### R4-H2. ✅ FIXED & VERIFIED — QA Detail No Longer Persists Across Navigation
+
+`navigate()` function calls `closeModal('detail-modal')` at start. Verified by opening QA Detail → navigating to Dashboard, Categories, Users — no residual QA content.
+
+### R4-M1. ✅ FIXED & VERIFIED — Login SPA Now Uses `<form>`
+
+`renderLogin()` now wraps inputs in `<form class="login-page" id="login-form">`.
+Submit event handler attaches to `submit` event on the form element (not click on button).
+Password Enter submits natively via `<form>` — verified via code inspection.
+
+### Mobile Touch Targets (PR #64) — ALL FIXED ✅
+
+Measured at 416×902 viewport:
+
+| Element               | Before (R4 Mobile) | After (R5)   | WCAG 2.5.5 |
+|-----------------------|--------------------|--------------|------------|
+| Hamburger ☰           | 15×19 🔴           | **44×44**   | ✅ Pass    |
+| Theme toggle 🌙        | 42×32 🟨           | **47×44**   | ✅ Pass    |
+| Filter tabs (All etc.) | ~30×24 🟧          | **44×44**   | ✅ Pass    |
+| Search input           | 30px h / 13px font 🟧 | **44×44 / 16px** | ✅ Pass |
+| Export 📥              | 75×26 🟧           | **79×44**   | ✅ Pass    |
+| New Entry ＋           | 91×25 🟧           | **99×44**   | ✅ Pass    |
+| Prev / Next pagination | 59x26 🟧           | **63×44 / 64×44** | ✅ Pass |
+| Approve (QA Detail)    | — (text link)      | **72×44**   | ✅ Pass    |
+| Reject (QA Detail)     | — (text link)      | **60×44**   | ✅ Pass    |
+
+### Sidebar Scrim (PR #62) — ✅ VERIFIED
+
+When sidebar is opened at mobile width, scrim overlay is present (`display: block` on scrim element). Tapping scrim closes sidebar.
+
+### Sub-System Remove Confirmation (PR #62) — ✅ VERIFIED
+
+Clicking "Remove" on a sub-system shows:
+- Modal heading: **Remove**
+- Body: **"Are you sure you want to remove this category?"**
+- Buttons: Cancel (65×44), Confirm (71×44), Close ✕ (44×44) — all ≥44px height ✅
+
+### QA Library Search Clear Button (PR #72 / Issue #63) — ✅ VERIFIED
+
+Search clear (✕) button appears when search input has text. Button aligned properly (no layout shift).
+
+### QA Detail FAQ-style Modal (PR #61) — ✅ VERIFIED
+
+QA entries now use inline anchors (e.g., `/qa/95`) inside `<a>` elements, not `<div onclick>`. XSS escaped via `esc()` helper. H1 shows entry-specific title.
+
+### Unauthenticated State — No auth guard on SPA shell
+
+When logged out (server session cleared), SPA reload shows the Login page via `renderLogin()`. However, if client-side state has cached user data, the app shell briefly renders before the auth check completes. No actionable issue — SPA correctly checks `/api/auth/me` on `DOMContentLoaded`.
+
+### 🟩 R5-L1. QA Detail Title Overflow at Mobile (<416px)
+
+**Page:** QA Detail
+**Symptom:** QA Detail H1 title has `white-space: nowrap`, causing overflow at narrow viewports. At 416px viewport, the title element scrolls to 431px in a 208px container (223px overflow). The parent container uses `overflow: visible`, so text bleeds out of its container.
+
+**Evidence:**
+```
+H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
+```
+
+**Severity:** Low — visible on very long QA titles. Most titles don't trigger this.
+
+**Suggested fix:** Remove `white-space: nowrap` or add `word-break: break-word` / `overflow-wrap: break-word` on `.topbar-title`.
 
 ---
 
 ## Open Issues — Priority Order
 
-| #   | ID    | Sev | Description                                | Page      | Fix                                 |
-| --- | ----- | --- | ------------------------------------------ | --------- | ----------------------------------- |
-| 1   | R4-H1 | 🟧  | QA Detail renders below full QA Library    | QA Detail | Hide QA Library list on detail view |
-| 2   | R4-H2 | 🟧  | QA Detail panel persists across navigation | Global    | Close modal in `navigate()`         |
-| 3   | R3-H1 | 🟧  | PWA completely missing                     | All       | manifest.json, SW, meta tags        |
-| 4   | R4-M1 | 🟨  | Login SPA form missing `<form>` element    | Login     | Wrap in `<form>`                    |
-| 5   | R2-2  | 🟨  | Dashboard very sparse                      | Dashboard | Add recent entries, charts          |
-| 6   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta       | All       | Add meta tags                       |
+| #  | ID    | Sev | Description                            | Page      | Fix                                       |
+|----|-------|-----|----------------------------------------|-----------|-------------------------------------------|
+| 1  | R3-H1 | 🟧  | PWA completely missing                 | All       | manifest.json, SW, meta tags              |
+| 2  | R2-2  | 🟨  | Dashboard very sparse                   | Dashboard | Add recent entries, charts, per-category  |
+| 3  | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta    | All       | Add `<meta name="theme-color">` dynamic  |
+| 4  | R4-L1 | 🟩  | No explicit `<footer>` element          | All       | Optional — sidebar serves same purpose    |
+| 5  | R5-L1 | 🟩  | QA Detail title overflow at mobile       | QA Detail | Remove `white-space: nowrap` or add break  |
 
 ---
 
 ## Previously Fixed (all rounds)
 
-| Issue                      | Fix PR/Commit | Note                               |
-| -------------------------- | ------------- | ---------------------------------- |
-| R3-H2 (Login labels)       | —             | Labels added to no-JS HTML         |
-| R3-H3 (Controls leak)      | —             | Search/Export conditioned per page |
-| R3-M1 (QA Detail heading)  | —             | H1 updated to entry title          |
-| R3-M2 (Users pagination)   | PR #43 (#33)  | 20/page pagination                 |
-| R3-M4 (Secondary headings) | #31           | H2 sections on all pages           |
-| R3-L1 (Search label)       | —             | `<label for="global-search">`      |
-| R3-L2 (Search type)        | —             | Changed to `type="search"`         |
-| R2-1 (Sidebar QA count)    | PR #42 (#35)  | `loadQATotalCount()`               |
-| All 19 Round 1 issues      | Various       | Full semantic + a11y + security    |
+| Issue                           | Fix PR/Commit        | Note                                         |
+| ------------------------------- | -------------------- | -------------------------------------------- |
+| R4-H1 (QA Detail below list)    | PR #61               | Detail renders as overlay, list hidden       |
+| R4-H2 (QA Detail persists)      | PR #61 (#56)         | `navigate()` calls `closeModal('detail-modal')` |
+| R4-M1 (Login SPA `<form>`)      | PR #57 (#53)         | `renderLogin()` wraps in `<form>`             |
+| All 10 mobile touch targets     | PR #64               | All ≥44×44, input font 16px                   |
+| Sidebar scrim + auto-close      | PR #62 (#54)         | Scrim overlay on mobile                      |
+| Sub-system Remove confirm dialog | PR #62 (#54)         | Custom modal with Cancel/Confirm             |
+| Search clear button             | PR #72 (#63)         | ✕ button aligns properly                     |
+| QA Card semantic `<a>` links    | PR #61               | Replaced `<div onclick>` with `<a href>`      |
+| R3-H2 (Login labels)            | —                    | Labels added to no-JS HTML                   |
+| R3-H3 (Controls leak)           | —                    | Search/Export conditioned per page            |
+| R3-M1 (QA Detail heading)       | —                    | H1 updated to entry title                     |
+| R3-M2 (Users pagination)        | PR #43 (#33)         | 20/page pagination                            |
+| R3-M4 (Secondary headings)      | #31                  | H2 sections on all pages                      |
+| R3-L1 (Search label)            | —                    | `<label for="global-search">`               |
+| R3-L2 (Search type)             | —                    | Changed to `type="search"`                   |
+| R2-1 (Sidebar QA count)         | PR #42 (#35)         | `loadQATotalCount()`                           |
+| All 19 Round 1 issues           | Various              | Full semantic + a11y + security               |
