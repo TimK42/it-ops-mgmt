@@ -512,7 +512,7 @@ async function run() {
 
     // Problem 3: Page switch — body overflow-x hidden on mobile
     assert(
-      mqBlock.includes('  body {\n    overflow-x: hidden;'),
+      /body\s*\{\s*overflow-x:\s*hidden\s*;\s*\}/.test(mqBlock),
       'CSS (mobile): body overflow-x: hidden',
     );
 
