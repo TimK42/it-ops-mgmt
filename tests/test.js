@@ -496,7 +496,7 @@ async function run() {
 
     // Problem 2: QA Detail title overflow on mobile
     // Inside the @media query, .topbar-title must have white-space: normal + word-break
-    // Use lastIndexOf('max-width: 768px') instead of '@media' to avoid matching future @media blocks
+    // Use lastIndexOf('max-width: 768px') to target the last (mobile) @media block, skipping any earlier one for the sidebar overlay
     const mqStart = styleCss.lastIndexOf('(max-width: 768px)');
     if (mqStart === -1) throw new Error('Could not find @media (max-width: 768px) block in CSS');
     const mqOpen = styleCss.indexOf('{', mqStart);
