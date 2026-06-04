@@ -40,8 +40,12 @@ self.addEventListener('fetch', (event) => {
     // Network-only: no caching to avoid leaking auth data between sessions
     event.respondWith(fetch(event.request).catch(() => new Response(null, { status: 503 })));
   } else if (event.request.mode === 'navigate') {
-    // Navigation requests (SPA routes): cache-first, fall back to app shell
-    event.respondWith(fetch(event.request).catch(() => caches.match('/index.html')));
+    // Navigation requests (SPA routes): network-first, fall back to cached app shell
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match('/index.html').then((cached) => cached || new Response(null, { status: 503 })),
+      ),
+    );
   } else {
     // Cache-first for static assets
     event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
