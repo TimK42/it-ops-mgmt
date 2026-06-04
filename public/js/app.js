@@ -252,6 +252,10 @@ function esc(s) {
         .replace(/"/g, '&quot;')
     : '';
 }
+function safeColor(c) {
+  return /^#[0-9a-f]{6}$/i.test(String(c)) ? c : '#6366f1';
+}
+
 function statusClass(s) {
   return (
     {
@@ -774,7 +778,7 @@ function exportCSV() {
 async function renderCategories(el) {
   await loadCategories();
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" data-action="create-category">＋ Add Sub-System</button></div>
-    <h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px">${c.icon}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span><span class="color-hex-label"> ${c.color}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+    <h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px">${esc(c.icon)}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${safeColor(c.color)};vertical-align:middle"></span><span class="color-hex-label"> ${esc(c.color)}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');

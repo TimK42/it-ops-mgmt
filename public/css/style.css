@@ -851,6 +851,8 @@ tr.row-click {
     padding: 4px 0;
     border: none;
     font-size: 13px;
+    flex-wrap: wrap;
+    word-break: break-word;
   }
   .admin-table td[data-label]:before {
     content: attr(data-label);
