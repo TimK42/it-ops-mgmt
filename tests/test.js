@@ -462,10 +462,17 @@ async function run() {
       appjs.includes('Question is required'),
       'JS: showCreateQA() has inline Question validation (#63)',
     );
-    assert(appjs.includes('comma separated'), 'JS: showCreateQA() tags placeholder updated (#63)');
     assert(
-      appjs.includes('Page Not Found'),
-      'JS: navigate() includes 404: "Page Not Found" title (#63)',
+      appjs.includes('e.g., password,account (comma separated)'),
+      'JS: showCreateQA() tags placeholder updated (#63)',
+    );
+    assert(
+      appjs.includes("404: 'Page Not Found'"),
+      'JS: navigate() titles map includes 404: "Page Not Found" (#63)',
+    );
+    assert(
+      appjs.includes('body.title = body.title.trim()'),
+      'JS: showCreateQA() trims whitespace before validation (#63)',
     );
   } finally {
     server.kill();

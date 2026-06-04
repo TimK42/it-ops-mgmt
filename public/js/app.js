@@ -754,6 +754,8 @@ async function showCreateQA(data) {
     const questionErr = document.getElementById('f-q-question-error');
     titleErr.textContent = '';
     questionErr.textContent = '';
+    body.title = body.title.trim();
+    body.question = body.question.trim();
     if (!body.title) titleErr.textContent = 'Title is required';
     if (!body.question) questionErr.textContent = 'Question is required';
     if (!body.title || !body.question) return;
