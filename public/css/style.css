@@ -241,7 +241,6 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
-  scrollbar-gutter: stable;
 }
 .stats-grid {
   display: grid;
