@@ -819,7 +819,6 @@ tr.row-click {
   }
   .content {
     padding: 16px;
-    max-width: 100vw;
     overflow-x: hidden;
   }
   .search-box {
