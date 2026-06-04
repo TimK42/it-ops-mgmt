@@ -537,13 +537,15 @@ async function run() {
     console.log('\n>>> Issue #79 Remove scrollbar-gutter');
 
     // .content block (desktop style) should NOT have scrollbar-gutter
-    const contentDesktop = styleCss.slice(styleCss.indexOf('.content'));
+    const cdIndex = styleCss.indexOf('.content');
+    if (cdIndex === -1) throw new Error('Could not find .content (desktop) rule in stylesheet');
+    const contentDesktop = styleCss.slice(cdIndex);
     const cdEnd = contentDesktop.indexOf('}');
     if (cdEnd === -1) throw new Error('Could not find end of .content (desktop) block');
     const cdBlock = contentDesktop.slice(0, cdEnd);
     assert(
-      !/scrollbar-gutter\s*:\s*stable/.test(cdBlock),
-      'CSS: .content no scrollbar-gutter: stable',
+      !/scrollbar-gutter/.test(cdBlock),
+      'CSS: .content should not have any scrollbar-gutter property',
     );
     assert(
       /overflow-wrap\s*:\s*break-word/.test(cdBlock),
