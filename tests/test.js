@@ -534,7 +534,10 @@ async function run() {
       !/max-width/.test(ctBlock),
       'CSS (mobile): .content should NOT have max-width (avoid iOS 100vw bug)',
     );
-    assert(/overflow\s*:\s*visible/.test(ctBlock), 'CSS (mobile): .content overflow: visible (#84)');
+    assert(
+      /overflow\s*:\s*visible/.test(ctBlock),
+      'CSS (mobile): .content overflow: visible (#84)',
+    );
 
     // ═══ ISSUE #84: MOBILE SCROLLBAR GUTTER — body & .main overrides ═══
     console.log('\n>>> Issue #84 Mobile scrollbar gutter fix — body & .main overrides');
