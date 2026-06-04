@@ -524,13 +524,13 @@ async function run() {
       'CSS (mobile): body overflow-x: hidden',
     );
 
-    // Problem 3b: .content max-width 100vw on mobile
+    // Problem 3b: .content should NOT use 100vw on mobile (iOS Safari bug — width calculation mismatch)
     const ctStart = mqBlock.indexOf('.content');
     if (ctStart === -1) throw new Error('Could not find .content in mobile CSS block');
     const ctEnd = mqBlock.indexOf('}', ctStart);
     if (ctEnd === -1) throw new Error('Could not find end of .content block');
     const ctBlock = mqBlock.slice(ctStart, ctEnd);
-    assert(/max-width\s*:\s*100vw/.test(ctBlock), 'CSS (mobile): .content max-width: 100vw');
+    assert(!/max-width/.test(ctBlock), 'CSS (mobile): .content should NOT have max-width (avoid iOS 100vw bug)');
     assert(/overflow-x\s*:\s*hidden/.test(ctBlock), 'CSS (mobile): .content overflow-x: hidden');
 
     // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
