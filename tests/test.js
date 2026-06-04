@@ -530,7 +530,10 @@ async function run() {
     const ctEnd = mqBlock.indexOf('}', ctStart);
     if (ctEnd === -1) throw new Error('Could not find end of .content block');
     const ctBlock = mqBlock.slice(ctStart, ctEnd);
-    assert(!/max-width/.test(ctBlock), 'CSS (mobile): .content should NOT have max-width (avoid iOS 100vw bug)');
+    assert(
+      !/max-width/.test(ctBlock),
+      'CSS (mobile): .content should NOT have max-width (avoid iOS 100vw bug)',
+    );
     assert(/overflow-x\s*:\s*hidden/.test(ctBlock), 'CSS (mobile): .content overflow-x: hidden');
 
     // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
