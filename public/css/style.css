@@ -241,7 +241,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
-  /* Hide scrollbar track — overlay only, no width shift */
+  /* Hide scrollbars entirely — no reserved gutter (zero-width) */
   scrollbar-width: none;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
