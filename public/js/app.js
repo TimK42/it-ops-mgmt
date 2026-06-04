@@ -11,6 +11,7 @@ let state = {
   users: [],
   usersPage: 1,
   usersPerPage: 20,
+  usersSearch: '',
 };
 
 function initTheme() {
@@ -417,6 +418,7 @@ function renderLogin(mode) {
         <div class="login-success" id="login-success"></div>
         <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
         <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
+        ${isRegister ? '<div class="form-group"><label for="auth-pass-confirm" class="sr-only">Confirm Password</label><input class="form-input" type="password" id="auth-pass-confirm" placeholder="Confirm Password" autocomplete="new-password"><div class="form-error" id="auth-pass-confirm-error"></div></div>' : ''}
         ${isRegister ? `<div class="form-group"><label for="auth-role" class="sr-only">Role</label><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label for="auth-remember" style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
         <div class="login-link">${isRegister ? '<a href="/" data-action="login-link" data-allow-nav>← Back to sign in</a>' : '<a href="/register" data-action="login-link" data-page="register" data-allow-nav>Create account</a>'}</div>
@@ -437,6 +439,13 @@ function renderLogin(mode) {
     }
     try {
       if (isRegister) {
+        const confirmPass = document.getElementById('auth-pass-confirm').value;
+        const confirmErr = document.getElementById('auth-pass-confirm-error');
+        confirmErr.textContent = '';
+        if (password !== confirmPass) {
+          confirmErr.textContent = 'Passwords do not match';
+          return;
+        }
         const role = document.getElementById('auth-role').value;
         await api('/api/auth/register', {
           method: 'POST',
@@ -543,6 +552,7 @@ function navigate(page) {
     categories: 'Categories',
     users: 'Users',
     dashboard: 'Dashboard',
+    404: 'Page Not Found',
   };
   document.getElementById('page-title').textContent = titles[page] || 'Dashboard';
   const el = document.getElementById('page-content');
@@ -591,7 +601,7 @@ async function renderQA(el) {
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
+  el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
   // Restore search input value after re-render
   const s = document.getElementById('global-search');
   if (s && state.qaFilters.search) s.value = state.qaFilters.search;
@@ -605,16 +615,31 @@ async function renderQA(el) {
 
   // Bind search
   const search = document.getElementById('global-search');
+  const clearBtn = document.getElementById('search-clear');
   if (search) {
+    const toggleClear = () => {
+      if (clearBtn) clearBtn.style.display = search.value ? '' : 'none';
+    };
+    toggleClear();
     search.addEventListener(
       'input',
       debounce(() => {
         if (state.page !== 'qa') return;
         state.qaFilters.search = search.value;
         state.qaPage = 1;
+        if (clearBtn) clearBtn.style.display = search.value ? '' : 'none';
         renderQA(el);
       }, 300),
     );
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        search.value = '';
+        state.qaFilters.search = '';
+        state.qaPage = 1;
+        if (clearBtn) clearBtn.style.display = 'none';
+        renderQA(el);
+      });
+    }
   }
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) {
@@ -708,12 +733,12 @@ async function showCreateQA(data) {
   const modal = document.getElementById('form-modal');
   modal.querySelector('.modal-title').textContent = isEdit ? 'Edit QA Entry' : 'New QA Entry';
   modal.querySelector('.modal-body').innerHTML = `
-    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"></div>
-    <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea></div>
+    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"><div class="form-error" id="f-q-title-error"></div></div>
+    <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea><div class="form-error" id="f-q-question-error"></div></div>
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account"></div>`;
+    <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account (comma separated)"></div>`;
   modal.querySelector('.modal-footer').innerHTML =
     `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
   document.getElementById('f-q-submit').onclick = async () => {
@@ -725,7 +750,13 @@ async function showCreateQA(data) {
       status: document.getElementById('f-q-status').value,
       tags: document.getElementById('f-tags').value,
     };
-    if (!body.title || !body.question) return toast('Title and question required');
+    const titleErr = document.getElementById('f-q-title-error');
+    const questionErr = document.getElementById('f-q-question-error');
+    titleErr.textContent = '';
+    questionErr.textContent = '';
+    if (!body.title) titleErr.textContent = 'Title is required';
+    if (!body.question) questionErr.textContent = 'Question is required';
+    if (!body.title || !body.question) return;
     try {
       if (isEdit) {
         await api(`/api/qa/${data.id}`, {
@@ -823,12 +854,15 @@ async function renderUsers(el) {
     }
   }
   const users = state.users;
-  const totalPages = Math.ceil(users.length / state.usersPerPage);
+  const filteredUsers = state.usersSearch
+    ? users.filter(u => u.username.toLowerCase().includes(state.usersSearch.toLowerCase()))
+    : users;
+  const totalPages = Math.ceil(filteredUsers.length / state.usersPerPage);
   if (state.usersPage > totalPages && totalPages > 0) state.usersPage = totalPages;
   const start = (state.usersPage - 1) * state.usersPerPage;
-  const end = Math.min(start + state.usersPerPage, users.length);
-  const pageUsers = users.slice(start, end);
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
+  const end = Math.min(start + state.usersPerPage, filteredUsers.length);
+  const pageUsers = filteredUsers.slice(start, end);
+  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
     <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
       .map(
         (u) => `<tr>
@@ -849,6 +883,18 @@ async function renderUsers(el) {
     </div>`
         : ''
     }`;
+  // Bind users search
+  const us = document.getElementById('users-search');
+  if (us) {
+    us.addEventListener(
+      'input',
+      debounce(() => {
+        state.usersSearch = us.value;
+        state.usersPage = 1;
+        renderUsers(el);
+      }, 300),
+    );
+  }
 }
 function showCreateUser() {
   const modal = document.getElementById('form-modal');
