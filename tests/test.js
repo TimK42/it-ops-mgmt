@@ -476,14 +476,20 @@ async function run() {
     );
     // ═══ ISSUE #73: MOBILE OVERFLOW FIX ═══
     console.log('\n>>> Issue #73 Mobile Overflow Fix');
-    const styleCss = fs.readFileSync(path.join(__dirname, '..', 'public', 'css', 'style.css'), 'utf-8');
-    
+    const styleCss = fs.readFileSync(
+      path.join(__dirname, '..', 'public', 'css', 'style.css'),
+      'utf-8',
+    );
+
     // Problem 1: Users table overflow
     // .table-container must have overflow-x: auto instead of overflow: hidden
     const tcStart = styleCss.indexOf('.table-container');
     const tcBlock = styleCss.slice(tcStart, styleCss.indexOf('}', tcStart));
     assert(tcBlock.includes('overflow-x: auto'), 'CSS: .table-container has overflow-x: auto');
-    assert(!tcBlock.includes('overflow: hidden'), 'CSS: .table-container no longer has overflow: hidden');
+    assert(
+      !tcBlock.includes('overflow: hidden'),
+      'CSS: .table-container no longer has overflow: hidden',
+    );
 
     // Problem 2: QA Detail title overflow on mobile
     // Inside the @media query, .topbar-title must have white-space: normal + word-break
@@ -491,12 +497,24 @@ async function run() {
     const mqBlock = styleCss.slice(mqStart);
     const ttStart = mqBlock.indexOf('.topbar-title');
     const ttBlock = mqBlock.slice(ttStart, mqBlock.indexOf('}', ttStart));
-    assert(ttBlock.includes('white-space: normal'), 'CSS (mobile): .topbar-title white-space: normal');
-    assert(ttBlock.includes('word-break: break-word'), 'CSS (mobile): .topbar-title word-break: break-word');
-    assert(ttBlock.includes('overflow-wrap: break-word'), 'CSS (mobile): .topbar-title overflow-wrap: break-word');
+    assert(
+      ttBlock.includes('white-space: normal'),
+      'CSS (mobile): .topbar-title white-space: normal',
+    );
+    assert(
+      ttBlock.includes('word-break: break-word'),
+      'CSS (mobile): .topbar-title word-break: break-word',
+    );
+    assert(
+      ttBlock.includes('overflow-wrap: break-word'),
+      'CSS (mobile): .topbar-title overflow-wrap: break-word',
+    );
 
     // Problem 3: Page switch — body overflow-x hidden on mobile
-    assert(mqBlock.includes('  body {\n    overflow-x: hidden;'), 'CSS (mobile): body overflow-x: hidden');
+    assert(
+      mqBlock.includes('  body {\n    overflow-x: hidden;'),
+      'CSS (mobile): body overflow-x: hidden',
+    );
 
     // Problem 3b: .content max-width 100vw on mobile
     const ctStart = mqBlock.indexOf('.content');
