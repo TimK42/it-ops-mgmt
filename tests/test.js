@@ -584,6 +584,25 @@ async function run() {
       /overflow-wrap\s*:\s*break-word/.test(cdBlock),
       'CSS: .content still has overflow-wrap: break-word',
     );
+
+    // ═══ ISSUE #87: SIDEBAR NAV ITEMS WCAG 44px TOUCH TARGET ═══
+    console.log('\n>>> Issue #87 Sidebar nav items 44px touch target');
+
+    // Check .nav-item has min-height: 44px for WCAG 2.5.5 compliance
+    const niMatch = styleCss.match(/\.nav-item\s*\{[^}]*\}/);
+    if (!niMatch) throw new Error('Could not find .nav-item block in CSS');
+    const niBlock = niMatch[0];
+    assert(
+      /min-height\s*:\s*44px/.test(niBlock),
+      'CSS: .nav-item has min-height: 44px (WCAG 2.5.5 touch target)',
+    );
+
+    // Verify min-height is NOT media-query-scoped (affects all views including tablet ≥768px)
+    const desktopNavMatch = styleCss.match(/\.nav-item[^{]*\{[^}]*min-height\s*:\s*44px[^}]*\}/);
+    assert(
+      desktopNavMatch && desktopNavMatch.index < mqStart,
+      'CSS: .nav-item min-height:44px is in global scope (not just mobile @media)',
+    );
   } finally {
     server.kill();
   }

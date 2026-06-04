@@ -92,6 +92,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 44px;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14px;
