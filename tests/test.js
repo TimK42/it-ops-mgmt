@@ -354,7 +354,8 @@ async function run() {
     // Mobile overflow fix (#61) CSS checks
     assert(css.includes('overflow-x: hidden'), 'CSS: .modal-body overflow-x hidden (#61)');
     assert(
-      css.includes('max-width: 100%') && css.includes('word-break: break-word'),
+      css.includes('max-width: 100%') &&
+        css.indexOf('.detail-section-content') < css.indexOf('word-break: break-word'),
       'CSS: .detail-section-content max-width + word-break (#61)',
     );
     assert(

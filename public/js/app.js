@@ -253,7 +253,7 @@ function esc(s) {
     : '';
 }
 function safeColor(c) {
-  return /^#[0-9a-f]{6}$/i.test(String(c)) ? c : '#6366f1';
+  return /^#[0-9a-f]{6}$/i.test(String(c)) ? String(c) : '#6366f1';
 }
 
 function statusClass(s) {
