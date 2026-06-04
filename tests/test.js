@@ -603,6 +603,45 @@ async function run() {
       desktopNavMatch && desktopNavMatch.index < mqStart,
       'CSS: .nav-item min-height:44px is in global scope (not just mobile @media)',
     );
+
+    // ═══ ISSUE #88: TABLET BUTTON SIZES — .btn & .btn-sm WCAG 44px ═══
+    console.log('\n>>> Issue #88 Tablet buttons .btn & .btn-sm 44px touch target');
+
+    // Check global .btn has min-height: 44px
+    const btnMatch = styleCss.match(/\.btn\s*\{[^}]*\}/);
+    if (!btnMatch) throw new Error('Could not find .btn block in CSS');
+    const btnBlock = btnMatch[0];
+    assert(
+      /min-height\s*:\s*44px/.test(btnBlock),
+      'CSS: .btn has min-height: 44px (WCAG 2.5.5 touch target)',
+    );
+
+    // Check global .btn-sm has min-height: 44px and adequate padding
+    const btnSmMatch = styleCss.match(/\.btn-sm\s*\{[^}]*\}/);
+    if (!btnSmMatch) throw new Error('Could not find .btn-sm block in CSS');
+    const btnSmBlock = btnSmMatch[0];
+    assert(
+      /min-height\s*:\s*44px/.test(btnSmBlock),
+      'CSS: .btn-sm has min-height: 44px (WCAG 2.5.5 touch target)',
+    );
+    assert(
+      /padding\s*:\s*10px\s+12px/.test(btnSmBlock),
+      'CSS: .btn-sm has adequate padding (10px 12px) to fill 44px height',
+    );
+
+    // Verify both are in global scope (before mobile @media)
+    const btnGlobalMatch = styleCss.match(/\.btn\s*\{[^}]*min-height\s*:\s*44px[^}]*\}/);
+    assert(
+      btnGlobalMatch && btnGlobalMatch.index < mqStart,
+      'CSS: .btn min-height:44px is in global scope (not just mobile @media)',
+    );
+
+    // Verify .btn-sm min-height is also global
+    const btnSmGlobalMatch = styleCss.match(/\.btn-sm\s*\{[^}]*min-height\s*:\s*44px[^}]*\}/);
+    assert(
+      btnSmGlobalMatch && btnSmGlobalMatch.index < mqStart,
+      'CSS: .btn-sm min-height:44px is in global scope (not just mobile @media)',
+    );
   } finally {
     server.kill();
   }
