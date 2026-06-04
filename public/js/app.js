@@ -957,9 +957,9 @@ async function renderDashboard(el) {
   el.innerHTML = '<div class="loading">Loading...</div>';
   try {
     const s = await api('/api/stats');
-    el.innerHTML = `<h2 class="sr-only">Statistics</h2><div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px">
-      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.qa.total}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">QA Entries</div></div>
-      <div class="stat-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px"><div class="stat-number" style="font-size:32px;font-weight:700">${s.categories}</div><div class="stat-label" style="font-size:12px;color:#888;margin-top:4px">Sub-Systems</div></div>
+    el.innerHTML = `<h2 class="sr-only">Statistics</h2><div class="stats-grid">
+      <div class="stat-card"><div class="stat-number">${s.qa.total}</div><div class="stat-label">QA Entries</div></div>
+      <div class="stat-card"><div class="stat-number">${s.categories}</div><div class="stat-label">Sub-Systems</div></div>
     </div>`;
   } catch (e) {
     el.innerHTML = '<div class="error-msg">Failed to load dashboard</div>';
