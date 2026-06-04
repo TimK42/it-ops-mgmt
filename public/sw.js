@@ -29,27 +29,12 @@ self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
-  // Network-first for API routes, cache-first for static assets
-  // Exclude auth endpoints to avoid caching session-sensitive data
+  // Network-only for API routes (session-based, no offline data benefit)
+  // Cache-first for static assets
   const url = new URL(event.request.url);
-  if (url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/')) {
-    // Network-first: try network, fall back to cache
-    event.respondWith(
-      fetch(event.request)
-        .then((res) => {
-          // Cache successful API responses
-          if (res.ok) {
-            const clone = res.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, clone));
-          }
-          return res;
-        })
-        .catch(() =>
-          caches
-            .match(event.request)
-            .then((cached) => cached || new Response(null, { status: 503 })),
-        ),
-    );
+  if (url.pathname.startsWith('/api/')) {
+    // Network-only: no caching to avoid leaking auth data between sessions
+    event.respondWith(fetch(event.request).catch(() => new Response(null, { status: 503 })));
   } else {
     // Cache-first for static assets
     event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));

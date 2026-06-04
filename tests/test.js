@@ -123,7 +123,7 @@ async function run() {
     assert(r.json?.name, 'manifest.json has name');
     assert(r.json?.short_name, 'manifest.json has short_name');
     assert(Array.isArray(r.json?.icons), 'manifest.json has icons array');
-    assert(r.json.icons.length >= 2, 'manifest.json has >=2 icons');
+    assert(r.json?.icons?.length >= 2, 'manifest.json has >=2 icons');
 
     r = await req('GET', '/sw.js');
     assert(r.status === 200, 'GET /sw.js => 200');
