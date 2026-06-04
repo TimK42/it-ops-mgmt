@@ -241,6 +241,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
+  scrollbar-gutter: stable;
 }
 .stats-grid {
   display: grid;
@@ -821,6 +822,7 @@ tr.row-click {
     padding: 16px;
     max-width: 100vw;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
   }
   .search-box {
     width: 100%;
