@@ -542,22 +542,18 @@ async function run() {
     // ═══ ISSUE #84: MOBILE SCROLLBAR GUTTER — body & .main overrides ═══
     console.log('\n>>> Issue #84 Mobile scrollbar gutter fix — body & .main overrides');
 
-    // Extract body block inside mobile media query
-    const bodyStart = mqBlock.indexOf('\n  body');
-    if (bodyStart === -1) throw new Error('Could not find body block in mobile CSS block');
-    const bodyEnd = mqBlock.indexOf('}', bodyStart);
-    if (bodyEnd === -1) throw new Error('Could not find end of body block in mobile CSS');
-    const bodyBlock = mqBlock.slice(bodyStart, bodyEnd);
+    // Extract body block inside mobile media query (whitespace-tolerant regex)
+    const bodyMatch = mqBlock.match(/body\s*\{[^}]*\}/);
+    if (!bodyMatch) throw new Error('Could not find body block in mobile CSS block');
+    const bodyBlock = bodyMatch[0];
     assert(/height\s*:\s*auto/.test(bodyBlock), 'CSS (mobile): body height: auto (#84)');
     assert(/min-height\s*:\s*100vh/.test(bodyBlock), 'CSS (mobile): body min-height: 100vh (#84)');
     assert(/overflow-y\s*:\s*auto/.test(bodyBlock), 'CSS (mobile): body overflow-y: auto (#84)');
 
-    // Extract .main block inside mobile media query
-    const mainStart = mqBlock.indexOf('\n  .main');
-    if (mainStart === -1) throw new Error('Could not find .main block in mobile CSS block');
-    const mainEnd = mqBlock.indexOf('}', mainStart);
-    if (mainEnd === -1) throw new Error('Could not find end of .main block in mobile CSS');
-    const mainBlock = mqBlock.slice(mainStart, mainEnd);
+    // Extract .main block inside mobile media query (whitespace-tolerant regex)
+    const mainMatch = mqBlock.match(/\.main\s*\{[^}]*\}/);
+    if (!mainMatch) throw new Error('Could not find .main block in mobile CSS block');
+    const mainBlock = mainMatch[0];
     assert(/overflow\s*:\s*visible/.test(mainBlock), 'CSS (mobile): .main overflow: visible (#84)');
 
     // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
