@@ -488,10 +488,7 @@ async function run() {
     const tcEnd = styleCss.indexOf('}', tcStart);
     if (tcEnd === -1) throw new Error('Could not find end of .table-container block');
     const tcBlock = styleCss.slice(tcStart, tcEnd);
-    assert(
-      /overflow-x\s*:\s*auto/.test(tcBlock),
-      'CSS: .table-container has overflow-x: auto',
-    );
+    assert(/overflow-x\s*:\s*auto/.test(tcBlock), 'CSS: .table-container has overflow-x: auto');
     assert(
       !/overflow\s*:\s*hidden/.test(tcBlock),
       'CSS: .table-container no longer has overflow: hidden',
@@ -533,14 +530,8 @@ async function run() {
     const ctEnd = mqBlock.indexOf('}', ctStart);
     if (ctEnd === -1) throw new Error('Could not find end of .content block');
     const ctBlock = mqBlock.slice(ctStart, ctEnd);
-    assert(
-      /max-width\s*:\s*100vw/.test(ctBlock),
-      'CSS (mobile): .content max-width: 100vw',
-    );
-    assert(
-      /overflow-x\s*:\s*hidden/.test(ctBlock),
-      'CSS (mobile): .content overflow-x: hidden',
-    );
+    assert(/max-width\s*:\s*100vw/.test(ctBlock), 'CSS (mobile): .content max-width: 100vw');
+    assert(/overflow-x\s*:\s*hidden/.test(ctBlock), 'CSS (mobile): .content overflow-x: hidden');
   } finally {
     server.kill();
   }
