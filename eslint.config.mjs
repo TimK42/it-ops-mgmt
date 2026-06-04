@@ -33,4 +33,16 @@ export default [
       'no-useless-assignment': 'warn',
     },
   },
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...eslintConfigPrettier.rules,
+    },
+  },
 ];

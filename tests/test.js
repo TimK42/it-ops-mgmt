@@ -112,6 +112,45 @@ async function run() {
     r = await req('GET', '/js/app.js');
     assert(r.status === 200, 'GET /js/app.js => 200');
 
+    // ═══ PWA ═══
+    console.log('\n>>> PWA');
+    r = await req('GET', '/manifest.json');
+    assert(r.status === 200, 'GET /manifest.json => 200');
+    assert(
+      (r.headers['content-type'] || '').includes('json'),
+      'GET /manifest.json => Content-Type includes json',
+    );
+    assert(r.json?.name, 'manifest.json has name');
+    assert(r.json?.short_name, 'manifest.json has short_name');
+    assert(Array.isArray(r.json?.icons), 'manifest.json has icons array');
+    assert(r.json.icons.length >= 2, 'manifest.json has >=2 icons');
+
+    r = await req('GET', '/sw.js');
+    assert(r.status === 200, 'GET /sw.js => 200');
+    assert(
+      (r.headers['content-type'] || '').includes('javascript'),
+      'GET /sw.js => Content-Type includes javascript',
+    );
+
+    r = await req('GET', '/icons/icon-192.png');
+    assert(r.status === 200, 'GET /icons/icon-192.png => 200');
+
+    r = await req('GET', '/icons/icon-512.png');
+    assert(r.status === 200, 'GET /icons/icon-512.png => 200');
+
+    r = await req('GET', '/');
+    assert(r.body.includes('rel="manifest"'), 'index.html has manifest link');
+    assert(r.body.includes('meta name="theme-color"'), 'index.html has theme-color meta');
+    assert(
+      r.body.includes('name="apple-mobile-web-app-capable"'),
+      'index.html has apple-mobile-web-app-capable meta',
+    );
+    assert(r.body.includes('rel="apple-touch-icon"'), 'index.html has apple-touch-icon link');
+    assert(
+      r.body.includes('serviceWorker') && r.body.includes('register'),
+      'index.html has service worker registration',
+    );
+
     // ═══ SPA REGISTER ROUTE ═══
     console.log('\n>>> SPA Register Route');
     r = await req('GET', '/register');

@@ -14,6 +14,13 @@ let state = {
   usersSearch: '',
 };
 
+function updateThemeColor(theme) {
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.setAttribute('content', theme === 'dark' ? '#0f0f1a' : '#4f46e5');
+  }
+}
+
 function initTheme() {
   let theme = null;
   try {
@@ -28,6 +35,7 @@ function initTheme() {
     }
   }
   document.documentElement.setAttribute('data-theme', theme);
+  updateThemeColor(theme);
 
   if (typeof window.matchMedia === 'function') {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -39,6 +47,7 @@ function initTheme() {
       if (!stored || (stored !== 'dark' && stored !== 'light')) {
         const isDark = e.matches;
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        updateThemeColor(isDark ? 'dark' : 'light');
         const btn = document.getElementById('theme-toggle');
         if (btn) {
           btn.textContent = isDark ? '☀️' : '🌙';
@@ -58,6 +67,7 @@ function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'light';
   const next = current === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
+  updateThemeColor(next);
   try {
     localStorage.setItem('theme', next);
   } catch {}
