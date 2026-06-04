@@ -239,6 +239,32 @@ body {
   flex: 1;
   padding: 24px 32px;
   overflow-y: auto;
+  overflow-x: hidden;
+  word-break: break-word;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  overflow-wrap: break-word;
+}
+.stat-number {
+  font-size: 32px;
+  font-weight: 700;
+}
+.stat-label {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
 }
 .table-toolbar {
   display: flex;
