@@ -53,7 +53,10 @@ self.addEventListener('fetch', (event) => {
         const fetchPromise = fetch(event.request)
           .then((response) => {
             if (response.ok) {
-              caches.open(CACHE).then((cache) => cache.put(event.request, response.clone()));
+              caches
+                .open(CACHE)
+                .then((cache) => cache.put(event.request, response.clone()))
+                .catch(() => {});
             }
             return response;
           })
