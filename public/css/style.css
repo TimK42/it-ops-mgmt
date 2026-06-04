@@ -242,7 +242,7 @@ body {
   overflow-x: hidden;
   overflow-wrap: break-word;
   /* Hide scrollbar track — overlay only, no width shift */
-  scrollbar-width: thin;
+  scrollbar-width: none;
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 .content::-webkit-scrollbar {
