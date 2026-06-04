@@ -241,7 +241,13 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
-  scrollbar-gutter: stable;
+  /* Hide scrollbar track — overlay only, no width shift */
+  scrollbar-width: thin;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+.content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 .stats-grid {
   display: grid;
