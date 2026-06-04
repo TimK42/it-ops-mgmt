@@ -499,7 +499,16 @@ async function run() {
     // Use lastIndexOf('max-width: 768px') instead of '@media' to avoid matching future @media blocks
     const mqStart = styleCss.lastIndexOf('(max-width: 768px)');
     if (mqStart === -1) throw new Error('Could not find @media (max-width: 768px) block in CSS');
-    const mqBlock = styleCss.slice(mqStart);
+    const mqOpen = styleCss.indexOf('{', mqStart);
+    if (mqOpen === -1) throw new Error('Could not find opening brace of mobile media query');
+    let depth = 1;
+    let mqClose = mqOpen + 1;
+    while (depth > 0 && mqClose < styleCss.length) {
+      if (styleCss[mqClose] === '{') depth++;
+      else if (styleCss[mqClose] === '}') depth--;
+      mqClose++;
+    }
+    const mqBlock = styleCss.slice(mqOpen + 1, mqClose - 1);
     const ttStart = mqBlock.indexOf('.topbar-title');
     if (ttStart === -1) throw new Error('Could not find .topbar-title in mobile CSS block');
     const ttEnd = mqBlock.indexOf('}', ttStart);
