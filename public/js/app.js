@@ -252,6 +252,10 @@ function esc(s) {
         .replace(/"/g, '&quot;')
     : '';
 }
+function safeColor(c) {
+  return /^#[0-9a-f]{6}$/i.test(String(c)) ? String(c) : '#6366f1';
+}
+
 function statusClass(s) {
   return (
     {
@@ -621,7 +625,7 @@ async function renderQA(el) {
   list.innerHTML = state.qaEntries
     .map(
       (q) =>
-        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
+        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
           q.tags
             ? q.tags
                 .split(',')
@@ -686,7 +690,7 @@ async function showQADetail(id) {
     <div class="modal-body">
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
-      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${q.category_color}15;color:${q.category_color}">${q.category_icon} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
+      <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
         q.tags
           ? q.tags
               .split(',')
@@ -774,7 +778,7 @@ function exportCSV() {
 async function renderCategories(el) {
   await loadCategories();
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" data-action="create-category">＋ Add Sub-System</button></div>
-    <h2 class="sr-only">Sub-Systems List</h2><div class="table-container"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td style="font-size:18px">${c.icon}</td><td><strong>${esc(c.name)}</strong></td><td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${c.color};vertical-align:middle"></span> ${c.color}</td><td>${c.qa_count || 0}</td><td><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+    <h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px">${esc(c.icon)}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${safeColor(c.color)};vertical-align:middle"></span><span class="color-hex-label"> ${esc(c.color)}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');
@@ -825,14 +829,14 @@ async function renderUsers(el) {
   const end = Math.min(start + state.usersPerPage, users.length);
   const pageUsers = users.slice(start, end);
   el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users</div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
-    <h2 class="sr-only">Users List</h2><div class="table-container"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
+    <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
       .map(
         (u) => `<tr>
-      <td><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
-      <td><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
-      <td><span class="badge ${u.status === 'active' ? 'status-resolved' : u.status === 'pending' ? 'status-open' : 'status-closed'}">${u.status}</span></td>
-      <td style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
-      <td style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
+      <td data-label="Username"><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
+      <td data-label="Role"><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
+      <td data-label="Status"><span class="badge ${u.status === 'active' ? 'status-resolved' : u.status === 'pending' ? 'status-open' : 'status-closed'}">${u.status}</span></td>
+      <td data-label="Created" style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
+      <td data-label="" style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
     </tr>`,
       )
       .join('')}</tbody></table></div>

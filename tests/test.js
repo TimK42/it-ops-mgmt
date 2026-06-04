@@ -351,6 +351,27 @@ async function run() {
       'CSS: background: transparent (Prettier format)',
     );
 
+    // Mobile overflow fix (#61) CSS checks
+    assert(css.includes('overflow-x: hidden'), 'CSS: .modal-body overflow-x hidden (#61)');
+    assert(
+      css.includes('max-width: 100%') &&
+        css.includes('.detail-section-content') &&
+        css.indexOf('word-break: break-word', css.indexOf('.detail-section-content')) <
+          css.indexOf('}', css.indexOf('.detail-section-content')),
+      'CSS: .detail-section-content word-break inside block (#61)',
+    );
+    assert(
+      css.includes('.admin-table td[data-label]:before'),
+      'CSS: mobile card layout with data-label pseudo-elements (#61)',
+    );
+    assert(
+      css.includes('.color-hex-label') &&
+        css
+          .slice(css.indexOf('.color-hex-label'), css.indexOf('}', css.indexOf('.color-hex-label')))
+          .includes('clip: rect(0, 0, 0, 0)'),
+      'CSS: .color-hex-label clip inside block (#61)',
+    );
+
     // ═══ QA DETAIL SPA ROUTE (R4-H1) ═══
     console.log('\n>>> QA Detail SPA Route');
     r = await req('GET', '/qa/1');
@@ -395,6 +416,33 @@ async function run() {
     );
     // closeModal function must still exist
     assert(appjs.includes('function closeModal('), 'JS: closeModal() function exists');
+
+    // Mobile overflow fix (#61) JS checks
+    assert(
+      appjs.includes('data-label="Username"'),
+      'JS: renderUsers() data-label for Username (#61)',
+    );
+    assert(appjs.includes('data-label="Role"'), 'JS: renderUsers() data-label for Role (#61)');
+    assert(appjs.includes('data-label="Status"'), 'JS: renderUsers() data-label for Status (#61)');
+    assert(
+      appjs.includes('data-label="Created"'),
+      'JS: renderUsers() data-label for Created (#61)',
+    );
+    assert(appjs.includes('data-label="Icon"'), 'JS: renderCategories() data-label for Icon (#61)');
+    assert(appjs.includes('data-label="Name"'), 'JS: renderCategories() data-label for Name (#61)');
+    assert(
+      appjs.includes('data-label="Color"'),
+      'JS: renderCategories() data-label for Color (#61)',
+    );
+    assert(appjs.includes('data-label="QA"'), 'JS: renderCategories() data-label for QA (#61)');
+    assert(
+      appjs.includes('class="color-hex-label"'),
+      'JS: renderCategories() wraps hex in color-hex-label (#61)',
+    );
+    assert(
+      appjs.includes('detail-section-content'),
+      'JS: showQADetail() renders detail-section-content for overflow protection (#61)',
+    );
   } finally {
     server.kill();
   }
