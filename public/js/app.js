@@ -855,7 +855,7 @@ async function renderUsers(el) {
   }
   const users = state.users;
   const filteredUsers = state.usersSearch
-    ? users.filter(u => u.username.toLowerCase().includes(state.usersSearch.toLowerCase()))
+    ? users.filter((u) => u.username.toLowerCase().includes(state.usersSearch.toLowerCase()))
     : users;
   const totalPages = Math.ceil(filteredUsers.length / state.usersPerPage);
   if (state.usersPage > totalPages && totalPages > 0) state.usersPage = totalPages;
