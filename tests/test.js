@@ -499,7 +499,17 @@ async function run() {
     // Use lastIndexOf('max-width: 768px') instead of '@media' to avoid matching future @media blocks
     const mqStart = styleCss.lastIndexOf('(max-width: 768px)');
     if (mqStart === -1) throw new Error('Could not find @media (max-width: 768px) block in CSS');
-    const mqBlock = styleCss.slice(mqStart);
+    const mqOpen = styleCss.indexOf('{', mqStart);
+    if (mqOpen === -1) throw new Error('Could not find opening brace of mobile media query');
+    let depth = 1;
+    let mqClose = mqOpen + 1;
+    while (depth > 0 && mqClose < styleCss.length) {
+      if (styleCss[mqClose] === '{') depth++;
+      else if (styleCss[mqClose] === '}') depth--;
+      mqClose++;
+    }
+    if (depth > 0) throw new Error('Could not find matching closing brace of mobile media query');
+    const mqBlock = styleCss.slice(mqOpen + 1, mqClose - 1);
     const ttStart = mqBlock.indexOf('.topbar-title');
     if (ttStart === -1) throw new Error('Could not find .topbar-title in mobile CSS block');
     const ttEnd = mqBlock.indexOf('}', ttStart);
@@ -520,7 +530,7 @@ async function run() {
 
     // Problem 3: Page switch — body overflow-x hidden on mobile
     assert(
-      /body\s*\{[^}]*overflow-x:\s*hidden\s*;/.test(mqBlock),
+      /(?:^|\s)body\s*\{[^}]*overflow-x:\s*hidden\s*;/.test(mqBlock),
       'CSS (mobile): body overflow-x: hidden',
     );
 
@@ -534,7 +544,27 @@ async function run() {
       !/max-width/.test(ctBlock),
       'CSS (mobile): .content should NOT have max-width (avoid iOS 100vw bug)',
     );
-    assert(/overflow-x\s*:\s*hidden/.test(ctBlock), 'CSS (mobile): .content overflow-x: hidden');
+    assert(
+      /overflow\s*:\s*visible/.test(ctBlock),
+      'CSS (mobile): .content overflow: visible (#84)',
+    );
+
+    // ═══ ISSUE #84: MOBILE SCROLLBAR GUTTER — body & .main overrides ═══
+    console.log('\n>>> Issue #84 Mobile scrollbar gutter fix — body & .main overrides');
+
+    // Extract body block inside mobile media query (whitespace-tolerant regex)
+    const bodyMatch = mqBlock.match(/(?:^|\s)body\s*\{[^}]*\}/m);
+    if (!bodyMatch) throw new Error('Could not find body block in mobile CSS block');
+    const bodyBlock = bodyMatch[0];
+    assert(/height\s*:\s*auto/.test(bodyBlock), 'CSS (mobile): body height: auto (#84)');
+    assert(/min-height\s*:\s*100vh/.test(bodyBlock), 'CSS (mobile): body min-height: 100vh (#84)');
+    assert(/overflow-y\s*:\s*auto/.test(bodyBlock), 'CSS (mobile): body overflow-y: auto (#84)');
+
+    // Extract .main block inside mobile media query (whitespace-tolerant regex)
+    const mainMatch = mqBlock.match(/\.main\s*\{[^}]*\}/);
+    if (!mainMatch) throw new Error('Could not find .main block in mobile CSS block');
+    const mainBlock = mainMatch[0];
+    assert(/overflow\s*:\s*visible/.test(mainBlock), 'CSS (mobile): .main overflow: visible (#84)');
 
     // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
     console.log('\n>>> Issue #79 Remove scrollbar-gutter');
