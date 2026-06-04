@@ -6,7 +6,7 @@ export default [
   { ignores: ['node_modules/', 'coverage/', '.git/'] },
   {
     files: ['**/*.js'],
-    ignores: ['public/js/**'],
+    ignores: ['public/js/**', 'public/sw.js'],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -31,6 +31,18 @@ export default [
       'no-empty': 'warn',
       'no-unused-vars': 'warn',
       'no-useless-assignment': 'warn',
+    },
+  },
+  {
+    files: ['public/sw.js'],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker,
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...eslintConfigPrettier.rules,
     },
   },
 ];
