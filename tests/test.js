@@ -355,8 +355,10 @@ async function run() {
     assert(css.includes('overflow-x: hidden'), 'CSS: .modal-body overflow-x hidden (#61)');
     assert(
       css.includes('max-width: 100%') &&
-        css.indexOf('.detail-section-content') < css.indexOf('word-break: break-word'),
-      'CSS: .detail-section-content max-width + word-break (#61)',
+        css.includes('.detail-section-content') &&
+        css.indexOf('word-break: break-word', css.indexOf('.detail-section-content')) <
+          css.indexOf('}', css.indexOf('.detail-section-content')),
+      'CSS: .detail-section-content word-break inside block (#61)',
     );
     assert(
       css.includes('.admin-table td[data-label]:before'),
