@@ -443,6 +443,39 @@ async function run() {
       appjs.includes('detail-section-content'),
       'JS: showQADetail() renders detail-section-content for overflow protection (#61)',
     );
+    // Issue #63 assertions
+    assert(
+      appjs.includes('users-search'),
+      'JS: renderUsers() includes users-search input (#63)',
+    );
+    assert(
+      appjs.includes('search-clear'),
+      'JS: renderQA() includes search-clear button (#63)',
+    );
+    assert(
+      appjs.includes('auth-pass-confirm'),
+      'JS: renderLogin() includes auth-pass-confirm field (#63)',
+    );
+    assert(
+      appjs.includes('Passwords do not match'),
+      'JS: renderLogin() validates password match (#63)',
+    );
+    assert(
+      appjs.includes('Title is required'),
+      'JS: showCreateQA() has inline Title validation (#63)',
+    );
+    assert(
+      appjs.includes('Question is required'),
+      'JS: showCreateQA() has inline Question validation (#63)',
+    );
+    assert(
+      appjs.includes('comma separated'),
+      'JS: showCreateQA() tags placeholder updated (#63)',
+    );
+    assert(
+      appjs.includes('Page Not Found'),
+      'JS: navigate() includes 404: "Page Not Found" title (#63)',
+    );
   } finally {
     server.kill();
   }

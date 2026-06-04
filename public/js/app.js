@@ -889,6 +889,7 @@ async function renderUsers(el) {
     us.addEventListener(
       'input',
       debounce(() => {
+        if (state.page !== 'users') return;
         state.usersSearch = us.value;
         state.usersPage = 1;
         renderUsers(el);
