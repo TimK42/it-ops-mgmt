@@ -815,11 +815,17 @@ tr.row-click {
     max-width: 100%;
   }
   body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
     overflow-x: hidden;
+  }
+  .main {
+    overflow: visible;
   }
   .content {
     padding: 16px;
-    overflow-x: hidden;
+    overflow: visible;
   }
   .search-box {
     width: 100%;
