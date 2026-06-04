@@ -240,7 +240,7 @@ body {
   padding: 24px 32px;
   overflow-y: auto;
   overflow-x: hidden;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .stats-grid {
   display: grid;
@@ -263,7 +263,7 @@ body {
 }
 .stat-label {
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 .table-toolbar {
