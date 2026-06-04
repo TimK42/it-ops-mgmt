@@ -187,9 +187,13 @@ body {
   line-height: 1;
   cursor: pointer;
   color: #999;
-  padding: 0 4px;
+  padding: 0;
   flex-shrink: 0;
   min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: inherit;
 }
 .search-clear:hover {
