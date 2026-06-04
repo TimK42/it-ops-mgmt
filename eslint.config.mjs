@@ -6,7 +6,7 @@ export default [
   { ignores: ['node_modules/', 'coverage/', '.git/'] },
   {
     files: ['**/*.js'],
-    ignores: ['public/js/**'],
+    ignores: ['public/js/**', 'public/sw.js'],
     languageOptions: {
       globals: {
         ...globals.node,

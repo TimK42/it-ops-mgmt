@@ -47,7 +47,19 @@ self.addEventListener('fetch', (event) => {
       ),
     );
   } else {
-    // Cache-first for static assets
-    event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+    // Stale-while-revalidate for static assets (updates propagate on next visit)
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const fetchPromise = fetch(event.request)
+          .then((response) => {
+            if (response.ok) {
+              caches.open(CACHE).then((cache) => cache.put(event.request, response));
+            }
+            return response;
+          })
+          .catch(() => cached);
+        return cached || fetchPromise;
+      }),
+    );
   }
 });
