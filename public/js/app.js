@@ -1017,7 +1017,8 @@ async function renderUsers(el) {
         // Subsequent render: show error inside tbody (preserves table structure for future renders)
         const tbody = document.querySelector('#users-results-container tbody');
         if (tbody) {
-          tbody.innerHTML = '<tr><td colspan="5"><div class="error-msg" style="padding:24px;text-align:center;color:#888">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div></td></tr>';
+          tbody.innerHTML =
+            '<tr><td colspan="5"><div class="error-msg" style="padding:24px;text-align:center;color:#888">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div></td></tr>';
         }
       }
       return;
