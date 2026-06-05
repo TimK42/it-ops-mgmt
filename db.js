@@ -48,6 +48,7 @@ function initSchema() {
       password TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'Viewer' CHECK(role IN ('Admin','Contributor','Viewer')),
       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('active','pending','disabled')),
+      must_change_password INTEGER NOT NULL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -59,6 +60,13 @@ function initSchema() {
     );
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires);
   `);
+
+  // migrations
+  try {
+    db.exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
+  } catch {
+    /* column already exists */
+  }
 }
 
 function seedUsers() {
