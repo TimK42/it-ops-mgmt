@@ -80,6 +80,127 @@ function toggleTheme() {
 
 initTheme();
 
+// ===== PWA INSTALL PROMPT =====
+let deferredInstallPrompt = null;
+
+function isIOS() {
+  const ua = navigator.userAgent;
+  // iPadOS Safari in "Request Desktop Website" mode uses a macOS-like UA
+  // but still has touch support — check maxTouchPoints to catch it
+  return (
+    (/iPhone|iPad|iPod/.test(ua) || (navigator.maxTouchPoints > 0 && /Mac/.test(ua))) &&
+    !window.MSStream
+  );
+}
+
+function isStandalone() {
+  if (typeof window.navigator.standalone !== 'undefined' && window.navigator.standalone)
+    return true;
+  if (typeof window.matchMedia === 'function') {
+    const mq = window.matchMedia('(display-mode: standalone)');
+    return mq && mq.matches;
+  }
+  return false;
+}
+
+function initPWA() {
+  // Already running as a PWA — hide all prompts
+  if (isStandalone()) return;
+
+  const banner = document.getElementById('pwa-install-banner');
+  if (!banner) return;
+
+  // iOS Safari: show Add to Home Screen guide
+  if (isIOS()) {
+    try {
+      if (localStorage.getItem('pwa-ios-dismissed')) return;
+    } catch (e) {}
+    banner.innerHTML =
+      '<div class="pwa-ios-banner" id="pwa-ios-banner">' +
+      '<div class="pwa-banner-content">' +
+      '<div class="pwa-banner-icon">📲</div>' +
+      '<div class="pwa-banner-text">' +
+      '<strong>Install this app</strong>' +
+      '<span>Tap <strong>Share</strong> <span class="pwa-share-icon">⎙</span> then <strong>Add to Home Screen</strong>.</span>' +
+      '</div>' +
+      '<button class="pwa-banner-close" id="pwa-dismiss-ios" aria-label="Dismiss">✕</button>' +
+      '</div>' +
+      '</div>';
+    const dismissBtn = document.getElementById('pwa-dismiss-ios');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', function () {
+        banner.innerHTML = '';
+        try {
+          localStorage.setItem('pwa-ios-dismissed', '1');
+        } catch (e) {}
+      });
+    }
+    return;
+  }
+
+  // Android / Chrome: listen for beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', function (e) {
+    // Only prevent default when the user hasn't dismissed our banner
+    // Otherwise let Chrome's native prompt handle it
+    try {
+      if (localStorage.getItem('pwa-android-dismissed')) return;
+    } catch (er) {}
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    showAndroidInstallButton(banner);
+  });
+}
+
+function showAndroidInstallButton(banner) {
+  banner.innerHTML =
+    '<div class="pwa-android-banner" id="pwa-android-banner">' +
+    '<div class="pwa-banner-content">' +
+    '<div class="pwa-banner-icon">📲</div>' +
+    '<div class="pwa-banner-text">' +
+    '<strong>Install IT Operations KB</strong>' +
+    '<span>Add to your home screen for quick access.</span>' +
+    '</div>' +
+    '<button class="btn btn-primary btn-sm" id="pwa-install-btn">Install</button>' +
+    '<button class="pwa-banner-close" id="pwa-dismiss-android" aria-label="Dismiss">✕</button>' +
+    '</div>' +
+    '</div>';
+
+  const installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.addEventListener('click', function () {
+      if (!deferredInstallPrompt) return;
+      const promptEvent = deferredInstallPrompt;
+      deferredInstallPrompt = null;
+      promptEvent.prompt();
+      // Hide banner after prompt is shown, regardless of outcome
+      // The prompt event can only be used once
+      banner.innerHTML = '';
+    });
+  }
+
+  const dismissBtn = document.getElementById('pwa-dismiss-android');
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', function () {
+      banner.innerHTML = '';
+      try {
+        localStorage.setItem('pwa-android-dismissed', '1');
+      } catch (e) {}
+    });
+  }
+}
+
+window.addEventListener('appinstalled', function () {
+  deferredInstallPrompt = null;
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.innerHTML = '';
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPWA);
+} else {
+  initPWA();
+}
+
 // Centralized click delegation — replaces all inline onclick handlers
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
