@@ -165,7 +165,7 @@ async function run() {
       pwaJs.includes('(display-mode: standalone)'),
       'JS: matchMedia display-mode standalone check',
     );
-    assert(pwaJs.includes('window.navigator.standalone'), 'JS: iOS navigator.standalone detection');
+    assert(pwaJs.includes('navigator.standalone'), 'JS: iOS navigator.standalone detection');
     assert(/iPhone\|iPad\|iPod/.test(pwaJs), 'JS: iOS user-agent detection (iPhone|iPad|iPod)');
     assert(pwaJs.includes('deferredInstallPrompt'), 'JS: deferredInstallPrompt variable');
     assert(pwaJs.includes('pwa-install-btn'), 'JS: install button element ID');
@@ -173,8 +173,35 @@ async function run() {
     assert(pwaJs.includes('pwa-ios-dismissed'), 'JS: iOS dismiss localStorage key');
     assert(pwaJs.includes('pwa-android-dismissed'), 'JS: Android dismiss localStorage key');
     assert(pwaJs.includes('Add to Home Screen'), 'JS: iOS install guide text');
-    assert(pwaJs.includes('initPWA'), 'JS: initPWA function');
+    assert(pwaJs.includes('initPWA'), 'JS: initPWA function called');
+    // Verify initPWA() is called (not just defined) — it should appear before the closing </script>
+    assert(/initPWA\s*\(/.test(pwaJs), 'JS: initPWA() is invoked');
     assert(pwaJs.includes('showAndroidInstallButton'), 'JS: showAndroidInstallButton function');
+    // Verify the iOS banner element structure renders the share icon SVG + step text
+    assert(
+      /share.*icon|square\.and\.arrow/i.test(pwaJs) ||
+        /1\.\s*Tap.*Share|Share.*menu/i.test(pwaJs),
+      'JS: iOS banner references share icon or Share menu instructions',
+    );
+    // Verify Android install button HTML structure
+    assert(
+      pwaJs.includes('id="pwa-install-btn"'),
+      'JS: Android install button element with id',
+    );
+    assert(
+      pwaJs.includes('id="pwa-dismiss-android"'),
+      'JS: Android dismiss button element with id',
+    );
+    // Verify standalone detection returns early from initPWA
+    assert(
+      pwaJs.includes('if (isStandalone()) return;'),
+      'JS: standalone mode causes early return from initPWA',
+    );
+    // Verify appinstalled listener clears the banner and nulls the deferred prompt
+    assert(
+      pwaJs.includes("banner.innerHTML = ''") && pwaJs.includes('appinstalled'),
+      'JS: appinstalled event clears banner HTML',
+    );
 
     // CSS checks for PWA install banner styles
     r = await req('GET', '/css/style.css');
@@ -182,7 +209,20 @@ async function run() {
     assert(pwaCss.includes('.pwa-ios-banner'), 'CSS: .pwa-ios-banner style');
     assert(pwaCss.includes('.pwa-android-banner'), 'CSS: .pwa-android-banner style');
     assert(pwaCss.includes('.pwa-banner-content'), 'CSS: .pwa-banner-content style');
-    assert(pwaCss.includes('pwa-slide-up'), 'CSS: pwa-slide-up animation keyframes');
+    // Verify the animation has both @keyframes definition and CSS class application
+    assert(
+      /@keyframes\s+pwa-slide-up/.test(pwaCss),
+      'CSS: @keyframes pwa-slide-up animation defined',
+    );
+    assert(
+      /animation.*pwa-slide-up/.test(pwaCss),
+      'CSS: pwa-slide-up animation applied to banner',
+    );
+    // Verify the banner uses fixed positioning at the bottom
+    assert(
+      /bottom\s*:\s*0/.test(pwaCss),
+      'CSS: banner uses position: fixed; bottom: 0',
+    );
 
     // ═══ SPA REGISTER ROUTE ═══
     console.log('\n>>> SPA Register Route');

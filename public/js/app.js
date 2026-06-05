@@ -172,11 +172,9 @@ function showAndroidInstallButton(banner) {
       var promptEvent = deferredInstallPrompt;
       deferredInstallPrompt = null;
       promptEvent.prompt();
-      promptEvent.userChoice.then(function (result) {
-        if (result.outcome === 'accepted') {
-          banner.innerHTML = '';
-        }
-      });
+      // Hide banner after prompt is shown, regardless of outcome
+      // The prompt event can only be used once
+      banner.innerHTML = '';
     });
   }
 
