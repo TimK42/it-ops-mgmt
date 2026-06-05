@@ -80,6 +80,120 @@ function toggleTheme() {
 
 initTheme();
 
+// ===== PWA INSTALL PROMPT =====
+let deferredInstallPrompt = null;
+let pwaInstalled = false;
+
+function isIOS() {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function isIOSStandalone() {
+  return window.navigator.standalone === true;
+}
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || isIOSStandalone();
+}
+
+function initPWA() {
+  // Already running as a PWA — hide all prompts
+  if (isStandalone()) {
+    pwaInstalled = true;
+    return;
+  }
+
+  var banner = document.getElementById('pwa-install-banner');
+  if (!banner) return;
+
+  // iOS Safari: show Add to Home Screen guide
+  if (isIOS()) {
+    try {
+      if (localStorage.getItem('pwa-ios-dismissed')) return;
+    } catch (e) {}
+    banner.innerHTML =
+      '<div class="pwa-ios-banner" id="pwa-ios-banner">' +
+        '<div class="pwa-banner-content">' +
+          '<div class="pwa-banner-icon">📲</div>' +
+          '<div class="pwa-banner-text">' +
+            '<strong>Install this app</strong>' +
+            '<span>Tap <strong>Share</strong> <span class="pwa-share-icon">⎙</span> then <strong>Add to Home Screen</strong>.</span>' +
+          '</div>' +
+          '<button class="pwa-banner-close" id="pwa-dismiss-ios" aria-label="Dismiss">✕</button>' +
+        '</div>' +
+      '</div>';
+    var dismissBtn = document.getElementById('pwa-dismiss-ios');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', function () {
+        banner.innerHTML = '';
+        try { localStorage.setItem('pwa-ios-dismissed', '1'); } catch (e) {}
+      });
+    }
+    return;
+  }
+
+  // Android / Chrome: listen for beforeinstallprompt
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    showAndroidInstallButton(banner);
+  });
+}
+
+function showAndroidInstallButton(banner) {
+  try {
+    if (localStorage.getItem('pwa-android-dismissed')) return;
+  } catch (e) {}
+
+  banner.innerHTML =
+    '<div class="pwa-android-banner" id="pwa-android-banner">' +
+      '<div class="pwa-banner-content">' +
+        '<div class="pwa-banner-icon">📲</div>' +
+        '<div class="pwa-banner-text">' +
+          '<strong>Install IT Operations KB</strong>' +
+          '<span>Add to your home screen for quick access.</span>' +
+        '</div>' +
+        '<button class="btn btn-primary btn-sm" id="pwa-install-btn">Install</button>' +
+        '<button class="pwa-banner-close" id="pwa-dismiss-android" aria-label="Dismiss">✕</button>' +
+      '</div>' +
+    '</div>';
+
+  var installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) {
+    installBtn.addEventListener('click', async function () {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      var result = await deferredInstallPrompt.userChoice;
+      if (result.outcome === 'accepted') {
+        pwaInstalled = true;
+        banner.innerHTML = '';
+      }
+      deferredInstallPrompt = null;
+    });
+  }
+
+  var dismissBtn = document.getElementById('pwa-dismiss-android');
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', function () {
+      banner.innerHTML = '';
+      try { localStorage.setItem('pwa-android-dismissed', '1'); } catch (e) {}
+    });
+  }
+}
+
+window.addEventListener('appinstalled', function () {
+  pwaInstalled = true;
+  deferredInstallPrompt = null;
+  var banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.innerHTML = '';
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPWA);
+} else {
+  initPWA();
+}
+
 // Centralized click delegation — replaces all inline onclick handlers
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');

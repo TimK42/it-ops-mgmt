@@ -151,6 +151,84 @@ async function run() {
       'index.html has service worker registration',
     );
 
+    // Issue #92: PWA Install Prompt UX
+    assert(
+      r.body.includes('id="pwa-install-banner"'),
+      'index.html has pwa-install-banner container',
+    );
+
+    // JS checks for PWA install logic
+    r = await req('GET', '/js/app.js');
+    const pwaJs = r.body;
+    assert(
+      pwaJs.includes('beforeinstallprompt'),
+      'JS: beforeinstallprompt event listener',
+    );
+    assert(
+      pwaJs.includes("(display-mode: standalone)"),
+      'JS: matchMedia display-mode standalone check',
+    );
+    assert(
+      pwaJs.includes('window.navigator.standalone'),
+      'JS: iOS navigator.standalone detection',
+    );
+    assert(
+      /iPhone\|iPad\|iPod/.test(pwaJs),
+      'JS: iOS user-agent detection (iPhone|iPad|iPod)',
+    );
+    assert(
+      pwaJs.includes('deferredInstallPrompt'),
+      'JS: deferredInstallPrompt variable',
+    );
+    assert(
+      pwaJs.includes('pwa-install-btn'),
+      'JS: install button element ID',
+    );
+    assert(
+      pwaJs.includes('appinstalled'),
+      'JS: appinstalled event listener',
+    );
+    assert(
+      pwaJs.includes('pwa-ios-dismissed'),
+      'JS: iOS dismiss localStorage key',
+    );
+    assert(
+      pwaJs.includes('pwa-android-dismissed'),
+      'JS: Android dismiss localStorage key',
+    );
+    assert(
+      pwaJs.includes('Add to Home Screen'),
+      'JS: iOS install guide text',
+    );
+    assert(
+      pwaJs.includes('initPWA'),
+      'JS: initPWA function',
+    );
+    assert(
+      pwaJs.includes('showAndroidInstallButton'),
+      'JS: showAndroidInstallButton function',
+    );
+
+    // CSS checks for PWA install banner styles
+    r = await req('GET', '/css/style.css');
+    const pwaCss = r.body;
+    assert(
+      pwaCss.includes('.pwa-ios-banner'),
+      'CSS: .pwa-ios-banner style',
+    );
+    assert(
+      pwaCss.includes('.pwa-android-banner'),
+      'CSS: .pwa-android-banner style',
+    );
+    assert(
+      pwaCss.includes('.pwa-banner-content'),
+      'CSS: .pwa-banner-content style',
+    );
+    assert(
+      pwaCss.includes('pwa-slide-up'),
+      'CSS: pwa-slide-up animation keyframes',
+    );
+
     // ═══ SPA REGISTER ROUTE ═══
     console.log('\n>>> SPA Register Route');
     r = await req('GET', '/register');
