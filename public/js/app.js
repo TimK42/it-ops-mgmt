@@ -960,7 +960,11 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
     <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account (comma separated)"></div>`;
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
+    `<button class="btn btn-ghost btn-sm" id="f-q-cancel">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
+  document.getElementById('f-q-cancel').onclick = () => {
+    closeModal('form-modal');
+    if (isEdit) showQADetail(data.id);
+  };
   document.getElementById('f-q-submit').onclick = async () => {
     const body = {
       title: document.getElementById('f-q-title').value,
