@@ -14,17 +14,86 @@ const assert = require('assert');
 // ============================================================
 
 const mockQAEntries = [
-  { id: 1, qa_number: 'QA-001', title: 'Test Entry 1', question: 'Question 1?', answer: 'Answer 1', status: 'Published', category_name: 'Network', category_color: '#6366f1', category_icon: '🌐', tags: 'tag1,tag2', created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-02T00:00:00.000Z' },
-  { id: 2, qa_number: 'QA-002', title: 'Test Entry 2', question: 'Question 2?', answer: 'Answer 2', status: 'Draft', category_name: 'Server', category_color: '#ef4444', category_icon: '🖥', tags: '', created_at: '2026-01-03T00:00:00.000Z', updated_at: '2026-01-04T00:00:00.000Z' },
-  { id: 3, qa_number: 'QA-003', title: 'Search Result', question: 'Found?', answer: 'Yes', status: 'Published', category_name: null, category_color: null, category_icon: null, tags: '', created_at: '2026-02-01T00:00:00.000Z', updated_at: '2026-02-02T00:00:00.000Z' },
+  {
+    id: 1,
+    qa_number: 'QA-001',
+    title: 'Test Entry 1',
+    question: 'Question 1?',
+    answer: 'Answer 1',
+    status: 'Published',
+    category_name: 'Network',
+    category_color: '#6366f1',
+    category_icon: '🌐',
+    tags: 'tag1,tag2',
+    created_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-02T00:00:00.000Z',
+  },
+  {
+    id: 2,
+    qa_number: 'QA-002',
+    title: 'Test Entry 2',
+    question: 'Question 2?',
+    answer: 'Answer 2',
+    status: 'Draft',
+    category_name: 'Server',
+    category_color: '#ef4444',
+    category_icon: '🖥',
+    tags: '',
+    created_at: '2026-01-03T00:00:00.000Z',
+    updated_at: '2026-01-04T00:00:00.000Z',
+  },
+  {
+    id: 3,
+    qa_number: 'QA-003',
+    title: 'Search Result',
+    question: 'Found?',
+    answer: 'Yes',
+    status: 'Published',
+    category_name: null,
+    category_color: null,
+    category_icon: null,
+    tags: '',
+    created_at: '2026-02-01T00:00:00.000Z',
+    updated_at: '2026-02-02T00:00:00.000Z',
+  },
 ];
 
 const mockUsers = [
-  { id: 'u1', username: 'admin', role: 'Admin', status: 'active', created_at: '2026-01-01T00:00:00.000Z' },
-  { id: 'u2', username: 'viewer1', role: 'Viewer', status: 'active', created_at: '2026-01-05T00:00:00.000Z' },
-  { id: 'u3', username: 'contrib1', role: 'Contributor', status: 'active', created_at: '2026-01-10T00:00:00.000Z' },
-  { id: 'u4', username: 'pending1', role: 'Viewer', status: 'pending', created_at: '2026-02-01T00:00:00.000Z' },
-  { id: 'u5', username: 'disabled1', role: 'Viewer', status: 'disabled', created_at: '2026-03-01T00:00:00.000Z' },
+  {
+    id: 'u1',
+    username: 'admin',
+    role: 'Admin',
+    status: 'active',
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'u2',
+    username: 'viewer1',
+    role: 'Viewer',
+    status: 'active',
+    created_at: '2026-01-05T00:00:00.000Z',
+  },
+  {
+    id: 'u3',
+    username: 'contrib1',
+    role: 'Contributor',
+    status: 'active',
+    created_at: '2026-01-10T00:00:00.000Z',
+  },
+  {
+    id: 'u4',
+    username: 'pending1',
+    role: 'Viewer',
+    status: 'pending',
+    created_at: '2026-02-01T00:00:00.000Z',
+  },
+  {
+    id: 'u5',
+    username: 'disabled1',
+    role: 'Viewer',
+    status: 'disabled',
+    created_at: '2026-03-01T00:00:00.000Z',
+  },
 ];
 
 // Fresh DOM for each test (reuses shared app.js globals)
@@ -40,7 +109,13 @@ function resetDOM() {
 
   Object.defineProperty(dom.window, 'matchMedia', {
     writable: true,
-    value: () => ({ matches: false, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {} }),
+    value: () => ({
+      matches: false,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }),
   });
 
   global.window = dom.window;
@@ -90,7 +165,9 @@ function setupQA(opts = {}) {
   global.loadQA = async (signal) => {
     return { data: state.qaEntries, total: state.qaTotal, page: state.qaPage };
   };
-  global.loadQATotalCount = async () => { state.qaTotalCount = null; };
+  global.loadQATotalCount = async () => {
+    state.qaTotalCount = null;
+  };
   global.toast = () => {};
 }
 
@@ -113,7 +190,6 @@ function setupUsers(opts = {}) {
 // ============================================================
 
 describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
-
   // ---------- renderQA: Search DOM Preservation ----------
 
   it('QA: search input element is preserved after re-render', async function () {
@@ -162,7 +238,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
 
     // Switch to Draft (only 1 entry)
     state.qaFilters.status = 'Draft';
-    state.qaEntries = mockQAEntries.filter(e => e.status === 'Draft');
+    state.qaEntries = mockQAEntries.filter((e) => e.status === 'Draft');
     state.qaTotal = state.qaEntries.length;
     global.loadQA = async () => ({ data: state.qaEntries, total: state.qaTotal, page: 1 });
 
@@ -367,6 +443,9 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
 
     const infoEl2 = el.querySelector('.table-toolbar > div:first-child');
     assert.ok(infoEl2, 'Toolbar info after update');
-    assert.ok(infoEl2.textContent.includes('2 users'), `Shows 2 users, got "${infoEl2.textContent}"`);
+    assert.ok(
+      infoEl2.textContent.includes('2 users'),
+      `Shows 2 users, got "${infoEl2.textContent}"`,
+    );
   });
 });
