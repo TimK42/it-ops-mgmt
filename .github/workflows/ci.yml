@@ -49,5 +49,8 @@ jobs:
       - name: Bash test suite (unit + integration)
         run: npm test
 
-      - name: Node.js test suite
+      - name: Node.js test suite (integration)
         run: npm run test:js
+
+      - name: Mocha test suite (DOM/unit)
+        run: npm run test:mocha

@@ -2,6 +2,9 @@
   "name": "it-ops-mgmt",
   "version": "1.0.0",
   "description": "IT Operations - Known Issues & QA Knowledge Base",
+  "engines": {
+    "node": ">=20.19.0 || >=22.13.0"
+  },
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -19,6 +22,9 @@
   },
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/TimK42/it-ops-mgmt/issues"
