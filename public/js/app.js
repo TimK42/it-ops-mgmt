@@ -1011,6 +1011,12 @@ async function renderUsers(el) {
   if (!state.users || state.users.length === 0) {
     if (isFirstRender) {
       el.innerHTML = '<div class="loading">Loading...</div>';
+    } else {
+      // Subsequent render: show loading row in tbody (preserves toolbar/search DOM)
+      const tbody = document.querySelector('#users-results-container tbody');
+      if (tbody) {
+        tbody.innerHTML = '<tr><td colspan="5"><div class="loading" style="padding:24px;text-align:center;color:#888">Loading...</div></td></tr>';
+      }
     }
     await loadUsers();
     if (!state.users || state.users.length === 0) {
@@ -1073,11 +1079,7 @@ async function renderUsers(el) {
     if (infoEl) {
       infoEl.textContent = `${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}`;
     }
-    // Sync the search input value from state (prevents stale UI on state changes)
-    const searchInput = document.getElementById('users-search');
-    if (searchInput && searchInput.value !== state.usersSearch) {
-      searchInput.value = state.usersSearch || '';
-    }
+    // Input is the source of truth — state follows the input via debounced handler
   }
 
   // Always update the results container (tbody + pagination)
