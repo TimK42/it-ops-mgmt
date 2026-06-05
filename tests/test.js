@@ -174,8 +174,11 @@ async function run() {
     assert(pwaJs.includes('pwa-android-dismissed'), 'JS: Android dismiss localStorage key');
     assert(pwaJs.includes('Add to Home Screen'), 'JS: iOS install guide text');
     assert(pwaJs.includes('initPWA'), 'JS: initPWA function called');
-    // Verify initPWA() is called (not just defined) — it should appear before the closing </script>
-    assert(/initPWA\s*\(/.test(pwaJs), 'JS: initPWA() is invoked');
+    // Verify initPWA() is invoked (not just defined) — look for invocation without 'function ' prefix
+    assert(
+      /(?<!function\s)initPWA\s*\(/.test(pwaJs),
+      'JS: initPWA() is invoked as a function call (not only defined)',
+    );
     assert(pwaJs.includes('showAndroidInstallButton'), 'JS: showAndroidInstallButton function');
     // Verify the iOS banner element structure renders the share icon SVG + step text
     assert(
