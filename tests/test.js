@@ -179,15 +179,11 @@ async function run() {
     assert(pwaJs.includes('showAndroidInstallButton'), 'JS: showAndroidInstallButton function');
     // Verify the iOS banner element structure renders the share icon SVG + step text
     assert(
-      /share.*icon|square\.and\.arrow/i.test(pwaJs) ||
-        /1\.\s*Tap.*Share|Share.*menu/i.test(pwaJs),
+      /share.*icon|square\.and\.arrow/i.test(pwaJs) || /1\.\s*Tap.*Share|Share.*menu/i.test(pwaJs),
       'JS: iOS banner references share icon or Share menu instructions',
     );
     // Verify Android install button HTML structure
-    assert(
-      pwaJs.includes('id="pwa-install-btn"'),
-      'JS: Android install button element with id',
-    );
+    assert(pwaJs.includes('id="pwa-install-btn"'), 'JS: Android install button element with id');
     assert(
       pwaJs.includes('id="pwa-dismiss-android"'),
       'JS: Android dismiss button element with id',
@@ -214,15 +210,9 @@ async function run() {
       /@keyframes\s+pwa-slide-up/.test(pwaCss),
       'CSS: @keyframes pwa-slide-up animation defined',
     );
-    assert(
-      /animation.*pwa-slide-up/.test(pwaCss),
-      'CSS: pwa-slide-up animation applied to banner',
-    );
+    assert(/animation.*pwa-slide-up/.test(pwaCss), 'CSS: pwa-slide-up animation applied to banner');
     // Verify the banner uses fixed positioning at the bottom
-    assert(
-      /bottom\s*:\s*0/.test(pwaCss),
-      'CSS: banner uses position: fixed; bottom: 0',
-    );
+    assert(/bottom\s*:\s*0/.test(pwaCss), 'CSS: banner uses position: fixed; bottom: 0');
 
     // ═══ SPA REGISTER ROUTE ═══
     console.log('\n>>> SPA Register Route');
