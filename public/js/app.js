@@ -1015,6 +1015,13 @@ async function renderUsers(el) {
       if (isFirstRender) {
         el.innerHTML =
           '<div class="error-msg">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
+      } else {
+        // Subsequent render: show error inside results container (preserve toolbar DOM)
+        const rc = document.getElementById('users-results-container');
+        if (rc) {
+          rc.innerHTML =
+            '<div class="error-msg" style="padding:24px;text-align:center;color:#888">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
+        }
       }
       return;
     }

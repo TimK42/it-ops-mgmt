@@ -6,7 +6,7 @@
 
 A user-defined label attached to a QA (Knowledge Base) entry for categorization and search.
 
-- Tags stored in normalized `tags` + `qa_entry_tags` tables (not comma-separated string).
+- **Planned**: Tags will be stored in normalized `tags` + `qa_entry_tags` tables (replacing current comma-separated string).
 - Each tag has a unique `name`, an `id`, and a usage `count` (number of QA entries linked).
 - Tags are **case-sensitive** (displayed as-entered).
 
@@ -33,7 +33,7 @@ A named group for organizing QA entries (e.g., "Network", "Password", "Account")
 ## Resolved Decisions
 
 - **Tag input approach**: Chip input + autocomplete dropdown with frequency-based sorting (Issue #96).
-- **Schema**: Normalized `tags` + `qa_entry_tags` junction tables (replacing `qa_entries.tags` string column).
-- **Free-form tag creation**: Users may type and create tags not yet in the database.
-- **Migration strategy**: Drop old `qa_entries.tags` column after migrating existing data. Current data is test data — no real loss.
-- **Search behavior**: Tag search uses `LIKE` on the normalized tag name via JOIN.
+- **Schema**: Normalized `tags` + `qa_entry_tags` junction tables (approved, not yet implemented — see #96).
+- **Free-form tag creation**: Approved design — users may type and create tags not yet in the database.
+- **Migration strategy**: Drop old `qa_entries.tags` column after migrating existing data (see #96 for timeline).
+- **Search behavior**: Post-migration, tag search will use `LIKE` on the normalized tag name via JOIN.
