@@ -408,6 +408,33 @@ async function run() {
     r = await req('GET', '/api/qa?status=Published&search=VPN', { cookie });
     assert(r.status === 200, 'QA filter works');
 
+    // Search by answer content
+    r = await req('POST', '/api/qa', {
+      cookie,
+      body: {
+        title: 'Answer Search Test',
+        question: 'ignore',
+        answer: 'unique_secret_string_reply',
+        category_id: catId,
+      },
+    });
+    assert(r.status === 201, 'QA create for answer search => 201');
+    const answerSearchId = r.json?.id;
+    assert(answerSearchId, 'QA create for answer search has id');
+
+    r = await req('GET', '/api/qa?status=Published&search=unique_secret_string_reply', { cookie });
+    assert(r.status === 200, 'QA search by answer => 200');
+    assert(r.json?.data?.length > 0, 'QA search by answer returns results');
+    assert(
+      r.json.data.some((e) => e.id === answerSearchId),
+      'QA search found entry by answer',
+    );
+
+    if (answerSearchId) {
+      r = await req('DELETE', '/api/qa/' + answerSearchId, { cookie });
+      assert(r.status === 200, 'QA DELETE answer search entry => 200');
+    }
+
     // ═══ ACCESSIBILITY ═══
     console.log('\n>>> Accessibility');
 

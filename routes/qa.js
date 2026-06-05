@@ -32,9 +32,9 @@ router.get('/', (req, res) => {
   }
   if (search) {
     const clean = search.replace(/^#+/, '');
-    where += ' AND (q.title LIKE ? OR q.question LIKE ? OR q.tags LIKE ?)';
+    where += ' AND (q.title LIKE ? OR q.question LIKE ? OR q.answer LIKE ? OR q.tags LIKE ?)';
     const s = `%${clean}%`;
-    p.push(s, s, s);
+    p.push(s, s, s, s);
   }
 
   const { total } = db
