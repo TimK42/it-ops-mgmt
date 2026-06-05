@@ -53,3 +53,19 @@ A set of validation rules applied to all password creation and modification oper
 - **Search behavior**: Post-migration, tag search will use `LIKE` on the normalized tag name via JOIN.
 - **Password complexity rules**: Min 8 chars, uppercase + lowercase + digit + special character. Applied to register, admin create, and change password (Issue #99).
 - **Change password endpoint**: New endpoint at `POST /api/user/change-password` requiring current password verification + new password complexity check.
+
+### Forced Password Reset
+
+An Admin-initiated password reset that sets a new password for a user and marks their account so they must change it on next login. All existing sessions are invalidated.
+
+- Admin provides the new password (must satisfy Password Complexity rules).
+- `must_change_password` flag is set to `1` on the user record.
+- All sessions for that user are deleted from the database.
+- On login, the server checks the flag and returns a special response; the frontend redirects to the change-password form.
+- After successful change-password, the flag is cleared.
+
+## Resolved Decisions
+
+- **Password reset approach**: Admin-mediated direct password set (no email, no security questions). Admin provides the new password directly.
+- **Force change on login**: After admin reset, user must change password on next login.
+- **Session invalidation**: All existing sessions for the user are deleted on admin reset.

@@ -276,6 +276,9 @@ document.addEventListener('click', (e) => {
     case 'toggle-user':
       toggleUser(id);
       break;
+    case 'reset-user-password':
+      showResetUserPassword(id);
+      break;
     case 'qa-card': {
       history.pushState(null, '', '/qa/' + id);
       showQADetail(id);
@@ -639,6 +642,12 @@ function renderLogin(mode) {
           body: JSON.stringify({ username, password, remember }),
         });
         state.user = u;
+        if (u.must_change_password) {
+          renderShell();
+          startActivityTracking();
+          showChangePassword(true);
+          return;
+        }
         await loadCategories();
         await loadQATotalCount();
         renderShell();
@@ -1146,7 +1155,7 @@ async function renderUsers(el) {
       <td data-label="Role"><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
       <td data-label="Status"><span class="badge ${u.status === 'active' ? 'status-resolved' : u.status === 'pending' ? 'status-open' : 'status-closed'}">${u.status}</span></td>
       <td data-label="Created" style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
-      <td data-label="" style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
+      <td data-label="" style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button> ${u.status === 'active' ? `<button class="btn btn-sm btn-ghost" data-action="reset-user-password" data-id="${u.id}">Reset</button>` : ''}`}</td>
     </tr>`,
       )
       .join('');
@@ -1208,11 +1217,11 @@ function showCreateUser() {
   openModal('form-modal');
 }
 
-function showChangePassword() {
+function showChangePassword(forced) {
   const modal = document.getElementById('form-modal');
-  modal.querySelector('.modal-title').textContent = 'Change Password';
+  modal.querySelector('.modal-title').textContent = forced ? 'Set New Password' : 'Change Password';
   modal.querySelector('.modal-body').innerHTML = `
-    <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="cp-current" placeholder="Current password" autocomplete="current-password"></div>
+    ${forced ? '<div class="form-group" style="background:#fff3cd;color:#856404;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px">Your admin has reset your password. Please set a new password to continue.</div>' : `<div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="cp-current" placeholder="Current password" autocomplete="current-password"></div>`}
     <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="cp-new" placeholder="New password" autocomplete="new-password"></div>
     <div class="pw-hints" id="cp-pass-hints"></div>
     <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="cp-confirm" placeholder="Confirm new password" autocomplete="new-password"></div>
@@ -1220,18 +1229,32 @@ function showChangePassword() {
     <div class="form-success" id="cp-success"></div>
   `;
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="cp-submit">Change Password</button>`;
+    (forced
+      ? `<button class="btn btn-ghost btn-sm" id="cp-cancel-logout">Log Out</button>`
+      : `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button>`) +
+    `<button class="btn btn-primary btn-sm" id="cp-submit">${forced ? 'Set Password' : 'Change Password'}</button>`;
   openModal('form-modal');
   initPasswordHints('cp-new', 'cp-pass-hints');
+  if (forced) {
+    document.getElementById('cp-cancel-logout').onclick = async () => {
+      try {
+        await api('/api/auth/logout', { method: 'POST' });
+      } catch {}
+      state.user = null;
+      stopActivityTracking();
+      closeModal('form-modal');
+      renderShell();
+    };
+  }
   document.getElementById('cp-submit').onclick = async () => {
-    const currentPassword = document.getElementById('cp-current').value;
+    const currentPassword = forced ? null : document.getElementById('cp-current').value;
     const newPassword = document.getElementById('cp-new').value;
     const confirm = document.getElementById('cp-confirm').value;
     const err = document.getElementById('cp-error');
     const suc = document.getElementById('cp-success');
     err.textContent = '';
     suc.textContent = '';
-    if (!currentPassword || !newPassword || !confirm) {
+    if (!newPassword || !confirm) {
       err.textContent = 'Fill in all fields';
       return;
     }
@@ -1240,16 +1263,25 @@ function showChangePassword() {
       return;
     }
     try {
+      const body = { newPassword };
+      if (!forced) body.currentPassword = currentPassword;
       const res = await api('/api/user/change-password', {
         method: 'POST',
-        body: JSON.stringify({ currentPassword, newPassword }),
+        body: JSON.stringify(body),
       });
       if (res.error) {
         err.textContent = res.error;
         return;
       }
       suc.textContent = 'Password changed successfully';
-      setTimeout(() => closeModal('form-modal'), 2000);
+      if (forced) {
+        setTimeout(() => {
+          closeModal('form-modal');
+          navigate('qa');
+        }, 1500);
+      } else {
+        setTimeout(() => closeModal('form-modal'), 2000);
+      }
     } catch (e) {
       err.textContent = e.message || 'Failed to change password';
     }
@@ -1271,6 +1303,55 @@ async function toggleUser(id) {
   const r = await api(`/api/users/${id}/toggle`, { method: 'POST' });
   navigate('users');
   toast(r.status === 'disabled' ? 'Disabled' : 'Enabled');
+}
+
+function showResetUserPassword(id) {
+  const modal = document.getElementById('form-modal');
+  modal.querySelector('.modal-title').textContent = 'Reset Password';
+  modal.querySelector('.modal-body').innerHTML = `
+    <div class="form-group" style="background:#e8f4fd;color:#00529b;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px">This will force the user to change their password on next login.</div>
+    <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="ru-new" placeholder="Min 8 chars, uppercase, lowercase, digit, special char" autocomplete="new-password"></div>
+    <div class="pw-hints" id="ru-pass-hints"></div>
+    <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="ru-confirm" placeholder="Confirm new password"></div>
+    <div class="form-error" id="ru-error"></div>
+  `;
+  modal.querySelector('.modal-footer').innerHTML =
+    '<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="ru-submit">Set New Password</button>';
+  openModal('form-modal');
+  initPasswordHints('ru-new', 'ru-pass-hints');
+  document.getElementById('ru-submit').onclick = async () => {
+    const newPassword = document.getElementById('ru-new').value;
+    const confirm = document.getElementById('ru-confirm').value;
+    const err = document.getElementById('ru-error');
+    err.textContent = '';
+    if (!newPassword || !confirm) {
+      err.textContent = 'Fill in all fields';
+      return;
+    }
+    if (newPassword !== confirm) {
+      err.textContent = 'Passwords do not match';
+      return;
+    }
+    const pwErr = validatePw(newPassword);
+    if (pwErr) {
+      err.textContent = pwErr;
+      return;
+    }
+    try {
+      const res = await api('/api/users/' + id + '/password', {
+        method: 'PATCH',
+        body: JSON.stringify({ password: newPassword }),
+      });
+      if (res.error) {
+        err.textContent = res.error;
+        return;
+      }
+      closeModal('form-modal');
+      toast('Password reset - user will need to change on next login');
+    } catch (e) {
+      err.textContent = e.message || 'Failed to reset password';
+    }
+  };
 }
 
 // ===== DASHBOARD =====

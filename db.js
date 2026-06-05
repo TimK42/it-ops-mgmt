@@ -48,6 +48,7 @@ function initSchema() {
       password TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'Viewer' CHECK(role IN ('Admin','Contributor','Viewer')),
       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('active','pending','disabled')),
+      must_change_password INTEGER NOT NULL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -59,6 +60,14 @@ function initSchema() {
     );
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires);
   `);
+
+  // migrations: add must_change_password column if not present
+  try {
+    db.exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
+  } catch (e) {
+    // SQLite throws SQLITE_ERROR for duplicate column — ignore, re-throw everything else
+    if (!e.message.includes('duplicate column')) throw e;
+  }
 }
 
 function seedUsers() {

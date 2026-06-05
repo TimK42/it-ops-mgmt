@@ -69,6 +69,15 @@ app.use('/api/auth', require('./routes/auth'));
 // Auth guard — all /api/* below this requires login
 app.use('/api', (req, res, next) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
+  // Users with must_change_password=1 can only use the change-password endpoint
+  if (!req.path.endsWith('/change-password')) {
+    const db = getDb();
+    const u = db
+      .prepare('SELECT must_change_password FROM users WHERE id = ?')
+      .get(req.session.userId);
+    if (u && u.must_change_password)
+      return res.status(403).json({ error: 'Must change password', must_change_password: true });
+  }
   next();
 });
 

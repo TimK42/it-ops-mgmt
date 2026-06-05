@@ -71,4 +71,28 @@ router.post('/:id/toggle', (req, res) => {
   res.json({ ok: true, status: next });
 });
 
+// PATCH /api/users/:id/password — Admin resets a user's password (forces change on next login + invalidates all sessions)
+router.patch('/:id/password', (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ error: 'Password required' });
+  const pwErr = validatePassword(password);
+  if (pwErr) return res.status(400).json({ error: pwErr });
+
+  const db = getDb();
+  const u = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.id);
+  if (!u) return res.status(404).json({ error: 'User not found' });
+
+  const hash = bcrypt.hashSync(password, 10);
+  db.prepare(
+    "UPDATE users SET password = ?, must_change_password = 1, updated_at = datetime('now') WHERE id = ?",
+  ).run(hash, req.params.id);
+
+  // Delete all sessions for this user
+  db.prepare("DELETE FROM sessions WHERE json_extract(data, '$.userId') = ?").run(
+    Number(req.params.id),
+  );
+
+  res.json({ ok: true });
+});
+
 module.exports = router;

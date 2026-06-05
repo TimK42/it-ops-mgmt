@@ -930,6 +930,102 @@ async function run() {
     // Check session is still valid
     r = await req('GET', '/api/auth/me', { cookie: cpwCookie });
     assert(r.status === 200 && r.json?.username === cpwUser, 'CPW: session valid after change');
+
+    console.log('\n>>> Forced Password Reset');
+
+    // Create a test user for forced reset tests
+    const resetUser = 'resetuser_' + Date.now();
+    const resetPass = 'ResetP@ss1';
+    const createRes = await req('POST', '/api/users/create', {
+      cookie,
+      body: { username: resetUser, password: resetPass, role: 'Viewer' },
+    });
+    assert(createRes.status === 201, 'FPR: admin create test user => 201');
+    const resetUserId = createRes.json.id;
+
+    // Unauthenticated admin reset password
+    r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
+      body: { password: 'NewP@ss2!' },
+    });
+    assert(r.status === 401, 'FPR: unauthenticated => 401');
+
+    // No password
+    r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
+      cookie,
+      body: {},
+    });
+    assert(r.status === 400, 'FPR: no password => 400');
+
+    // Weak password
+    r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
+      cookie,
+      body: { password: 'short' },
+    });
+    assert(r.status === 400, 'FPR: weak password => 400');
+
+    // Login before admin reset — get a session cookie
+    const preResetLogin = await req('POST', '/api/auth/login', {
+      body: { username: resetUser, password: resetPass },
+    });
+    assert(preResetLogin.status === 200, 'FPR: pre-reset login => 200');
+    const preResetCookie = preResetLogin.setCookie[0]?.split(';')[0] || '';
+    assert(preResetCookie.length > 0, 'FPR: pre-reset cookie obtained');
+
+    // Verify session works
+    r = await req('GET', '/api/auth/me', { cookie: preResetCookie });
+    assert(r.status === 200, 'FPR: pre-reset session valid');
+
+    // Valid admin reset password
+    r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
+      cookie,
+      body: { password: 'FrcP@ss1!' },
+    });
+    assert(r.status === 200 && r.json?.ok === true, 'FPR: valid reset => 200 ok');
+
+    // Verify old session is invalidated
+    r = await req('GET', '/api/auth/me', { cookie: preResetCookie });
+    assert(r.status === 401, 'FPR: pre-reset session invalidated after reset => 401');
+
+    // Login returns must_change_password flag
+    r = await req('POST', '/api/auth/login', {
+      body: { username: resetUser, password: 'FrcP@ss1!' },
+    });
+    assert(r.status === 200, 'FPR: login after reset => 200');
+    assert(r.json?.must_change_password === true, 'FPR: must_change_password flag in response');
+    let resetCookie = r.setCookie[0]?.split(';')[0] || '';
+
+    // Auth guard: must_change_password user cannot access other API endpoints
+    r = await req('GET', '/api/qa', { cookie: resetCookie });
+    assert(r.status === 403, 'FPR: auth guard blocks must_change_password user => 403');
+    assert(
+      r.json?.must_change_password === true,
+      'FPR: auth guard returns must_change_password error',
+    );
+
+    // Forced change password: no currentPassword required
+    r = await req('POST', '/api/user/change-password', {
+      cookie: resetCookie,
+      body: { newPassword: 'ChngP@ss1!' },
+    });
+    assert(
+      r.status === 200 && r.json?.ok === true,
+      'FPR: forced change (no currentPassword) => 200',
+    );
+
+    // Login with new password — must_change_password should be cleared
+    r = await req('POST', '/api/auth/login', {
+      body: { username: resetUser, password: 'ChngP@ss1!' },
+    });
+    assert(r.status === 200, 'FPR: login after forced change => 200');
+    assert(r.json?.must_change_password !== true, 'FPR: must_change_password cleared after change');
+
+    // Normal change password still requires currentPassword
+    const normalResetCookie = r.setCookie[0]?.split(';')[0] || '';
+    r = await req('POST', '/api/user/change-password', {
+      cookie: normalResetCookie,
+      body: { newPassword: 'NoCurP@ss1' },
+    });
+    assert(r.status === 400, 'FPR: normal change without currentPassword => 400');
   } finally {
     server.kill();
   }

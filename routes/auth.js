@@ -52,6 +52,15 @@ router.post('/login', (req, res) => {
   req.session.userId = u.id;
   req.session.role = u.role;
   if (remember) req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+  if (u.must_change_password) {
+    if (isFormPost) return res.redirect('/?error=force-change');
+    return res.json({
+      id: u.id,
+      username: u.username,
+      role: u.role,
+      must_change_password: true,
+    });
+  }
   if (isFormPost) return res.redirect('/qa');
   res.json({ id: u.id, username: u.username, role: u.role });
 });
@@ -89,8 +98,7 @@ router.post('/register', (req, res) => {
 router.post('/change-password', (req, res) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
   const { currentPassword, newPassword } = req.body;
-  if (!currentPassword || !newPassword)
-    return res.status(400).json({ error: 'Current and new password required' });
+  if (!newPassword) return res.status(400).json({ error: 'New password required' });
 
   const db = getDb();
   const u = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
@@ -98,17 +106,20 @@ router.post('/change-password', (req, res) => {
   if (u.status !== 'active')
     return res.status(403).json({ error: 'Account is disabled or pending' });
 
-  if (!bcrypt.compareSync(currentPassword, u.password))
-    return res.status(400).json({ error: 'Current password is incorrect' });
+  // Forced change: skip currentPassword validation when must_change_password is set
+  if (!u.must_change_password) {
+    if (!currentPassword) return res.status(400).json({ error: 'Current password required' });
+    if (!bcrypt.compareSync(currentPassword, u.password))
+      return res.status(400).json({ error: 'Current password is incorrect' });
+  }
 
   const pwErr = validatePassword(newPassword);
   if (pwErr) return res.status(400).json({ error: pwErr });
 
   const hash = bcrypt.hashSync(newPassword, 10);
-  db.prepare("UPDATE users SET password = ?, updated_at = datetime('now') WHERE id = ?").run(
-    hash,
-    req.session.userId,
-  );
+  db.prepare(
+    "UPDATE users SET password = ?, must_change_password = 0, updated_at = datetime('now') WHERE id = ?",
+  ).run(hash, req.session.userId);
   res.json({ ok: true });
 });
 
