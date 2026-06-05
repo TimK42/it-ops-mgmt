@@ -435,6 +435,48 @@ async function run() {
       assert(r.status === 200, 'QA DELETE answer search entry => 200');
     }
 
+    // Search by category name
+    const catSearchName = 'unique_cat_search_' + Date.now();
+    r = await req('POST', '/api/categories', {
+      cookie,
+      body: { name: catSearchName },
+    });
+    assert(r.status === 201, 'Category create for search test => 201');
+    const catSearchId = r.json?.id;
+    assert(catSearchId, 'Category create has id');
+
+    r = await req('POST', '/api/qa', {
+      cookie,
+      body: {
+        title: 'Cat Search QA',
+        question: 'Q',
+        answer: 'A',
+        category_id: catSearchId,
+      },
+    });
+    assert(r.status === 201, 'QA create for category search => 201');
+    const catSearchQaId = r.json?.id;
+    assert(catSearchQaId, 'QA create has id');
+
+    r = await req('GET', '/api/qa?status=Published&search=' + encodeURIComponent(catSearchName), {
+      cookie,
+    });
+    assert(r.status === 200, 'QA search by category name => 200');
+    assert(r.json?.data?.length > 0, 'QA search by category name returns results');
+    assert(
+      r.json.data.some((e) => e.id === catSearchQaId),
+      'QA search found entry by category name',
+    );
+
+    if (catSearchQaId) {
+      r = await req('DELETE', '/api/qa/' + catSearchQaId, { cookie });
+      assert(r.status === 200, 'QA DELETE category search qa entry => 200');
+    }
+    if (catSearchId) {
+      r = await req('DELETE', '/api/categories/' + catSearchId, { cookie });
+      assert(r.status === 200, 'Category DELETE search test entry => 200');
+    }
+
     // ═══ ACCESSIBILITY ═══
     console.log('\n>>> Accessibility');
 
