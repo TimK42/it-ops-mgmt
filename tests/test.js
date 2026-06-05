@@ -675,9 +675,9 @@ async function run() {
     assert(/overflow\s*:\s*visible/.test(mainBlock), 'CSS (mobile): .main overflow: visible (#84)');
 
     // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
-    console.log('\n>>> Issue #79 Remove scrollbar-gutter');
+    console.log('\n>>> Issue #79 (updated #95) scrollbar-gutter: stable on .content');
 
-    // .content block (desktop style) should NOT have scrollbar-gutter
+    // .content block (desktop style) should have scrollbar-gutter: stable (#95)
     const cdIndex = styleCss.indexOf('.content');
     if (cdIndex === -1) throw new Error('Could not find .content (desktop) rule in stylesheet');
     const contentDesktop = styleCss.slice(cdIndex);
@@ -685,8 +685,8 @@ async function run() {
     if (cdEnd === -1) throw new Error('Could not find end of .content (desktop) block');
     const cdBlock = contentDesktop.slice(0, cdEnd);
     assert(
-      !/scrollbar-gutter/.test(cdBlock),
-      'CSS: .content should not have any scrollbar-gutter property',
+      /scrollbar-gutter\s*:\s*stable/.test(cdBlock),
+      'CSS: .content should have scrollbar-gutter: stable (#95)',
     );
     assert(
       /overflow-wrap\s*:\s*break-word/.test(cdBlock),
