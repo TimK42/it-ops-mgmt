@@ -3,24 +3,31 @@
 ## Domain Glossary
 
 ### Tag
+
 A user-defined label attached to a QA (Knowledge Base) entry for categorization and search.
+
 - Tags stored in normalized `tags` + `qa_entry_tags` tables (not comma-separated string).
 - Each tag has a unique `name`, an `id`, and a usage `count` (number of QA entries linked).
 - Tags are **case-sensitive** (displayed as-entered).
 
 ### Tag Frequency
+
 The number of QA entries a tag is attached to, used for sorting autocomplete suggestions (most-used first).
 
 ### Chip Input
+
 UI pattern where a typed tag becomes a removable chip/badge element after entry (Enter/comma). The chip shows the tag name and an ✕ button to remove it.
 
 ### Autocomplete Dropdown
+
 When typing in the tag input field, a dropdown shows matching existing tags sorted by frequency (descending), filtered by the current input text (substring match).
 
 ### QA Entry
+
 A knowledge-base record with `title`, `question`, `answer`, `category`, `tags`, and `status` (Published / Draft / Archived).
 
 ### Sub-System (Category)
+
 A named group for organizing QA entries (e.g., "Network", "Password", "Account").
 
 ## Resolved Decisions
