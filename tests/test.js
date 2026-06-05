@@ -674,7 +674,7 @@ async function run() {
     const mainBlock = mainMatch[0];
     assert(/overflow\s*:\s*visible/.test(mainBlock), 'CSS (mobile): .main overflow: visible (#84)');
 
-    // ═══ ISSUE #79: REMOVE SCROLLBAR-GUTTER ═══
+    // ═══ ISSUE #79 (updated #95): scrollbar-gutter: stable on .content ═══
     console.log('\n>>> Issue #79 (updated #95) scrollbar-gutter: stable on .content');
 
     // .content block (desktop style) should have scrollbar-gutter: stable (#95)
@@ -691,6 +691,17 @@ async function run() {
     assert(
       /overflow-wrap\s*:\s*break-word/.test(cdBlock),
       'CSS: .content still has overflow-wrap: break-word',
+    );
+
+    // ═══ ISSUE #95: BODY SCROLLBAR-GUTTER ═══
+    console.log('\n>>> Issue #95 Body scrollbar-gutter: stable');
+
+    // top-level body rule should have scrollbar-gutter: stable
+    const topBodyMatch = styleCss.match(/^body\s*\{[^}]*\}/m);
+    if (!topBodyMatch) throw new Error('Could not find top-level body rule');
+    assert(
+      /scrollbar-gutter\s*:\s*stable/.test(topBodyMatch[0]),
+      'CSS: top-level body should have scrollbar-gutter: stable (#95)',
     );
 
     // ═══ ISSUE #87: SIDEBAR NAV ITEMS WCAG 44px TOUCH TARGET ═══
