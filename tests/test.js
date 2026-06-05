@@ -963,12 +963,28 @@ async function run() {
     });
     assert(r.status === 400, 'FPR: weak password => 400');
 
+    // Login before admin reset — get a session cookie
+    const preResetLogin = await req('POST', '/api/auth/login', {
+      body: { username: resetUser, password: resetPass },
+    });
+    assert(preResetLogin.status === 200, 'FPR: pre-reset login => 200');
+    const preResetCookie = preResetLogin.setCookie[0]?.split(';')[0] || '';
+    assert(preResetCookie.length > 0, 'FPR: pre-reset cookie obtained');
+
+    // Verify session works
+    r = await req('GET', '/api/auth/me', { cookie: preResetCookie });
+    assert(r.status === 200, 'FPR: pre-reset session valid');
+
     // Valid admin reset password
     r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
       cookie,
       body: { password: 'FrcP@ss1!' },
     });
     assert(r.status === 200 && r.json?.ok === true, 'FPR: valid reset => 200 ok');
+
+    // Verify old session is invalidated
+    r = await req('GET', '/api/auth/me', { cookie: preResetCookie });
+    assert(r.status === 401, 'FPR: pre-reset session invalidated after reset => 401');
 
     // Login returns must_change_password flag
     r = await req('POST', '/api/auth/login', {
@@ -977,6 +993,14 @@ async function run() {
     assert(r.status === 200, 'FPR: login after reset => 200');
     assert(r.json?.must_change_password === true, 'FPR: must_change_password flag in response');
     let resetCookie = r.setCookie[0]?.split(';')[0] || '';
+
+    // Auth guard: must_change_password user cannot access other API endpoints
+    r = await req('GET', '/api/qa', { cookie: resetCookie });
+    assert(r.status === 403, 'FPR: auth guard blocks must_change_password user => 403');
+    assert(
+      r.json?.must_change_password === true,
+      'FPR: auth guard returns must_change_password error',
+    );
 
     // Forced change password: no currentPassword required
     r = await req('POST', '/api/user/change-password', {

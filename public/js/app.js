@@ -1229,9 +1229,23 @@ function showChangePassword(forced) {
     <div class="form-success" id="cp-success"></div>
   `;
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="cp-submit">${forced ? 'Set Password' : 'Change Password'}</button>`;
+    (forced
+      ? `<button class="btn btn-ghost btn-sm" id="cp-cancel-logout">Log Out</button>`
+      : `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button>`) +
+    `<button class="btn btn-primary btn-sm" id="cp-submit">${forced ? 'Set Password' : 'Change Password'}</button>`;
   openModal('form-modal');
   initPasswordHints('cp-new', 'cp-pass-hints');
+  if (forced) {
+    document.getElementById('cp-cancel-logout').onclick = async () => {
+      try {
+        await api('/api/auth/logout', { method: 'POST' });
+      } catch {}
+      state.user = null;
+      stopActivityTracking();
+      closeModal('form-modal');
+      renderShell();
+    };
+  }
   document.getElementById('cp-submit').onclick = async () => {
     const currentPassword = forced ? null : document.getElementById('cp-current').value;
     const newPassword = document.getElementById('cp-new').value;
@@ -1296,7 +1310,7 @@ function showResetUserPassword(id) {
   modal.querySelector('.modal-title').textContent = 'Reset Password';
   modal.querySelector('.modal-body').innerHTML = `
     <div class="form-group" style="background:#e8f4fd;color:#00529b;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px">This will force the user to change their password on next login.</div>
-    <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="ru-new" placeholder="Min 8 characters"></div>
+    <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="ru-new" placeholder="Min 8 chars, uppercase, lowercase, digit, special char" autocomplete="new-password"></div>
     <div class="pw-hints" id="ru-pass-hints"></div>
     <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="ru-confirm" placeholder="Confirm new password"></div>
     <div class="form-error" id="ru-error"></div>

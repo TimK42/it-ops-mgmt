@@ -61,11 +61,12 @@ function initSchema() {
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires);
   `);
 
-  // migrations
+  // migrations: add must_change_password column if not present
   try {
     db.exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
-  } catch {
-    /* column already exists */
+  } catch (e) {
+    // SQLite throws SQLITE_ERROR for duplicate column — ignore, re-throw everything else
+    if (!e.message.includes('duplicate column')) throw e;
   }
 }
 
