@@ -425,7 +425,10 @@ async function run() {
     r = await req('GET', '/api/qa?status=Published&search=unique_secret_string_reply', { cookie });
     assert(r.status === 200, 'QA search by answer => 200');
     assert(r.json?.data?.length > 0, 'QA search by answer returns results');
-    assert(r.json.data.some((e) => e.id === answerSearchId), 'QA search found entry by answer');
+    assert(
+      r.json.data.some((e) => e.id === answerSearchId),
+      'QA search found entry by answer',
+    );
 
     if (answerSearchId) {
       r = await req('DELETE', '/api/qa/' + answerSearchId, { cookie });
