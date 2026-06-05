@@ -761,87 +761,105 @@ async function run() {
       btnSmGlobalMatch && btnSmGlobalMatch.index < mqStart,
       'CSS: .btn-sm min-height:44px is in global scope (not just mobile @media)',
     );
-  // ═══ PASSWORD COMPLEXITY ═══
-  console.log('\n>>> Password Complexity');
+    // ═══ PASSWORD COMPLEXITY ═══
+    console.log('\n>>> Password Complexity');
 
-  // validatePassword unit tests
-  {
-    const { validatePassword } = require('../lib/password');
-    assert(validatePassword('Abcdef1!') === null, 'validatePassword: valid password returns null');
-    assert(validatePassword('Ab1!') !== null, 'validatePassword: <8 chars returns error');
-    assert(validatePassword('abcdef1!') !== null, 'validatePassword: missing uppercase returns error');
-    assert(validatePassword('ABCDEF1!') !== null, 'validatePassword: missing lowercase returns error');
-    assert(validatePassword('Abcdefg!') !== null, 'validatePassword: missing digit returns error');
-    assert(validatePassword('Abcdef12') !== null, 'validatePassword: missing special char returns error');
-  }
+    // validatePassword unit tests
+    {
+      const { validatePassword } = require('../lib/password');
+      assert(
+        validatePassword('Abcdef1!') === null,
+        'validatePassword: valid password returns null',
+      );
+      assert(validatePassword('Ab1!') !== null, 'validatePassword: <8 chars returns error');
+      assert(
+        validatePassword('abcdef1!') !== null,
+        'validatePassword: missing uppercase returns error',
+      );
+      assert(
+        validatePassword('ABCDEF1!') !== null,
+        'validatePassword: missing lowercase returns error',
+      );
+      assert(
+        validatePassword('Abcdefg!') !== null,
+        'validatePassword: missing digit returns error',
+      );
+      assert(
+        validatePassword('Abcdef12') !== null,
+        'validatePassword: missing special char returns error',
+      );
+    }
 
-  // Register rejects weak passwords
-  const weakPws = ['short', 'nouppercase1!', 'NOLOWERCASE1!', 'Abcdefgh', 'Abcdef12', 'abcdef1!'];
-  for (const pw of weakPws) {
-    r = await req('POST', '/api/auth/register', {
-      body: { username: 'wpwtest-' + pw.replace(/[^a-z0-9]/gi, ''), password: pw, role: 'Viewer' },
-    });
-    assert(r.status === 400, `Register weak password "${pw}" => 400 (got ${r.status})`);
-  }
+    // Register rejects weak passwords
+    const weakPws = ['short', 'nouppercase1!', 'NOLOWERCASE1!', 'Abcdefgh', 'Abcdef12', 'abcdef1!'];
+    for (const pw of weakPws) {
+      r = await req('POST', '/api/auth/register', {
+        body: {
+          username: 'wpwtest-' + pw.replace(/[^a-z0-9]/gi, ''),
+          password: pw,
+          role: 'Viewer',
+        },
+      });
+      assert(r.status === 400, `Register weak password "${pw}" => 400 (got ${r.status})`);
+    }
 
-  // Admin create user rejects weak passwords
-  cookie = await login('admin', '0000');
-  for (const pw of weakPws) {
+    // Admin create user rejects weak passwords
+    cookie = await login('admin', '0000');
+    for (const pw of weakPws) {
+      r = await req('POST', '/api/users/create', {
+        cookie,
+        body: { username: 'cuweak-' + pw.replace(/[^a-z0-9]/gi, ''), password: pw, role: 'Viewer' },
+      });
+      assert(r.status === 400, `Admin create weak password "${pw}" => 400 (got ${r.status})`);
+    }
+
+    // Change-password tests (use a new user created by admin with valid password)
+    const cpwUser = 'cpwtest_' + Date.now();
+    const cpwPass = 'OrigP@ss1';
     r = await req('POST', '/api/users/create', {
       cookie,
-      body: { username: 'cuweak-' + pw.replace(/[^a-z0-9]/gi, ''), password: pw, role: 'Viewer' },
+      body: { username: cpwUser, password: cpwPass, role: 'Viewer' },
     });
-    assert(r.status === 400, `Admin create weak password "${pw}" => 400 (got ${r.status})`);
-  }
+    assert(r.status === 201, 'CPW: admin create test user => 201');
 
-  // Change-password tests (use a new user created by admin with valid password)
-  const cpwUser = 'cpwtest_' + Date.now();
-  const cpwPass = 'OrigP@ss1';
-  r = await req('POST', '/api/users/create', {
-    cookie,
-    body: { username: cpwUser, password: cpwPass, role: 'Viewer' },
-  });
-  assert(r.status === 201, 'CPW: admin create test user => 201');
+    // Login as new user
+    let cpwCookie = await login(cpwUser, cpwPass);
+    assert(cpwCookie.length > 0, 'CPW: login as test user gets cookie');
 
-  // Login as new user
-  let cpwCookie = await login(cpwUser, cpwPass);
-  assert(cpwCookie.length > 0, 'CPW: login as test user gets cookie');
+    // Unauthenticated change password
+    r = await req('POST', '/api/user/change-password', {
+      body: { currentPassword: cpwPass, newPassword: 'NewP@ss1!' },
+    });
+    assert(r.status === 401, 'CPW: unauthenticated => 401');
 
-  // Unauthenticated change password
-  r = await req('POST', '/api/user/change-password', {
-    body: { currentPassword: cpwPass, newPassword: 'NewP@ss1!' },
-  });
-  assert(r.status === 401, 'CPW: unauthenticated => 401');
+    // Wrong current password
+    r = await req('POST', '/api/user/change-password', {
+      cookie: cpwCookie,
+      body: { currentPassword: 'WrongP@ss1', newPassword: 'NewP@ss1!' },
+    });
+    assert(r.status === 400, 'CPW: wrong current password => 400');
 
-  // Wrong current password
-  r = await req('POST', '/api/user/change-password', {
-    cookie: cpwCookie,
-    body: { currentPassword: 'WrongP@ss1', newPassword: 'NewP@ss1!' },
-  });
-  assert(r.status === 400, 'CPW: wrong current password => 400');
+    // Weak new password
+    r = await req('POST', '/api/user/change-password', {
+      cookie: cpwCookie,
+      body: { currentPassword: cpwPass, newPassword: 'short' },
+    });
+    assert(r.status === 400, 'CPW: weak new password => 400');
 
-  // Weak new password
-  r = await req('POST', '/api/user/change-password', {
-    cookie: cpwCookie,
-    body: { currentPassword: cpwPass, newPassword: 'short' },
-  });
-  assert(r.status === 400, 'CPW: weak new password => 400');
+    // Valid change password
+    r = await req('POST', '/api/user/change-password', {
+      cookie: cpwCookie,
+      body: { currentPassword: cpwPass, newPassword: 'NewP@ss1!' },
+    });
+    assert(r.status === 200 && r.json?.ok === true, 'CPW: valid change => 200 ok');
 
-  // Valid change password
-  r = await req('POST', '/api/user/change-password', {
-    cookie: cpwCookie,
-    body: { currentPassword: cpwPass, newPassword: 'NewP@ss1!' },
-  });
-  assert(r.status === 200 && r.json?.ok === true, 'CPW: valid change => 200 ok');
+    // Verify can login with new password
+    cpwCookie = await login(cpwUser, 'NewP@ss1!');
+    assert(cpwCookie.length > 0, 'CPW: login with new password works');
 
-  // Verify can login with new password
-  cpwCookie = await login(cpwUser, 'NewP@ss1!');
-  assert(cpwCookie.length > 0, 'CPW: login with new password works');
-
-  // Check session is still valid
-  r = await req('GET', '/api/auth/me', { cookie: cpwCookie });
-  assert(r.status === 200 && r.json?.username === cpwUser, 'CPW: session valid after change');
-
+    // Check session is still valid
+    r = await req('GET', '/api/auth/me', { cookie: cpwCookie });
+    assert(r.status === 200 && r.json?.username === cpwUser, 'CPW: session valid after change');
   } finally {
     server.kill();
   }

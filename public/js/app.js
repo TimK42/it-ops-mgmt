@@ -1172,7 +1172,10 @@ function showCreateUser() {
     const confirm = document.getElementById('f-u-pass-confirm').value;
     const role = document.getElementById('f-u-role').value;
     if (!username || !password || !confirm) return toast('All fields required');
-    if (password.length < 8) return toast('Password must be at least 8 characters, with uppercase, lowercase, digit, and special character');
+    if (password.length < 8)
+      return toast(
+        'Password must be at least 8 characters, with uppercase, lowercase, digit, and special character',
+      );
     if (password !== confirm) return toast('Passwords do not match');
     try {
       await api('/api/users/create', {
