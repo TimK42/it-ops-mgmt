@@ -978,18 +978,6 @@ async function showCreateQA(data) {
     closeModal('form-modal');
     if (isEdit) showQADetail(data.id);
   };
-  if (isEdit) {
-    const xBtn = modal.querySelector('.modal-close');
-    xBtn.onclick = (e) => {
-      e.stopPropagation();
-      closeModal('form-modal');
-      showQADetail(data.id);
-    };
-  } else {
-    // Reset X button to default close behavior (via global delegation)
-    const xBtn = modal.querySelector('.modal-close');
-    xBtn.onclick = null;
-  }
   document.getElementById('f-q-submit').onclick = async () => {
     const body = {
       title: document.getElementById('f-q-title').value,
