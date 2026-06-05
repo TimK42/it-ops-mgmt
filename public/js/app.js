@@ -1015,7 +1015,8 @@ async function renderUsers(el) {
       // Subsequent render: show loading row in tbody (preserves toolbar/search DOM)
       const tbody = document.querySelector('#users-results-container tbody');
       if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="5"><div class="loading" style="padding:24px;text-align:center;color:#888">Loading...</div></td></tr>';
+        tbody.innerHTML =
+          '<tr><td colspan="5"><div class="loading" style="padding:24px;text-align:center;color:#888">Loading...</div></td></tr>';
       }
     }
     await loadUsers();
