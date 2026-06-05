@@ -966,13 +966,14 @@ tr.row-click {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1500;
+  z-index: 999;
 }
 .pwa-ios-banner,
 .pwa-android-banner {
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   animation: pwa-slide-up 0.3s ease-out;
 }
