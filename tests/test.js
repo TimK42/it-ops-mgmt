@@ -983,7 +983,10 @@ async function run() {
       cookie: resetCookie,
       body: { newPassword: 'ChngP@ss1!' },
     });
-    assert(r.status === 200 && r.json?.ok === true, 'FPR: forced change (no currentPassword) => 200');
+    assert(
+      r.status === 200 && r.json?.ok === true,
+      'FPR: forced change (no currentPassword) => 200',
+    );
 
     // Login with new password — must_change_password should be cleared
     r = await req('POST', '/api/auth/login', {

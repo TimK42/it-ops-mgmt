@@ -1261,7 +1261,10 @@ function showChangePassword(forced) {
       }
       suc.textContent = 'Password changed successfully';
       if (forced) {
-        setTimeout(() => { closeModal('form-modal'); navigate('qa'); }, 1500);
+        setTimeout(() => {
+          closeModal('form-modal');
+          navigate('qa');
+        }, 1500);
       } else {
         setTimeout(() => closeModal('form-modal'), 2000);
       }
@@ -1316,7 +1319,10 @@ function showResetUserPassword(id) {
       return;
     }
     const pwErr = validatePw(newPassword);
-    if (pwErr) { err.textContent = pwErr; return; }
+    if (pwErr) {
+      err.textContent = pwErr;
+      return;
+    }
     try {
       const res = await api('/api/users/' + id + '/password', {
         method: 'PATCH',
