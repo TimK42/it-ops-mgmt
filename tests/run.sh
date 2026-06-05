@@ -190,17 +190,19 @@ echo ">>> Change Password"
 # Create a temporary test user for change-password tests (admin pw stays 0000)
 CPW_USER="cpwusr_$TS"
 CPW_PASS="OrigP@ss1"
-curl -s -X POST "$BASE/api/users/create" \
+CPW_CREATE=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/users/create" \
   -H 'Content-Type: application/json' \
   -b /tmp/itops-ck.txt \
-  -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\",\"role\":\"Viewer\"}" > /dev/null 2>&1
+  -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\",\"role\":\"Viewer\"}")
+[ "$CPW_CREATE" = "201" ] || { fail "CPW setup: create user => $CPW_CREATE"; continue 2>/dev/null; }
 
 # Login as test user
 CPW_CK="/tmp/itops-cpw.txt"
-curl -sf -X POST "$BASE/api/auth/login" \
+CPW_LOGIN=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/login" \
   -H 'Content-Type: application/json' \
   -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\"}" \
-  -c "$CPW_CK" >/dev/null 2>&1
+  -c "$CPW_CK")
+[ "$CPW_LOGIN" = "200" ] || { fail "CPW setup: login => $CPW_LOGIN"; continue 2>/dev/null; }
 
 # Unauthenticated change password (no cookie)
 CP1=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/user/change-password" \

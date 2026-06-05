@@ -85,7 +85,7 @@ router.post('/register', (req, res) => {
   res.status(201).json({ message: 'Registration submitted for approval' });
 });
 
-// POST /api/user/change-password
+// POST /api/user/change-password (mounted at /api/auth AND /api/user — only /api/user/change-password is exposed via server.js)
 router.post('/change-password', (req, res) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
   const { currentPassword, newPassword } = req.body;

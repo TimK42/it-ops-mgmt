@@ -379,12 +379,27 @@ function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
 // ===== PASSWORD VALIDATION =====
+// Mirrors server lib/password.js validatePassword — must stay in sync
+const PASSWORD_SPECIAL = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
+function validatePw(p) {
+  if (typeof p !== 'string') return PASSWORD_MSG;
+  if (p.length < 8) return PASSWORD_MSG;
+  if (!/[A-Z]/.test(p)) return PASSWORD_MSG;
+  if (!/[a-z]/.test(p)) return PASSWORD_MSG;
+  if (!/[0-9]/.test(p)) return PASSWORD_MSG;
+  if (!PASSWORD_SPECIAL.test(p)) return PASSWORD_MSG;
+  return null;
+}
+
+const PASSWORD_MSG =
+  'Password must be at least 8 characters, with uppercase, lowercase, digit, and special character';
+
 const PASSWORD_RULES = [
   { test: (p) => p.length >= 8, label: 'At least 8 characters' },
   { test: (p) => /[A-Z]/.test(p), label: 'One uppercase letter' },
   { test: (p) => /[a-z]/.test(p), label: 'One lowercase letter' },
   { test: (p) => /[0-9]/.test(p), label: 'One digit' },
-  { test: (p) => /[^A-Za-z0-9]/.test(p), label: 'One special character' },
+  { test: (p) => PASSWORD_SPECIAL.test(p), label: 'One special character' },
 ];
 
 function renderPasswordHints(password, containerId) {
@@ -1160,9 +1175,9 @@ function showCreateUser() {
     <div class="form-group"><label class="form-label">Username *</label><input class="form-input" id="f-u-name" placeholder="e.g. john" autofocus></div>
     <div class="form-row">
       <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="f-u-pass" placeholder="Min 8 characters"></div>
-    <div class="pw-hints" id="cu-pass-hints"></div>
       <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" type="password" id="f-u-pass-confirm" placeholder="Re-enter password"></div>
     </div>
+    <div class="pw-hints" id="cu-pass-hints"></div>
     <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option><option value="Admin">Admin</option></select></div>`;
   modal.querySelector('.modal-footer').innerHTML =
     `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
@@ -1172,11 +1187,9 @@ function showCreateUser() {
     const confirm = document.getElementById('f-u-pass-confirm').value;
     const role = document.getElementById('f-u-role').value;
     if (!username || !password || !confirm) return toast('All fields required');
-    if (password.length < 8)
-      return toast(
-        'Password must be at least 8 characters, with uppercase, lowercase, digit, and special character',
-      );
     if (password !== confirm) return toast('Passwords do not match');
+    const pwErr = validatePw(password);
+    if (pwErr) return toast(pwErr);
     try {
       await api('/api/users/create', {
         method: 'POST',
@@ -1205,9 +1218,10 @@ function showChangePassword() {
     <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="cp-confirm" placeholder="Confirm new password" autocomplete="new-password"></div>
     <div class="form-error" id="cp-error"></div>
     <div class="form-success" id="cp-success"></div>
-    <button class="btn btn-primary" id="cp-submit">Change Password</button>
   `;
-  modal.classList.add('show');
+  modal.querySelector('.modal-footer').innerHTML =
+    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="cp-submit">Change Password</button>`;
+  openModal('form-modal');
   initPasswordHints('cp-new', 'cp-pass-hints');
   document.getElementById('cp-submit').onclick = async () => {
     const currentPassword = document.getElementById('cp-current').value;
@@ -1235,7 +1249,7 @@ function showChangePassword() {
         return;
       }
       suc.textContent = 'Password changed successfully';
-      setTimeout(() => modal.classList.remove('show'), 2000);
+      setTimeout(() => closeModal('form-modal'), 2000);
     } catch (e) {
       err.textContent = e.message || 'Failed to change password';
     }

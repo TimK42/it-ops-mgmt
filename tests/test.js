@@ -282,13 +282,14 @@ async function run() {
 
     // ═══ REGISTRATION ═══
     console.log('\n>>> Registration');
+    const ntv = `node_test_v_${Date.now()}`;
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'node_test_v', password: 'Test1234!', role: 'Viewer' },
+      body: { username: ntv, password: 'Test1234!', role: 'Viewer' },
     });
     assert(r.status === 201, 'Register Viewer => 201');
 
     r = await req('POST', '/api/auth/register', {
-      body: { username: 'node_test_v', password: 'Test1234!', role: 'Viewer' },
+      body: { username: ntv, password: 'Test1234!', role: 'Viewer' },
     });
     assert(r.status === 409, 'Register duplicate => 409');
 
@@ -311,7 +312,7 @@ async function run() {
 
     // Pending account login blocked
     r = await req('POST', '/api/auth/login', {
-      body: { username: 'node_test_v', password: 'Test1234!' },
+      body: { username: ntv, password: 'Test1234!' },
     });
     assert(r.status === 403, 'Pending account login => 403');
 
