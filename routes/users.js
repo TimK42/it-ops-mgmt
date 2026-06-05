@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const bcrypt = require('bcryptjs');
 const { getDb } = require('../db');
+const { validatePassword } = require('../lib/password');
 
 const router = Router();
 
@@ -19,7 +20,8 @@ router.post('/create', (req, res) => {
   if (!username || !password)
     return res.status(400).json({ error: 'Username and password required' });
   if (username.length < 2) return res.status(400).json({ error: 'Username too short' });
-  if (password.length < 4) return res.status(400).json({ error: 'Password too short (min 4)' });
+  const pwErr = validatePassword(password);
+  if (pwErr) return res.status(400).json({ error: pwErr });
   const role = req.body.role || 'Viewer';
   if (!['Admin', 'Contributor', 'Viewer'].includes(role))
     return res.status(400).json({ error: 'Invalid role' });

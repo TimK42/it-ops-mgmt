@@ -80,6 +80,9 @@ function requireRole(...roles) {
   };
 }
 
+// User self-service routes (requires auth, guarded above)
+app.use('/api/user', require('./routes/auth'));
+
 // QA routes — GET open to all roles, write operations Contributor+
 app.use(
   '/api/qa',
