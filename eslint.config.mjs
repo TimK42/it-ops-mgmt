@@ -19,6 +19,30 @@ export default [
     },
   },
   {
+    files: ['tests/**'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.commonjs,
+        ...globals.mocha,
+        ...globals.browser,
+        state: 'readonly',
+        renderQA: 'readonly',
+        renderUsers: 'readonly',
+        renderLogin: 'readonly',
+        loadQA: 'readonly',
+        loadQATotalCount: 'readonly',
+        toast: 'readonly',
+        debounce: 'readonly',
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...eslintConfigPrettier.rules,
+      'no-unused-vars': 'warn',
+    },
+  },
+  {
     files: ['public/js/app.js'],
     languageOptions: {
       globals: {

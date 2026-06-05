@@ -717,7 +717,15 @@ async function renderQA(el) {
   qaAbortController = new AbortController();
   const signal = qaAbortController.signal;
 
-  el.innerHTML = '<div class="loading">Loading...</div>';
+  const isFirstRender = !el.querySelector('#qa-list');
+
+  if (isFirstRender) {
+    el.innerHTML = '<div class="loading">Loading...</div>';
+  } else {
+    // Subsequent render: show loading state in results list (preserves toolbar DOM)
+    const list = document.getElementById('qa-list');
+    if (list) list.innerHTML = '<div class="loading">Loading...</div>';
+  }
   try {
     const res = await loadQA(signal);
     // Guard against stale fetch: abort or page changed while waiting
@@ -727,51 +735,73 @@ async function renderQA(el) {
     state.qaPage = res.page;
   } catch (e) {
     if (e.name === 'AbortError' || state.page !== 'qa') return;
-    el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading entries</div></div>`;
+    if (isFirstRender) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading entries</div></div>`;
+    } else {
+      const list = document.getElementById('qa-list');
+      if (list)
+        list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Error loading entries</div></div>`;
+    }
     return;
   }
   const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
-  el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
-  // Restore search input value after re-render
-  const s = document.getElementById('global-search');
-  if (s && state.qaFilters.search) s.value = state.qaFilters.search;
-  el.querySelectorAll('[data-qf]').forEach((b) => {
-    b.onclick = () => {
-      state.qaFilters.status = b.dataset.qf || null;
-      state.qaPage = 1;
-      renderQA(el);
-    };
-  });
 
-  // Bind search
-  const search = document.getElementById('global-search');
-  const clearBtn = document.getElementById('search-clear');
-  if (search) {
-    const toggleClear = () => {
-      if (clearBtn) clearBtn.style.display = search.value ? '' : 'none';
-    };
-    toggleClear();
-    search.addEventListener(
-      'input',
-      debounce(() => {
-        if (state.page !== 'qa') return;
-        state.qaFilters.search = search.value;
+  if (isFirstRender) {
+    // First render: build the full toolbar + empty list container once
+    el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
+
+    // Restore search input value after first render
+    const s = document.getElementById('global-search');
+    if (s && state.qaFilters.search) s.value = state.qaFilters.search;
+
+    // Bind filter tabs (once)
+    el.querySelectorAll('[data-qf]').forEach((b) => {
+      b.onclick = () => {
+        state.qaFilters.status = b.dataset.qf || null;
         state.qaPage = 1;
+        renderQA(el);
+      };
+    });
+
+    // Bind search and clear button (once)
+    const search = document.getElementById('global-search');
+    const clearBtn = document.getElementById('search-clear');
+    if (search) {
+      const toggleClear = () => {
         if (clearBtn) clearBtn.style.display = search.value ? '' : 'none';
-        renderQA(el);
-      }, 300),
-    );
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        search.value = '';
-        state.qaFilters.search = '';
-        state.qaPage = 1;
-        if (clearBtn) clearBtn.style.display = 'none';
-        renderQA(el);
-      });
+      };
+      toggleClear();
+      search.addEventListener(
+        'input',
+        debounce(() => {
+          if (state.page !== 'qa') return;
+          state.qaFilters.search = search.value;
+          state.qaPage = 1;
+          if (clearBtn) clearBtn.style.display = search.value ? '' : 'none';
+          renderQA(el);
+        }, 300),
+      );
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          search.value = '';
+          state.qaFilters.search = '';
+          state.qaPage = 1;
+          if (clearBtn) clearBtn.style.display = 'none';
+          renderQA(el);
+        });
+      }
     }
+  } else {
+    // Subsequent render: update filter tab active state without destroying the input
+    el.querySelectorAll('[data-qf]').forEach((b) => {
+      b.classList.toggle('active', (b.dataset.qf || null) === state.qaFilters.status);
+    });
+    const search = document.getElementById('global-search');
+    const clearBtn = document.getElementById('search-clear');
+    if (clearBtn) clearBtn.style.display = search && search.value ? '' : 'none';
   }
+
   const list = document.getElementById('qa-list');
   if (!state.qaEntries.length) {
     const emptyText = state.qaFilters.search ? 'No results found' : 'No QA entries';
@@ -977,12 +1007,32 @@ async function deleteCat(id) {
 
 // ===== USERS =====
 async function renderUsers(el) {
+  const isFirstRender = !el.querySelector('#users-search');
+
   if (!state.users || state.users.length === 0) {
-    el.innerHTML = '<div class="loading">Loading...</div>';
+    if (isFirstRender) {
+      el.innerHTML = '<div class="loading">Loading...</div>';
+    } else {
+      // Subsequent render: show loading row in tbody (preserves toolbar/search DOM)
+      const tbody = document.querySelector('#users-results-container tbody');
+      if (tbody) {
+        tbody.innerHTML =
+          '<tr><td colspan="5"><div class="loading" style="padding:24px;text-align:center;color:#888">Loading...</div></td></tr>';
+      }
+    }
     await loadUsers();
     if (!state.users || state.users.length === 0) {
-      el.innerHTML =
-        '<div class="error-msg">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
+      if (isFirstRender) {
+        el.innerHTML =
+          '<div class="error-msg">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
+      } else {
+        // Subsequent render: show error inside tbody (preserves table structure for future renders)
+        const tbody = document.querySelector('#users-results-container tbody');
+        if (tbody) {
+          tbody.innerHTML =
+            '<tr><td colspan="5"><div class="error-msg" style="padding:24px;text-align:center;color:#888">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div></td></tr>';
+        }
+      }
       return;
     }
   }
@@ -995,8 +1045,51 @@ async function renderUsers(el) {
   const start = (state.usersPage - 1) * state.usersPerPage;
   const end = Math.min(start + state.usersPerPage, filteredUsers.length);
   const pageUsers = filteredUsers.slice(start, end);
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
-    <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>${pageUsers
+
+  if (isFirstRender) {
+    // First render: build the full toolbar + table structure + pagination once
+    el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
+    <div id="users-results-container">
+      <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody></tbody></table></div>
+      ${
+        totalPages > 1
+          ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
+        <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
+        <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
+        <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
+      </div>`
+          : ''
+      }
+    </div>`;
+
+    // Bind users search (once)
+    const us = document.getElementById('users-search');
+    if (us) {
+      us.addEventListener(
+        'input',
+        debounce(() => {
+          if (state.page !== 'users') return;
+          state.usersSearch = us.value;
+          state.usersPage = 1;
+          renderUsers(el);
+        }, 300),
+      );
+    }
+  } else {
+    // Subsequent render: update toolbar info text without destroying the search input
+    const infoEl = el.querySelector('.table-toolbar > div:first-child');
+    if (infoEl) {
+      infoEl.textContent = `${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}`;
+    }
+    // Input is the source of truth — state follows the input via debounced handler
+  }
+
+  // Always update the results container (tbody + pagination)
+  const rc = document.getElementById('users-results-container');
+  if (!rc) return;
+  const tbody = rc.querySelector('tbody');
+  if (tbody) {
+    tbody.innerHTML = pageUsers
       .map(
         (u) => `<tr>
       <td data-label="Username"><strong>${esc(u.username)}</strong>${u.id === state.user.id ? ' <span style="font-size:10px;color:#888">(you)</span>' : ''}</td>
@@ -1006,28 +1099,23 @@ async function renderUsers(el) {
       <td data-label="" style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button>`}</td>
     </tr>`,
       )
-      .join('')}</tbody></table></div>
-    ${
-      totalPages > 1
-        ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
+      .join('');
+  }
+  // Update pagination bar
+  const existingPagination = rc.querySelector('.pagination-bar');
+  if (totalPages > 1) {
+    const barHtml = `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
       <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
       <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
       <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
-    </div>`
-        : ''
-    }`;
-  // Bind users search
-  const us = document.getElementById('users-search');
-  if (us) {
-    us.addEventListener(
-      'input',
-      debounce(() => {
-        if (state.page !== 'users') return;
-        state.usersSearch = us.value;
-        state.usersPage = 1;
-        renderUsers(el);
-      }, 300),
-    );
+    </div>`;
+    if (existingPagination) {
+      existingPagination.outerHTML = barHtml;
+    } else {
+      rc.insertAdjacentHTML('beforeend', barHtml);
+    }
+  } else if (existingPagination) {
+    existingPagination.remove();
   }
 }
 function showCreateUser() {
