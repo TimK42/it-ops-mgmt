@@ -261,6 +261,9 @@ document.addEventListener('click', (e) => {
     case 'delete-cat':
       deleteCat(id);
       break;
+    case 'change-password':
+      showChangePassword();
+      break;
     case 'create-user':
       showCreateUser();
       break;
@@ -375,6 +378,50 @@ function openModal(id) {
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
+// ===== PASSWORD VALIDATION =====
+// Mirrors server lib/password.js validatePassword — must stay in sync
+const PASSWORD_SPECIAL = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
+function validatePw(p) {
+  if (typeof p !== 'string') return PASSWORD_MSG;
+  if (p.length < 8) return PASSWORD_MSG;
+  if (!/[A-Z]/.test(p)) return PASSWORD_MSG;
+  if (!/[a-z]/.test(p)) return PASSWORD_MSG;
+  if (!/[0-9]/.test(p)) return PASSWORD_MSG;
+  if (!PASSWORD_SPECIAL.test(p)) return PASSWORD_MSG;
+  return null;
+}
+
+const PASSWORD_MSG =
+  'Password must be at least 8 characters, with uppercase, lowercase, digit, and special character';
+
+const PASSWORD_RULES = [
+  { test: (p) => p.length >= 8, label: 'At least 8 characters' },
+  { test: (p) => /[A-Z]/.test(p), label: 'One uppercase letter' },
+  { test: (p) => /[a-z]/.test(p), label: 'One lowercase letter' },
+  { test: (p) => /[0-9]/.test(p), label: 'One digit' },
+  { test: (p) => PASSWORD_SPECIAL.test(p), label: 'One special character' },
+];
+
+function renderPasswordHints(password, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = PASSWORD_RULES.map(
+    (r) =>
+      `<div class="pw-hint ${r.test(password) ? 'pw-hint-ok' : ''}">${
+        r.test(password) ? '\u2713' : '\u25CB'
+      } ${r.label}</div>`,
+  ).join('');
+}
+
+function initPasswordHints(inputId, containerId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('input', () => {
+    renderPasswordHints(input.value, containerId);
+  });
+  renderPasswordHints(input.value, containerId);
+}
+
 function esc(s) {
   return s
     ? String(s)
@@ -549,6 +596,7 @@ function renderLogin(mode) {
         <div class="login-success" id="login-success"></div>
         <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
         <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
+        ${isRegister ? '<div class="pw-hints" id="auth-pass-hints"></div>' : ''}
         ${isRegister ? '<div class="form-group"><label for="auth-pass-confirm" class="sr-only">Confirm Password</label><input class="form-input" type="password" id="auth-pass-confirm" placeholder="Confirm Password" autocomplete="new-password"><div class="form-error" id="auth-pass-confirm-error"></div></div>' : ''}
         ${isRegister ? `<div class="form-group"><label for="auth-role" class="sr-only">Role</label><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label for="auth-remember" style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
@@ -602,6 +650,7 @@ function renderLogin(mode) {
       err.classList.add('show');
     }
   });
+  if (isRegister) initPasswordHints('auth-pass', 'auth-pass-hints');
   document.getElementById('auth-user').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -643,6 +692,7 @@ function renderShell() {
       </div>
       <div class="sidebar-footer">
         <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px"><span class="admin-user-icon">${esc(userName)[0].toUpperCase()}</span></span> ${esc(userName)} (${u.role})</div>
+        <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
         <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
       <div class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></div>
@@ -1124,9 +1174,10 @@ function showCreateUser() {
   modal.querySelector('.modal-body').innerHTML = `
     <div class="form-group"><label class="form-label">Username *</label><input class="form-input" id="f-u-name" placeholder="e.g. john" autofocus></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="f-u-pass" placeholder="Min 4 characters"></div>
+      <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="f-u-pass" placeholder="Min 8 characters"></div>
       <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" type="password" id="f-u-pass-confirm" placeholder="Re-enter password"></div>
     </div>
+    <div class="pw-hints" id="cu-pass-hints"></div>
     <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option><option value="Admin">Admin</option></select></div>`;
   modal.querySelector('.modal-footer').innerHTML =
     `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
@@ -1136,8 +1187,9 @@ function showCreateUser() {
     const confirm = document.getElementById('f-u-pass-confirm').value;
     const role = document.getElementById('f-u-role').value;
     if (!username || !password || !confirm) return toast('All fields required');
-    if (password.length < 4) return toast('Password too short (min 4)');
     if (password !== confirm) return toast('Passwords do not match');
+    const pwErr = validatePw(password);
+    if (pwErr) return toast(pwErr);
     try {
       await api('/api/users/create', {
         method: 'POST',
@@ -1151,7 +1203,57 @@ function showCreateUser() {
       toast('Error: ' + e.message);
     }
   };
+  // Password hints for create user
+  initPasswordHints('f-u-pass', 'cu-pass-hints');
   openModal('form-modal');
+}
+
+function showChangePassword() {
+  const modal = document.getElementById('form-modal');
+  modal.querySelector('.modal-title').textContent = 'Change Password';
+  modal.querySelector('.modal-body').innerHTML = `
+    <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="cp-current" placeholder="Current password" autocomplete="current-password"></div>
+    <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="cp-new" placeholder="New password" autocomplete="new-password"></div>
+    <div class="pw-hints" id="cp-pass-hints"></div>
+    <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="cp-confirm" placeholder="Confirm new password" autocomplete="new-password"></div>
+    <div class="form-error" id="cp-error"></div>
+    <div class="form-success" id="cp-success"></div>
+  `;
+  modal.querySelector('.modal-footer').innerHTML =
+    `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="cp-submit">Change Password</button>`;
+  openModal('form-modal');
+  initPasswordHints('cp-new', 'cp-pass-hints');
+  document.getElementById('cp-submit').onclick = async () => {
+    const currentPassword = document.getElementById('cp-current').value;
+    const newPassword = document.getElementById('cp-new').value;
+    const confirm = document.getElementById('cp-confirm').value;
+    const err = document.getElementById('cp-error');
+    const suc = document.getElementById('cp-success');
+    err.textContent = '';
+    suc.textContent = '';
+    if (!currentPassword || !newPassword || !confirm) {
+      err.textContent = 'Fill in all fields';
+      return;
+    }
+    if (newPassword !== confirm) {
+      err.textContent = 'Passwords do not match';
+      return;
+    }
+    try {
+      const res = await api('/api/user/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      if (res.error) {
+        err.textContent = res.error;
+        return;
+      }
+      suc.textContent = 'Password changed successfully';
+      setTimeout(() => closeModal('form-modal'), 2000);
+    } catch (e) {
+      err.textContent = e.message || 'Failed to change password';
+    }
+  };
 }
 async function approveUser(id) {
   await api(`/api/users/${id}/approve`, { method: 'POST' });

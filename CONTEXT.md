@@ -42,7 +42,7 @@ A set of validation rules applied to all password creation and modification oper
 - **Uppercase**: At least 1 letter (A–Z)
 - **Lowercase**: At least 1 letter (a–z)
 - **Digit**: At least 1 digit (0–9)
-- **Special character**: At least 1 special character (!@#$%^&*()_+-=[]{}|;':",./<>?`~)
+- **Special character**: At least 1 special character (!@#$%^&\*()\_+-=[]{}|;':",./<>?`~)
 
 ## Resolved Decisions
 

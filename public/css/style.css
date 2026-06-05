@@ -1035,6 +1035,18 @@ tr.row-click {
   font-size: 16px;
 }
 
+.pw-hints {
+  margin: 4px 0 6px;
+  font-size: 12px;
+}
+.pw-hint {
+  color: #888;
+  line-height: 1.6;
+}
+.pw-hint-ok {
+  color: #4caf50;
+}
+
 .app-loading {
   height: 100vh;
   display: flex;

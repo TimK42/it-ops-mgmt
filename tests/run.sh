@@ -160,13 +160,13 @@ UC="ituc_$TS"
 # Valid
 R1=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/register" \
   -H 'Content-Type: application/json' \
-  -d "{\"username\":\"$UV\",\"password\":\"test1234\",\"role\":\"Viewer\"}")
+  -d "{\"username\":\"$UV\",\"password\":\"Test1234!\",\"role\":\"Viewer\"}")
 [ "$R1" = "201" ] && pass "Register Viewer => 201" || fail "Register Viewer => $R1"
 
 # Duplicate
 R2=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/register" \
   -H 'Content-Type: application/json' \
-  -d "{\"username\":\"$UV\",\"password\":\"test1234\",\"role\":\"Viewer\"}")
+  -d "{\"username\":\"$UV\",\"password\":\"Test1234!\",\"role\":\"Viewer\"}")
 [ "$R2" = "409" ] && pass "Register duplicate => 409" || fail "Register duplicate => $R2"
 
 # Short username
@@ -182,8 +182,60 @@ R4=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/register" \
 # Pending account login blocked
 R5=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/login" \
   -H 'Content-Type: application/json' \
-  -d "{\"username\":\"$UV\",\"password\":\"test1234\"}")
+  -d "{\"username\":\"$UV\",\"password\":\"Test1234!\"}")
 [ "$R5" = "403" ] && pass "Pending account login => 403" || fail "Pending account login => $R5"
+
+echo ""
+echo ">>> Change Password"
+# Create a temporary test user for change-password tests (admin pw stays 0000)
+CPW_USER="cpwusr_$TS"
+CPW_PASS="OrigP@ss1"
+CPW_CREATE=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/users/create" \
+  -H 'Content-Type: application/json' \
+  -b /tmp/itops-ck.txt \
+  -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\",\"role\":\"Viewer\"}")
+[ "$CPW_CREATE" = "201" ] || { fail "CPW setup: create user => $CPW_CREATE"; exit 1; }
+
+# Login as test user
+CPW_CK="/tmp/itops-cpw.txt"
+CPW_LOGIN=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\"}" \
+  -c "$CPW_CK")
+[ "$CPW_LOGIN" = "200" ] || { fail "CPW setup: login => $CPW_LOGIN"; exit 1; }
+
+# Unauthenticated change password (no cookie)
+CP1=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/user/change-password" \
+  -H 'Content-Type: application/json' \
+  -d '{"currentPassword":"x","newPassword":"y"}')
+[ "$CP1" = "401" ] && pass "Change password no auth => 401" || fail "Change password no auth => $CP1"
+
+# Wrong current password
+CP2=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/user/change-password" \
+  -H 'Content-Type: application/json' \
+  -b "$CPW_CK" \
+  -d '{"currentPassword":"wrongpass","newPassword":"Str0ng!New"}')
+[ "$CP2" = "400" ] && pass "Change password wrong current => 400" || fail "Change password wrong current => $CP2"
+
+# Weak new password (no uppercase)
+CP3=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/user/change-password" \
+  -H 'Content-Type: application/json' \
+  -b "$CPW_CK" \
+  -d '{"currentPassword":"OrigP@ss1","newPassword":"weak1234!"}')
+[ "$CP3" = "400" ] && pass "Change password weak new => 400" || fail "Change password weak new => $CP3"
+
+# Valid change password
+CP4=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/user/change-password" \
+  -H 'Content-Type: application/json' \
+  -b "$CPW_CK" \
+  -d '{"currentPassword":"OrigP@ss1","newPassword":"Str0ng!New"}')
+[ "$CP4" = "200" ] && pass "Change password valid => 200" || fail "Change password valid => $CP4"
+
+# Verify login with new password
+CP5=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/login" \
+  -H 'Content-Type: application/json' \
+  -d "{\"username\":\"$CPW_USER\",\"password\":\"Str0ng!New\"}")
+[ "$CP5" = "200" ] && pass "Login with new password => 200" || fail "Login with new password => $CP5"
 
 echo ""
 echo ">>> Role-Based Access Control"
