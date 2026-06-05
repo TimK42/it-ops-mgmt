@@ -7,7 +7,7 @@ fix (#94) that is deferred to future PRs or CI validation cycles.
 
 - [x] Split `renderQA` / `renderUsers` to preserve search DOM on re-render
 - [x] Integration tests for search DOM preservation
-- [x] Sync search input value from state on subsequent `renderUsers` calls
+- [x] Preserve search input DOM across re-renders (input value is the source of truth; state is updated via debounced input handler, not synced back from state)
 - [x] Add `mocha` devDependency for test runner compatibility
 - [x] Update `npm run test:mocha` run included in CI workflow
 - [x] Add `engines` field to `package.json` matching jsdom's Node requirement

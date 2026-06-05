@@ -797,8 +797,9 @@ async function renderQA(el) {
     el.querySelectorAll('[data-qf]').forEach((b) => {
       b.classList.toggle('active', (b.dataset.qf || null) === state.qaFilters.status);
     });
+    const search = document.getElementById('global-search');
     const clearBtn = document.getElementById('search-clear');
-    if (clearBtn) clearBtn.style.display = state.qaFilters.search ? '' : 'none';
+    if (clearBtn) clearBtn.style.display = search && search.value ? '' : 'none';
   }
 
   const list = document.getElementById('qa-list');
