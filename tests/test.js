@@ -420,6 +420,7 @@ async function run() {
     });
     assert(r.status === 201, 'QA create for answer search => 201');
     const answerSearchId = r.json?.id;
+    assert(answerSearchId, 'QA create for answer search has id');
 
     r = await req('GET', '/api/qa?status=Published&search=unique_secret_string_reply', { cookie });
     assert(r.status === 200, 'QA search by answer => 200');
