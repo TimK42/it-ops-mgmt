@@ -84,7 +84,7 @@ initTheme();
 let deferredInstallPrompt = null;
 
 function isIOS() {
-  var ua = navigator.userAgent;
+  const ua = navigator.userAgent;
   // iPadOS Safari in "Request Desktop Website" mode uses a macOS-like UA
   // but still has touch support — check maxTouchPoints to catch it
   return (
@@ -97,7 +97,7 @@ function isStandalone() {
   if (typeof window.navigator.standalone !== 'undefined' && window.navigator.standalone)
     return true;
   if (typeof window.matchMedia === 'function') {
-    var mq = window.matchMedia('(display-mode: standalone)');
+    const mq = window.matchMedia('(display-mode: standalone)');
     return mq && mq.matches;
   }
   return false;
@@ -107,7 +107,7 @@ function initPWA() {
   // Already running as a PWA — hide all prompts
   if (isStandalone()) return;
 
-  var banner = document.getElementById('pwa-install-banner');
+  const banner = document.getElementById('pwa-install-banner');
   if (!banner) return;
 
   // iOS Safari: show Add to Home Screen guide
@@ -126,7 +126,7 @@ function initPWA() {
       '<button class="pwa-banner-close" id="pwa-dismiss-ios" aria-label="Dismiss">✕</button>' +
       '</div>' +
       '</div>';
-    var dismissBtn = document.getElementById('pwa-dismiss-ios');
+    const dismissBtn = document.getElementById('pwa-dismiss-ios');
     if (dismissBtn) {
       dismissBtn.addEventListener('click', function () {
         banner.innerHTML = '';
@@ -165,11 +165,11 @@ function showAndroidInstallButton(banner) {
     '</div>' +
     '</div>';
 
-  var installBtn = document.getElementById('pwa-install-btn');
+  const installBtn = document.getElementById('pwa-install-btn');
   if (installBtn) {
     installBtn.addEventListener('click', function () {
       if (!deferredInstallPrompt) return;
-      var promptEvent = deferredInstallPrompt;
+      const promptEvent = deferredInstallPrompt;
       deferredInstallPrompt = null;
       promptEvent.prompt();
       // Hide banner after prompt is shown, regardless of outcome
@@ -178,7 +178,7 @@ function showAndroidInstallButton(banner) {
     });
   }
 
-  var dismissBtn = document.getElementById('pwa-dismiss-android');
+  const dismissBtn = document.getElementById('pwa-dismiss-android');
   if (dismissBtn) {
     dismissBtn.addEventListener('click', function () {
       banner.innerHTML = '';
@@ -191,7 +191,7 @@ function showAndroidInstallButton(banner) {
 
 window.addEventListener('appinstalled', function () {
   deferredInstallPrompt = null;
-  var banner = document.getElementById('pwa-install-banner');
+  const banner = document.getElementById('pwa-install-banner');
   if (banner) banner.innerHTML = '';
 });
 
