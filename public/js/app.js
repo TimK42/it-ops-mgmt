@@ -721,6 +721,10 @@ async function renderQA(el) {
 
   if (isFirstRender) {
     el.innerHTML = '<div class="loading">Loading...</div>';
+  } else {
+    // Subsequent render: show loading state in results list (preserves toolbar DOM)
+    const list = document.getElementById('qa-list');
+    if (list) list.innerHTML = '<div class="loading">Loading...</div>';
   }
   try {
     const res = await loadQA(signal);
