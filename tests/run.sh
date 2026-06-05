@@ -393,6 +393,18 @@ process.exit(body.includes(\"closeModal('detail-modal')\") ? 0 : 1);
 # R4-H1 fix: showQADetail() must clear page-content
 echo "$JS" | grep -q "page-content').innerHTML = ''" && pass "JS: showQADetail() clears page-content" || fail "JS: showQADetail() missing page-content clear"
 
+# Issue #105: edit form X button fix
+echo "$JS" | grep -q "editQaId" && pass "JS: editQaId dataset used on form-modal" || fail "JS: editQaId dataset missing on form-modal"
+echo "$JS" | grep -q "delete modal.dataset.editQaId" && pass "JS: editQaId cleared on submit" || fail "JS: editQaId missing clear on submit"
+echo "$JS" > /tmp/check_cm.js
+node -e '
+var js = require("fs").readFileSync("/tmp/check_cm.js","utf8");
+var cm = js.indexOf("case \x27close-modal\x27");
+if (cm < 0) process.exit(1);
+var chunk = js.slice(cm, cm + 300);
+process.exit(chunk.includes("form-modal") && chunk.includes("editQaId") ? 0 : 1);
+' && pass "JS: close-modal handler checks editQaId for form-modal" || fail "JS: close-modal handler missing editQaId check"
+
 # ── Cleanup ──
 kill $SPID 2>/dev/null
 

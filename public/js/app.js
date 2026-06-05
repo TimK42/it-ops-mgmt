@@ -1007,6 +1007,7 @@ async function showCreateQA(data) {
         await api('/api/qa', { method: 'POST', body: JSON.stringify(body) });
         toast('Created');
       }
+      delete modal.dataset.editQaId;
       closeModal('form-modal');
       navigate('qa');
     } catch (e) {
