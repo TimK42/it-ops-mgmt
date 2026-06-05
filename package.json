@@ -7,6 +7,7 @@
     "start": "node server.js",
     "test": "bash tests/run.sh",
     "test:js": "node tests/test.js",
+    "test:mocha": "mocha tests/test-issue94-search.js --timeout 10000",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
@@ -30,6 +31,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "mocha": "^11.7.6",
     "prettier": "^3.8.3"
   },
   "dependencies": {

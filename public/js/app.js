@@ -1064,6 +1064,11 @@ async function renderUsers(el) {
     if (infoEl) {
       infoEl.textContent = `${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}`;
     }
+    // Sync the search input value from state (prevents stale UI on state changes)
+    const searchInput = document.getElementById('users-search');
+    if (searchInput && searchInput.value !== state.usersSearch) {
+      searchInput.value = state.usersSearch || '';
+    }
   }
 
   // Always update the results container (tbody + pagination)
