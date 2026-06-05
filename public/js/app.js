@@ -793,8 +793,6 @@ async function renderQA(el) {
     el.querySelectorAll('[data-qf]').forEach((b) => {
       b.classList.toggle('active', (b.dataset.qf || null) === state.qaFilters.status);
     });
-    const s = document.getElementById('global-search');
-    if (s) s.value = state.qaFilters.search;
     const clearBtn = document.getElementById('search-clear');
     if (clearBtn) clearBtn.style.display = state.qaFilters.search ? '' : 'none';
   }
@@ -1016,11 +1014,10 @@ async function renderUsers(el) {
         el.innerHTML =
           '<div class="error-msg">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
       } else {
-        // Subsequent render: show error inside results container (preserve toolbar DOM)
-        const rc = document.getElementById('users-results-container');
-        if (rc) {
-          rc.innerHTML =
-            '<div class="error-msg" style="padding:24px;text-align:center;color:#888">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div>';
+        // Subsequent render: show error inside tbody (preserves table structure for future renders)
+        const tbody = document.querySelector('#users-results-container tbody');
+        if (tbody) {
+          tbody.innerHTML = '<tr><td colspan="5"><div class="error-msg" style="padding:24px;text-align:center;color:#888">Failed to load users. <button class="btn btn-sm btn-ghost" style="margin-left:8px;text-decoration:underline" data-action="navigate" data-page="users">Retry</button></div></td></tr>';
         }
       }
       return;
