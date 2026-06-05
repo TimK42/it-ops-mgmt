@@ -949,6 +949,20 @@ async function run() {
     });
     assert(r.status === 401, 'FPR: unauthenticated => 401');
 
+    // Non-Admin (Viewer) gets 403
+    const viewerUser = 'viewerrp_' + Date.now();
+    r = await req('POST', '/api/users/create', {
+      cookie,
+      body: { username: viewerUser, password: 'ViewRP@ss1', role: 'Viewer' },
+    });
+    assert(r.status === 201, 'FPR: create viewer user => 201');
+    const viewerCookie = (await login(viewerUser, 'ViewRP@ss1')).split(';')[0];
+    r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
+      cookie: viewerCookie,
+      body: { password: 'EvilP@ss1!' },
+    });
+    assert(r.status === 403, 'FPR: Viewer reset password => 403');
+
     // No password
     r = await req('PATCH', '/api/users/' + resetUserId + '/password', {
       cookie,
@@ -993,6 +1007,11 @@ async function run() {
     assert(r.status === 200, 'FPR: login after reset => 200');
     assert(r.json?.must_change_password === true, 'FPR: must_change_password flag in response');
     let resetCookie = r.setCookie[0]?.split(';')[0] || '';
+
+    // GET /api/auth/me also reports must_change_password
+    r = await req('GET', '/api/auth/me', { cookie: resetCookie });
+    assert(r.status === 200, 'FPR: /me after forced login => 200');
+    assert(r.json?.must_change_password === true, 'FPR: /me must_change_password is true');
 
     // Auth guard: must_change_password user cannot access other API endpoints
     r = await req('GET', '/api/qa', { cookie: resetCookie });

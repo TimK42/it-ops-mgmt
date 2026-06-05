@@ -69,13 +69,20 @@ app.use('/api/auth', require('./routes/auth'));
 // Auth guard — all /api/* below this requires login
 app.use('/api', (req, res, next) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
+  const path = req.path.replace(/\/+$/, '');
   // Users with must_change_password=1 can only use the change-password endpoint
-  if (!req.path.endsWith('/change-password')) {
+  if (!path.endsWith('/change-password')) {
     const db = getDb();
     const u = db
-      .prepare('SELECT must_change_password FROM users WHERE id = ?')
+      .prepare('SELECT must_change_password, status FROM users WHERE id = ?')
       .get(req.session.userId);
-    if (u && u.must_change_password)
+    if (!u || u.status !== 'active') {
+      return req.session.destroy
+        ? (req.session.destroy(() => {}),
+          res.status(401).json({ error: 'Account disabled or deleted' }))
+        : res.status(401).json({ error: 'Account disabled or deleted' });
+    }
+    if (u.must_change_password)
       return res.status(403).json({ error: 'Must change password', must_change_password: true });
   }
   next();

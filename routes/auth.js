@@ -10,7 +10,9 @@ router.get('/me', (req, res) => {
   if (!req.session.userId) return res.status(401).json({ error: 'Not authenticated' });
   const db = getDb();
   const u = db
-    .prepare('SELECT id, username, role, status, created_at FROM users WHERE id = ?')
+    .prepare(
+      'SELECT id, username, role, status, must_change_password, created_at FROM users WHERE id = ?',
+    )
     .get(req.session.userId);
   if (!u || u.status !== 'active') {
     req.session.destroy(() => {});
@@ -21,6 +23,7 @@ router.get('/me', (req, res) => {
     username: u.username,
     role: u.role,
     status: u.status,
+    must_change_password: !!u.must_change_password,
     created_at: u.created_at,
   });
 });
