@@ -215,7 +215,10 @@ async function run() {
     );
     assert(/animation.*pwa-slide-up/.test(pwaCss), 'CSS: pwa-slide-up animation applied to banner');
     // Verify the banner uses fixed positioning at the bottom
-    assert(/bottom\s*:\s*0/.test(pwaCss), 'CSS: banner uses position: fixed; bottom: 0');
+    assert(
+      /bottom\s*:\s*0/.test(pwaCss) && /position\s*:\s*fixed/.test(pwaCss),
+      'CSS: banner uses position: fixed; bottom: 0',
+    );
 
     // ═══ SPA REGISTER ROUTE ═══
     console.log('\n>>> SPA Register Route');
