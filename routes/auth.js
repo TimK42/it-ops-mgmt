@@ -95,6 +95,7 @@ router.post('/change-password', (req, res) => {
   const db = getDb();
   const u = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.userId);
   if (!u) return res.status(404).json({ error: 'User not found' });
+  if (u.status !== 'active') return res.status(403).json({ error: 'Account is disabled or pending' });
 
   if (!bcrypt.compareSync(currentPassword, u.password))
     return res.status(400).json({ error: 'Current password is incorrect' });

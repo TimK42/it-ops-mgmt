@@ -194,7 +194,7 @@ CPW_CREATE=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/users/cre
   -H 'Content-Type: application/json' \
   -b /tmp/itops-ck.txt \
   -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\",\"role\":\"Viewer\"}")
-[ "$CPW_CREATE" = "201" ] || { fail "CPW setup: create user => $CPW_CREATE"; continue 2>/dev/null; }
+[ "$CPW_CREATE" = "201" ] || { fail "CPW setup: create user => $CPW_CREATE"; exit 1; }
 
 # Login as test user
 CPW_CK="/tmp/itops-cpw.txt"
@@ -202,7 +202,7 @@ CPW_LOGIN=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/auth/login
   -H 'Content-Type: application/json' \
   -d "{\"username\":\"$CPW_USER\",\"password\":\"$CPW_PASS\"}" \
   -c "$CPW_CK")
-[ "$CPW_LOGIN" = "200" ] || { fail "CPW setup: login => $CPW_LOGIN"; continue 2>/dev/null; }
+[ "$CPW_LOGIN" = "200" ] || { fail "CPW setup: login => $CPW_LOGIN"; exit 1; }
 
 # Unauthenticated change password (no cookie)
 CP1=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/user/change-password" \
