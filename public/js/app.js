@@ -380,7 +380,7 @@ function closeModal(id) {
 }
 // ===== PASSWORD VALIDATION =====
 // Mirrors server lib/password.js validatePassword — must stay in sync
-const PASSWORD_SPECIAL = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/;
+const PASSWORD_SPECIAL = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
 function validatePw(p) {
   if (typeof p !== 'string') return PASSWORD_MSG;
   if (p.length < 8) return PASSWORD_MSG;
