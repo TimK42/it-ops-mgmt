@@ -268,6 +268,9 @@ document.addEventListener('click', (e) => {
     case 'edit-qa':
       editQA(id);
       break;
+    case 'archive-qa':
+      archiveQA(id);
+      break;
     case 'delete-qa':
       deleteQA(id);
       break;
@@ -617,7 +620,7 @@ function renderLogin(mode) {
         <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? '<div class="pw-hints" id="auth-pass-hints"></div>' : ''}
         ${isRegister ? '<div class="form-group"><label for="auth-pass-confirm" class="sr-only">Confirm Password</label><input class="form-input" type="password" id="auth-pass-confirm" placeholder="Confirm Password" autocomplete="new-password"><div class="form-error" id="auth-pass-confirm-error"></div></div>' : ''}
-        ${isRegister ? `<div class="form-group"><label for="auth-role" class="sr-only">Role</label><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option></select></div>` : `<div style="margin-bottom:14px"><label for="auth-remember" style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
+        ${isRegister ? `<div class="form-group"><label for="auth-role" class="sr-only">Role</label><select class="form-select" id="auth-role"><option value="Viewer">Viewer</option><option value="Editor">Editor</option></select></div>` : `<div style="margin-bottom:14px"><label for="auth-remember" style="font-size:12px;color:#888;display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="auth-remember"> Remember me</label></div>`}
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
         <div class="login-link">${isRegister ? '<a href="/" data-action="login-link" data-allow-nav>← Back to sign in</a>' : '<a href="/register" data-action="login-link" data-page="register" data-allow-nav>Create account</a>'}</div>
       </div>
@@ -819,7 +822,7 @@ async function renderQA(el) {
     }
     return;
   }
-  const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
+  const canEdit = ['Admin', 'Editor'].includes(state.user.role);
   const statuses = [null, 'Published', 'Draft', 'Archived'];
 
   if (isFirstRender) {
@@ -941,7 +944,8 @@ async function showQADetail(id) {
   if (!state.qaEntries.find((e) => e.id === q.id)) {
     state.qaEntries.push(q);
   }
-  const canEdit = ['Admin', 'Contributor'].includes(state.user.role);
+  const canEdit = ['Admin', 'Editor'].includes(state.user.role);
+  const canDelete = state.user.role === 'Admin';
   document.getElementById('page-title').textContent = q.question;
   document.getElementById('detail-modal').innerHTML = `<div class="modal">
     <div class="modal-header"><div class="detail-banner"><div class="modal-title">${esc(q.title)}</div><div class="detail-id">${q.qa_number}</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div>
@@ -954,7 +958,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : canEdit ? `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>` : ''}</div>
   </div>`;
 }
 
@@ -1215,6 +1219,14 @@ async function deleteQA(id) {
   });
 }
 
+async function archiveQA(id) {
+  showConfirm('Archive', 'Archive this entry? It will be hidden from default views.', async () => {
+    await api(`/api/qa/${id}`, { method: 'PUT', body: { status: 'Archived' } });
+    toast('Archived');
+    navigate('qa');
+  });
+}
+
 function exportCSV() {
   if (!state.qaEntries.length) return toast('Nothing to export');
   const keys = Object.keys(state.qaEntries[0]);
@@ -1391,7 +1403,7 @@ function showCreateUser() {
       <div class="form-group"><label class="form-label">Confirm Password *</label><input class="form-input" type="password" id="f-u-pass-confirm" placeholder="Re-enter password"></div>
     </div>
     <div class="pw-hints" id="cu-pass-hints"></div>
-    <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Contributor">Contributor</option><option value="Admin">Admin</option></select></div>`;
+    <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="f-u-role"><option value="Viewer">Viewer</option><option value="Editor">Editor</option><option value="Admin">Admin</option></select></div>`;
   modal.querySelector('.modal-footer').innerHTML =
     `<button class="btn btn-ghost btn-sm" data-action="close-modal" data-modal="form-modal">Cancel</button><button class="btn btn-primary btn-sm" id="f-u-submit">Create</button>`;
   document.getElementById('f-u-submit').onclick = async () => {

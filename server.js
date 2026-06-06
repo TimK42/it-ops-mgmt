@@ -99,12 +99,12 @@ function requireRole(...roles) {
 // User self-service routes (requires auth, guarded above)
 app.use('/api/user', require('./routes/auth'));
 
-// QA routes — GET open to all roles, write operations Contributor+
+// QA routes — GET open to all roles, write operations Editor+
 app.use(
   '/api/qa',
   (req, res, next) => {
     if (req.method === 'GET') return next(); // all roles can read
-    if (['Admin', 'Contributor'].includes(req.session.role)) return next();
+    if (['Admin', 'Editor'].includes(req.session.role)) return next();
     return res.status(403).json({ error: 'Forbidden' });
   },
   require('./routes/qa'),
