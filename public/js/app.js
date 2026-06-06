@@ -880,7 +880,7 @@ async function renderQA(el) {
     .map(
       (q) =>
         `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
-          q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
+          q.tags && q.tags.length ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
         }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
     )
     .join('');
@@ -940,7 +940,7 @@ async function showQADetail(id) {
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
       <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
-        q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
+        q.tags && q.tags.length ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
@@ -1074,7 +1074,7 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
 
   // Input handler: fetch autocomplete (cached)
   input.oninput = debounce(async function () {
-    var val = this.value.trim();
+    var val = input.value.trim();
     if (!val) {
       dropdown.style.display = 'none';
       return;
