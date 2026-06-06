@@ -890,7 +890,7 @@ async function renderQA(el) {
           q.tags && q.tags.length
             ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('')
             : ''
-        }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
+        }</div></a>`,
     )
     .join('');
   const totalPages = Math.ceil(state.qaTotal / 20);

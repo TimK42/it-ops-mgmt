@@ -1173,6 +1173,37 @@ async function run() {
     if (newTagQaId) {
       r = await req('DELETE', '/api/qa/' + newTagQaId, { cookie });
     }
+
+    // ═══ ISSUE #115 — Timestamp hidden from list, preserved in detail ═══
+    console.log('\n>>> Issue #115 — QA list timestamps hidden');
+
+    // 1. QA API must still return timestamps in JSON
+    r = await req('GET', '/api/qa', { cookie });
+    assert(r.status === 200, '#115: API returns 200');
+    assert(r.json?.data?.length > 0, '#115: API has data');
+    const first = r.json.data.find(function (e) {
+      return e.created_at && e.updated_at;
+    });
+    assert(first !== undefined, '#115: API data entries have created_at and updated_at fields');
+
+    // 2. JS must NOT contain the old timestamp span pattern in renderQA
+    r = await req('GET', '/js/app.js');
+    const appJs = r.body;
+    assert(
+      !appJs.includes(
+        'font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5',
+      ),
+      '#115: JS renderQA no longer has timestamp span in list cards',
+    );
+
+    // 3. Detail view must still render timestamps via fmtDate
+    assert(
+      appJs.includes('fmtDate(q.created_at)') && appJs.includes('fmtDate(q.updated_at)'),
+      '#115: showQADetail still renders timestamps in detail view',
+    );
+
+    // 4. fmtDate function itself must still exist
+    assert(appJs.includes('function fmtDate('), '#115: fmtDate() function still defined');
   } finally {
     server.kill();
   }
