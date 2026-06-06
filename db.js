@@ -71,6 +71,7 @@ function initSchema() {
       tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
       PRIMARY KEY (qa_entry_id, tag_id)
     );
+    CREATE INDEX IF NOT EXISTS idx_qa_entry_tags_tag_id ON qa_entry_tags(tag_id);
   `);
 
   // migrations: add must_change_password column if not present
@@ -90,7 +91,7 @@ function initSchema() {
       db.exec('ALTER TABLE qa_entries DROP COLUMN tags');
     } catch (e) {
       // SQLite throws error if column doesn't exist or DROP COLUMN unsupported — ignore
-      if (!e.message.includes('no such column')) throw e;
+      if (!e.message.includes('no such column') && !e.message.toLowerCase().includes('syntax error')) throw e;
     }
   }
 }

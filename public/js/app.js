@@ -880,7 +880,7 @@ async function renderQA(el) {
     .map(
       (q) =>
         `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
-          q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
+          q.tags && q.tags.length ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
         }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
     )
     .join('');
@@ -940,7 +940,7 @@ async function showQADetail(id) {
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
       <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
-        q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
+        q.tags && q.tags.length ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
@@ -957,7 +957,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="autocomplete-dropdown" id="tags-autocomplete" style="display:none"></div></div></div>`;
+    <div class="form-group"><label class="form-label">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
   modal.dataset.editQaId = isEdit ? String(data.id) : '';
@@ -1007,7 +1007,7 @@ async function showCreateQA(data) {
   openModal('form-modal');
   // Pre-populate chips on edit
   const existingTags = isEdit && data.tags ? (Array.isArray(data.tags) ? data.tags : []) : [];
-  initChips('tags-chips', 'f-tags-input', 'tags-autocomplete', existingTags);
+  initChips('tags-chips', 'f-tags-input', 'tags-suggestions', existingTags);
 }
 
 // ===== CHIP INPUT HELPERS =====
@@ -1019,11 +1019,11 @@ function getChipValues(containerId) {
   });
 }
 
-function initChips(containerId, inputId, dropdownId, existingTags) {
+function initChips(containerId, inputId, suggestionsId, existingTags) {
   const container = document.getElementById(containerId);
   const input = document.getElementById(inputId);
-  const dropdown = document.getElementById(dropdownId);
-  if (!container || !input || !dropdown) return;
+  const suggestions = document.getElementById(suggestionsId);
+  if (!container || !input || !suggestions) return;
 
   // Clear existing chips
   container.innerHTML = '';
@@ -1058,6 +1058,12 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
     container.appendChild(chip);
   }
 
+  function getSelectedTags() {
+    return Array.from(container.querySelectorAll('.chip')).map(function (c) {
+      return c.dataset.tag;
+    });
+  }
+
   // Cache tags with 60s TTL to reduce network calls
   var tagsCache = { data: null, ts: 0 };
   var TAGS_CACHE_TTL = 60000;
@@ -1072,38 +1078,48 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
     return tagsCache.data;
   }
 
-  // Input handler: fetch autocomplete (cached)
-  input.oninput = debounce(async function () {
-    var val = this.value.trim();
-    if (!val) {
-      dropdown.style.display = 'none';
+  function renderSuggestions(tags) {
+    var selected = getSelectedTags();
+    // Exclude already-selected tags
+    var filtered = tags.filter(function (t) {
+      return selected.indexOf(t.name) === -1;
+    });
+    if (!filtered.length) {
+      suggestions.innerHTML = '';
       return;
     }
+    suggestions.innerHTML = filtered
+      .map(function (t) {
+        return (
+          '<button type="button" class="suggestion-chip" data-tag="' +
+          esc(t.name) +
+          '">#' +
+          esc(t.name) +
+          ' <span class="suggestion-count">(' +
+          t.count +
+          ')</span></button>'
+        );
+      })
+      .join('');
+  }
+
+  // Input handler: fetch and render inline suggestion chips
+  input.oninput = debounce(async function () {
+    var val = input.value.trim();
     try {
       var tags = await fetchTags();
-      var filtered = tags.filter(function (t) {
+      if (!val) {
+        // Empty input: show top 10 most-used tags
+        renderSuggestions(tags.slice(0, 10));
+        return;
+      }
+      // Filter by substring (case-insensitive)
+      var matched = tags.filter(function (t) {
         return t.name.toLowerCase().includes(val.toLowerCase());
       });
-      if (filtered.length) {
-        dropdown.innerHTML = filtered
-          .map(function (t) {
-            return (
-              '<div class="autocomplete-item" data-tag="' +
-              esc(t.name) +
-              '">' +
-              esc(t.name) +
-              ' <span class="autocomplete-count">(' +
-              t.count +
-              ')</span></div>'
-            );
-          })
-          .join('');
-        dropdown.style.display = 'block';
-      } else {
-        dropdown.style.display = 'none';
-      }
+      renderSuggestions(matched);
     } catch (e) {
-      dropdown.style.display = 'none';
+      suggestions.innerHTML = '';
     }
   }, 200);
 
@@ -1114,30 +1130,38 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
       var val = this.value.trim().replace(/,/g, '');
       if (val) addChip(val);
       this.value = '';
-      dropdown.style.display = 'none';
+      suggestions.innerHTML = '';
     }
     if (e.key === 'Escape') {
-      dropdown.style.display = 'none';
+      suggestions.innerHTML = '';
     }
   };
 
-  // Click dropdown item
-  dropdown.onclick = function (e) {
-    var item = e.target.closest('.autocomplete-item');
-    if (item) {
-      var tag = item.dataset.tag;
+  // Click suggestion chip
+  suggestions.onclick = function (e) {
+    var btn = e.target.closest('.suggestion-chip');
+    if (btn) {
+      var tag = btn.dataset.tag;
       addChip(tag);
       input.value = '';
-      dropdown.style.display = 'none';
       input.focus();
+      // Re-render suggestions with the just-added tag removed
+      var val = input.value.trim();
+      fetchTags()
+        .then(function (tags) {
+          if (!val) {
+            renderSuggestions(tags.slice(0, 10));
+          } else {
+            var matched = tags.filter(function (t) {
+              return t.name.toLowerCase().includes(val.toLowerCase());
+            });
+            renderSuggestions(matched);
+          }
+        })
+        .catch(function () {
+          suggestions.innerHTML = '';
+        });
     }
-  };
-
-  // Close dropdown on blur (with delay to allow click on dropdown item)
-  input.onblur = function () {
-    setTimeout(function () {
-      dropdown.style.display = 'none';
-    }, 200);
   };
 
   // Focus input when wrapper container is clicked
@@ -1149,6 +1173,13 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
       }
     });
   }
+
+  // Initial load: show top 10 suggestions
+  fetchTags()
+    .then(function (tags) {
+      renderSuggestions(tags.slice(0, 10));
+    })
+    .catch(function () {});
 }
 
 function editQA(id) {

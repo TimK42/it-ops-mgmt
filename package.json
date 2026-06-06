@@ -7,7 +7,7 @@
     "start": "node server.js",
     "test": "bash tests/run.sh",
     "test:js": "node tests/test.js",
-    "test:mocha": "mocha tests/test-issue94-search.js --timeout 10000",
+    "test:mocha": "mocha tests/test-issue94-search.js tests/test-issue107-chips.js --timeout 15000",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
