@@ -76,7 +76,7 @@ const mockUsers = [
   {
     id: 'u3',
     username: 'contrib1',
-    role: 'Contributor',
+    role: 'Editor',
     status: 'active',
     created_at: '2026-01-10T00:00:00.000Z',
   },

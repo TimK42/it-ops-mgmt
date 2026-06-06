@@ -173,9 +173,9 @@ describe('Issue #117 - Hide export button for viewer role', function () {
     assert.ok(hasExport, 'Export button should be rendered for Admin role');
   });
 
-  it('shows export button for Contributor role', async function () {
+  it('shows export button for Editor role', async function () {
     setupQA({
-      user: { id: 'u3', username: 'contrib1', role: 'Contributor' },
+      user: { id: 'u3', username: 'editor1', role: 'Editor' },
     });
     var el = document.getElementById('page-content');
 
@@ -183,7 +183,7 @@ describe('Issue #117 - Hide export button for viewer role', function () {
 
     var html = el.innerHTML;
     var hasExport = html.indexOf('data-action="export-csv"') !== -1;
-    assert.ok(hasExport, 'Export button should be rendered for Contributor role');
+    assert.ok(hasExport, 'Export button should be rendered for Editor role');
   });
 
   it('New Entry button also respects role (side-effect check)', async function () {

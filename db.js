@@ -46,7 +46,7 @@ function initSchema() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'Viewer' CHECK(role IN ('Admin','Contributor','Viewer')),
+      role TEXT NOT NULL DEFAULT 'Viewer' CHECK(role IN ('Admin','Editor','Viewer')),
       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('active','pending','disabled')),
       must_change_password INTEGER NOT NULL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now')),
@@ -98,6 +98,9 @@ function initSchema() {
         throw e;
     }
   }
+
+  // migration: rename Contributor role to Editor
+  db.exec("UPDATE users SET role = 'Editor' WHERE role = 'Contributor'");
 }
 
 function seedUsers() {

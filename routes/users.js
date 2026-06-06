@@ -23,7 +23,7 @@ router.post('/create', (req, res) => {
   const pwErr = validatePassword(password);
   if (pwErr) return res.status(400).json({ error: pwErr });
   const role = req.body.role || 'Viewer';
-  if (!['Admin', 'Contributor', 'Viewer'].includes(role))
+  if (!['Admin', 'Editor', 'Viewer'].includes(role))
     return res.status(400).json({ error: 'Invalid role' });
 
   const db = getDb();
