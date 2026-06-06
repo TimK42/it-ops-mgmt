@@ -165,18 +165,24 @@ function seedData() {
     ],
   ];
   for (const q of qas) {
-    const result = db.prepare(
-      'INSERT INTO qa_entries (qa_number,title,question,answer,category_id,status) VALUES (?,?,?,?,?,?)',
-    ).run(q[0], q[1], q[2], q[3], catMap[q[4]], q[6]);
+    const result = db
+      .prepare(
+        'INSERT INTO qa_entries (qa_number,title,question,answer,category_id,status) VALUES (?,?,?,?,?,?)',
+      )
+      .run(q[0], q[1], q[2], q[3], catMap[q[4]], q[6]);
 
     // populate tags and junction table
-    const tags = q[5].split(',').map(t => t.trim()).filter(Boolean);
+    const tags = q[5]
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
     for (const tagName of tags) {
       db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)').run(tagName);
       const tagRow = db.prepare('SELECT id FROM tags WHERE name = ?').get(tagName);
       if (tagRow) {
         db.prepare('INSERT OR IGNORE INTO qa_entry_tags (qa_entry_id, tag_id) VALUES (?,?)').run(
-          result.lastInsertRowid, tagRow.id
+          result.lastInsertRowid,
+          tagRow.id,
         );
       }
     }

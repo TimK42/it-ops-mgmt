@@ -880,11 +880,7 @@ async function renderQA(el) {
     .map(
       (q) =>
         `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
-          q.tags
-            ? q.tags
-                .map((t) => `<span class="tag">#${esc(t.trim())}</span>`)
-                .join('')
-            : ''
+          q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
         }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
     )
     .join('');
@@ -944,11 +940,7 @@ async function showQADetail(id) {
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
       <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
-        q.tags
-          ? q.tags
-              .map((t) => `<span class="tag">#${esc(t.trim())}</span>`)
-              .join(' ')
-          : '-'
+        q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
@@ -1022,7 +1014,9 @@ async function showCreateQA(data) {
 function getChipValues(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return [];
-  return Array.from(container.querySelectorAll('.chip')).map(function(c) { return c.dataset.tag; });
+  return Array.from(container.querySelectorAll('.chip')).map(function (c) {
+    return c.dataset.tag;
+  });
 }
 
 function initChips(containerId, inputId, dropdownId, existingTags) {
@@ -1036,7 +1030,9 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
 
   // Pre-populate
   if (existingTags && existingTags.length) {
-    existingTags.forEach(function(t) { addChip(t.trim()); });
+    existingTags.forEach(function (t) {
+      addChip(t.trim());
+    });
   }
 
   function addChip(tag) {
@@ -1050,8 +1046,12 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
     var chip = document.createElement('span');
     chip.className = 'chip';
     chip.dataset.tag = tag;
-    chip.innerHTML = esc(tag) + '<button class="chip-remove" type="button" aria-label="Remove ' + esc(tag) + '">\u2715</button>';
-    chip.querySelector('.chip-remove').onclick = function(e) {
+    chip.innerHTML =
+      esc(tag) +
+      '<button class="chip-remove" type="button" aria-label="Remove ' +
+      esc(tag) +
+      '">\u2715</button>';
+    chip.querySelector('.chip-remove').onclick = function (e) {
       e.stopPropagation();
       chip.remove();
     };
@@ -1059,25 +1059,42 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
   }
 
   // Input handler: fetch autocomplete
-  input.oninput = debounce(async function() {
+  input.oninput = debounce(async function () {
     var val = this.value.trim();
-    if (!val) { dropdown.style.display = 'none'; return; }
+    if (!val) {
+      dropdown.style.display = 'none';
+      return;
+    }
     try {
       var tags = await api('/api/tags');
-      var filtered = tags.filter(function(t) { return t.name.toLowerCase().includes(val.toLowerCase()); });
+      var filtered = tags.filter(function (t) {
+        return t.name.toLowerCase().includes(val.toLowerCase());
+      });
       if (filtered.length) {
-        dropdown.innerHTML = filtered.map(function(t) { return '<div class="autocomplete-item" data-tag="' + esc(t.name) + '">' + esc(t.name) + ' <span class="autocomplete-count">(' + t.count + ')</span></div>'; }).join('');
+        dropdown.innerHTML = filtered
+          .map(function (t) {
+            return (
+              '<div class="autocomplete-item" data-tag="' +
+              esc(t.name) +
+              '">' +
+              esc(t.name) +
+              ' <span class="autocomplete-count">(' +
+              t.count +
+              ')</span></div>'
+            );
+          })
+          .join('');
         dropdown.style.display = 'block';
       } else {
         dropdown.style.display = 'none';
       }
-    } catch(e) {
+    } catch (e) {
       dropdown.style.display = 'none';
     }
   }, 200);
 
   // Keyboard handlers
-  input.onkeydown = function(e) {
+  input.onkeydown = function (e) {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       var val = this.value.trim().replace(/,/g, '');
@@ -1091,7 +1108,7 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
   };
 
   // Click dropdown item
-  dropdown.onclick = function(e) {
+  dropdown.onclick = function (e) {
     var item = e.target.closest('.autocomplete-item');
     if (item) {
       var tag = item.dataset.tag;
@@ -1103,8 +1120,10 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
   };
 
   // Close dropdown on blur (with delay to allow click on dropdown item)
-  input.onblur = function() {
-    setTimeout(function() { dropdown.style.display = 'none'; }, 200);
+  input.onblur = function () {
+    setTimeout(function () {
+      dropdown.style.display = 'none';
+    }, 200);
   };
 }
 

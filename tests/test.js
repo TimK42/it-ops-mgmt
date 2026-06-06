@@ -1057,7 +1057,7 @@ async function run() {
     assert(r.json.length > 0, 'GET /api/tags has at least one tag');
     assert(r.json[0].name !== undefined, 'GET /api/tags[0] has name');
     assert(r.json[0].count !== undefined, 'GET /api/tags[0] has count');
-    const passwordTag = r.json.find(t => t.name === 'password');
+    const passwordTag = r.json.find((t) => t.name === 'password');
     assert(passwordTag && passwordTag.count >= 1, 'seed tag "password" present with count >= 1');
 
     // 2. POST /api/qa with tags array
@@ -1115,14 +1115,19 @@ async function run() {
     // GET /api/tags should now include "brand-new-tag"
     r = await req('GET', '/api/tags', { cookie });
     assert(r.status === 200, 'GET /api/tags after new tag => 200');
-    assert(r.json.some(t => t.name === 'brand-new-tag'), 'GET /api/tags includes "brand-new-tag"');
+    assert(
+      r.json.some((t) => t.name === 'brand-new-tag'),
+      'GET /api/tags includes "brand-new-tag"',
+    );
 
     // 5. GET /api/qa with tag search
     r = await req('GET', '/api/qa?tag=password', { cookie });
     assert(r.status === 200, 'GET /api/qa?tag=password => 200');
     assert(r.json?.data?.length > 0, 'QA search by tag returns results');
     assert(
-      r.json.data.some(function(e) { return Array.isArray(e.tags) && e.tags.includes('password'); }),
+      r.json.data.some(function (e) {
+        return Array.isArray(e.tags) && e.tags.includes('password');
+      }),
       'QA search found entry tagged with "password"',
     );
 
@@ -1143,7 +1148,9 @@ async function run() {
 
     // Verify "cascade-test-tag" count is 1
     r = await req('GET', '/api/tags', { cookie });
-    const cascadeTagBefore = r.json.find(function(t) { return t.name === 'cascade-test-tag'; });
+    const cascadeTagBefore = r.json.find(function (t) {
+      return t.name === 'cascade-test-tag';
+    });
     assert(cascadeTagBefore, 'GET /api/tags includes "cascade-test-tag"');
     assert(cascadeTagBefore.count === 1, '"cascade-test-tag" count is 1 before delete');
 
@@ -1153,7 +1160,9 @@ async function run() {
 
     // Verify "cascade-test-tag" count drops to 0 after QA deletion
     r = await req('GET', '/api/tags', { cookie });
-    const cascadeTagAfter = r.json.find(function(t) { return t.name === 'cascade-test-tag'; });
+    const cascadeTagAfter = r.json.find(function (t) {
+      return t.name === 'cascade-test-tag';
+    });
     assert(cascadeTagAfter, '"cascade-test-tag" still present in tags list');
     assert(cascadeTagAfter.count === 0, '"cascade-test-tag" count is 0 after entry deleted');
 
