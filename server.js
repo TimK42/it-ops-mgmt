@@ -104,6 +104,9 @@ app.use(
   '/api/qa',
   (req, res, next) => {
     if (req.method === 'GET') return next(); // all roles can read
+    if (req.method === 'DELETE' && req.session.role !== 'Admin') {
+      return res.status(403).json({ error: 'Only Admin can delete QA entries' });
+    }
     if (['Admin', 'Editor'].includes(req.session.role)) return next();
     return res.status(403).json({ error: 'Forbidden' });
   },
