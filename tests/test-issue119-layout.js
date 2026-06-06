@@ -1,5 +1,5 @@
 // Issue #119 — #app flex container layout fix
-// Verifies the page-width consistency fix across all routes
+// Regression test: verifies #app CSS rule exists and key routes remain functional
 // Fix: Added #app { display: flex; flex: 1; min-width: 0; } to style.css
 
 const { test, describe, before, after } = require('node:test');
@@ -43,7 +43,7 @@ function req(method, urlPath, opts = {}) {
         });
       },
     );
-    r.on('error', () => resolve({ status: -1, body: '' }));
+    r.on('error', () => resolve({ status: -1, body: '', headers: {}, setCookie: [] }));
     if (opts.body) r.write(opts.body);
     r.end();
   });
@@ -97,9 +97,9 @@ describe('Issue #119 — #app flex container layout fix', () => {
 
     // Check the block contains all three required properties
     const block = appRule[0];
-    assert.ok(block.includes('display: flex'), '#app rule must include display: flex');
-    assert.ok(block.includes('flex: 1'), '#app rule must include flex: 1');
-    assert.ok(block.includes('min-width: 0'), '#app rule must include min-width: 0');
+    assert.ok(/display:\s*flex/.test(block), '#app rule must include display: flex');
+    assert.ok(/flex:\s*1/.test(block), '#app rule must include flex: 1');
+    assert.ok(/min-width:\s*0/.test(block), '#app rule must include min-width: 0');
   });
 
   test('Key static routes return 200 (no 500 errors from the layout change)', async () => {
@@ -149,6 +149,8 @@ describe('Issue #119 — #app flex container layout fix', () => {
       type: 'application/json',
       body: JSON.stringify({ username: 'admin', password: '0000' }),
     });
+    assert.strictEqual(loginR.status, 200, 'Login admin/0000 must return 200');
+    assert.ok(loginR.setCookie.length > 0, 'Login response must include Set-Cookie header');
     const cookie = loginR.setCookie[0].split(';')[0];
 
     // Key API endpoints
