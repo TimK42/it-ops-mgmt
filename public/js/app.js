@@ -880,7 +880,9 @@ async function renderQA(el) {
     .map(
       (q) =>
         `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
-          q.tags && q.tags.length ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
+          q.tags && q.tags.length
+            ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('')
+            : ''
         }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
     )
     .join('');
@@ -940,7 +942,9 @@ async function showQADetail(id) {
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
       <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
-        q.tags && q.tags.length ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
+        q.tags && q.tags.length
+          ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ')
+          : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
@@ -957,7 +961,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
+    <div class="form-group"><label class="form-label" for="f-tags-input">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" aria-label="Add tags" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
   modal.dataset.editQaId = isEdit ? String(data.id) : '';
@@ -1082,7 +1086,9 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
     var selected = getSelectedTags();
     // Exclude already-selected tags
     var filtered = tags.filter(function (t) {
-      return !selected.some(function (s) { return s.toLowerCase() === t.name.toLowerCase(); });
+      return !selected.some(function (s) {
+        return s.toLowerCase() === t.name.toLowerCase();
+      });
     });
     if (!filtered.length) {
       suggestions.innerHTML = '';
@@ -1093,9 +1099,11 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
         return (
           '<button type="button" class="suggestion-chip" data-tag="' +
           esc(t.name) +
+          '" aria-label="Add tag: ' +
+          esc(t.name) +
           '">#' +
           esc(t.name) +
-          ' <span class="suggestion-count">(' +
+          ' <span class="suggestion-count" aria-hidden="true">(' +
           t.count +
           ')</span></button>'
         );

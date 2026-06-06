@@ -34,6 +34,7 @@ export default [
         loadQATotalCount: 'readonly',
         toast: 'readonly',
         debounce: 'readonly',
+        initChips: 'readonly',
       },
     },
     rules: {

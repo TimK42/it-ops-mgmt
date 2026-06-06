@@ -32,10 +32,17 @@ function mockFetchTags() {
     if (url === '/api/tags') {
       return Promise.resolve({
         ok: true,
-        json: function () { return Promise.resolve(mockTags); },
+        json: function () {
+          return Promise.resolve(mockTags);
+        },
       });
     }
-    return Promise.resolve({ ok: true, json: function () { return Promise.resolve([]); } });
+    return Promise.resolve({
+      ok: true,
+      json: function () {
+        return Promise.resolve([]);
+      },
+    });
   };
 }
 
@@ -88,8 +95,9 @@ function createChipFixture() {
   return dom;
 }
 
-// Bootstrap app.js once
+// Bootstrap app.js once (if not already loaded by another test file)
 before(function () {
+  if (typeof initChips !== 'undefined') return; // already bootstrapped
   const dom = createChipFixture();
   const appJsPath = path.resolve(__dirname, '../public/js/app.js');
   const code = fs.readFileSync(appJsPath, 'utf-8');
@@ -102,33 +110,36 @@ before(function () {
 
 // Setup state globals that app.js expects
 function setupState() {
-  global.state = global.state || {};
+  if (!global.state) global.state = {};
   global.state.page = 'qa';
   global.state.user = { id: 'u1', username: 'admin', role: 'Admin' };
 }
 
-beforeEach(function () {
-  createChipFixture();
-  setupState();
-  mockFetchTags();
-});
-
-afterEach(function () {
-  // Clean up fetch mock
-  delete global.fetch;
-});
-
 describe('Issue #107 — Inline suggestion chips for tag input', function () {
+  beforeEach(function () {
+    createChipFixture();
+    setupState();
+    mockFetchTags();
+  });
+
+  afterEach(function () {
+    // Clean up fetch mock
+    delete global.fetch;
+  });
   // Helper: wait for promises to settle
   function wait(ms) {
-    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
   }
 
   // Helper: trigger input event
   function typeInInput(value) {
     var input = document.getElementById('f-tags-input');
     input.value = value || '';
-    var evt = dom.window.Event ? new dom.window.Event('input', { bubbles: true }) : { type: 'input' };
+    var evt = dom.window.Event
+      ? new dom.window.Event('input', { bubbles: true })
+      : { type: 'input' };
     input.dispatchEvent(evt);
   }
 
@@ -164,7 +175,10 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
     // Should show password, posh, pop3 — tags containing "p"
     assert.ok(chips.length >= 3, 'Expected at least 3 chips for "p"');
     // First should be "password" (count 12, highest among "p" matches)
-    assert.ok(chips[0].textContent.includes('password'), 'First chip should be password (highest count)');
+    assert.ok(
+      chips[0].textContent.includes('password'),
+      'First chip should be password (highest count)',
+    );
   });
 
   // ---------- R3: Already-selected tags excluded ----------
@@ -183,8 +197,12 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
     var chips = suggestions.querySelectorAll('.suggestion-chip');
 
     // "password" should NOT be among suggestions
-    var chipTexts = Array.from(chips).map(function (c) { return c.textContent; });
-    var hasPassword = chipTexts.some(function (t) { return t.includes('password'); });
+    var chipTexts = Array.from(chips).map(function (c) {
+      return c.textContent;
+    });
+    var hasPassword = chipTexts.some(function (t) {
+      return t.includes('password');
+    });
     assert.ok(!hasPassword, '"password" should be excluded from suggestions (already selected)');
   });
 
@@ -221,12 +239,9 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
     assert.notStrictEqual(
       sugEl.className,
       'autocomplete-dropdown',
-      'Should not use autocomplete-dropdown class'
+      'Should not use autocomplete-dropdown class',
     );
-    assert.ok(
-      sugEl.classList.contains('suggestions-area'),
-      'Should use suggestions-area class'
-    );
+    assert.ok(sugEl.classList.contains('suggestions-area'), 'Should use suggestions-area class');
   });
 
   // ---------- R6: Suggestion chip shows #-prefixed name and count ----------
@@ -246,6 +261,18 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
 
     var countSpan = chip.querySelector('.suggestion-count');
     assert.ok(countSpan, 'Chip should have .suggestion-count element');
+
+    // Verify a11y attributes (Issue #109)
+    assert.ok(chip.hasAttribute('aria-label'), 'Suggestion chip should have aria-label');
+    assert.ok(
+      chip.getAttribute('aria-label').startsWith('Add tag:'),
+      'aria-label should start with "Add tag:"',
+    );
+    assert.strictEqual(
+      countSpan.getAttribute('aria-hidden'),
+      'true',
+      'Count span should be aria-hidden',
+    );
   });
 
   // ---------- R7: Enter key adds chip ----------
@@ -267,7 +294,9 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
     await wait(100);
 
     var chips = container.querySelectorAll('.chip');
-    var tagChips = Array.from(chips).filter(function (c) { return c.dataset.tag === 'customtag'; });
+    var tagChips = Array.from(chips).filter(function (c) {
+      return c.dataset.tag === 'customtag';
+    });
     assert.ok(tagChips.length > 0, 'Enter should add "customtag" chip');
     assert.strictEqual(input.value, '', 'Input should be cleared after Enter');
   });
