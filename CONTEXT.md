@@ -26,6 +26,22 @@ When typing in the tag input field, a dropdown shows matching existing tags sort
 
 A knowledge-base record with `title`, `question`, `answer`, `category`, `tags`, and `status` (Published / Draft / Archived).
 
+### Role
+
+A named authorization level assigned to every user, determining what resources they can access and what operations they can perform.
+
+### Admin
+
+A privileged role with full system access. The only role that can manage **Users** and **Sub-Systems**, hard-delete QA entries, and approve pending registrations.
+
+### Editor
+
+A role focused on content contribution. Can create, read, update, and archive QA entries, but **cannot** hard-delete them. Has no access to User management or Sub-System administration.
+
+### Viewer
+
+A read-only role. Can view all QA entries regardless of status (Published, Draft, Archived). Cannot create, edit, archive, delete, or export QA entries.
+
 ### Sub-System (Category)
 
 A named group for organizing QA entries (e.g., "Network", "Password", "Account").
@@ -46,6 +62,7 @@ A set of validation rules applied to all password creation and modification oper
 
 ## Resolved Decisions
 
+- **Role-based access control**: Three roles — Admin (full access), Editor (QA CRUD+Archive, no delete, no admin pages), Viewer (read-only). See ADR-0002.
 - **Tag input approach**: Chip input + autocomplete dropdown with frequency-based sorting (Issue #96).
 - **Schema**: Normalized `tags` + `qa_entry_tags` junction tables (approved, not yet implemented — see #96).
 - **Free-form tag creation**: Approved design — users may type and create tags not yet in the database.
