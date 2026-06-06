@@ -1137,8 +1137,7 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
     try {
       var tags = await fetchTags();
       if (!val) {
-        // Empty input: show top 10 most-used tags
-        renderSuggestions(tags.slice(0, 10));
+        suggestions.innerHTML = '';
         return;
       }
       // Filter by substring (case-insensitive)
@@ -1178,7 +1177,7 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
       fetchTags()
         .then(function (tags) {
           if (!val) {
-            renderSuggestions(tags.slice(0, 10));
+            suggestions.innerHTML = '';
           } else {
             var matched = tags.filter(function (t) {
               return t.name.toLowerCase().includes(val.toLowerCase());
@@ -1201,13 +1200,6 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
       }
     });
   }
-
-  // Initial load: show top 10 suggestions
-  fetchTags()
-    .then(function (tags) {
-      renderSuggestions(tags.slice(0, 10));
-    })
-    .catch(function () {});
 }
 
 function editQA(id) {

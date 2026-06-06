@@ -143,19 +143,19 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
     input.dispatchEvent(evt);
   }
 
-  // ---------- R1: Empty input shows top 10 suggestions ----------
+  // ---------- R1: Empty input shows no suggestions ----------
 
-  it('shows top 10 suggestions when input is empty', async function () {
+  it('shows no suggestions when input is empty', async function () {
     initChips('tags-chips', 'f-tags-input', 'tags-suggestions', []);
 
-    // Wait for the initial fetchTags promise to resolve
+    // Wait for the debounced oninput to fire with empty value
     await wait(800);
 
     var suggestions = document.getElementById('tags-suggestions');
     assert.ok(suggestions, 'suggestions-area exists');
 
     var chips = suggestions.querySelectorAll('.suggestion-chip');
-    assert.strictEqual(chips.length, 10, 'Should show top 10 chips on empty input');
+    assert.strictEqual(chips.length, 0, 'Should show no chips on empty input');
   });
 
   // ---------- R2: Typing filters suggestions by substring ----------
@@ -211,7 +211,11 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
   it('clicking a suggestion chip adds it to selected chips', async function () {
     initChips('tags-chips', 'f-tags-input', 'tags-suggestions', []);
 
-    await wait(800);
+    await wait(200);
+
+    // Type something to trigger suggestions
+    typeInInput('p');
+    await wait(500);
 
     var suggestions = document.getElementById('tags-suggestions');
     var container = document.getElementById('tags-chips');
@@ -249,7 +253,11 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
   it('suggestion chip content includes # prefix and count badge', async function () {
     initChips('tags-chips', 'f-tags-input', 'tags-suggestions', []);
 
-    await wait(800);
+    await wait(200);
+
+    // Type something to trigger suggestions
+    typeInInput('p');
+    await wait(500);
 
     var suggestions = document.getElementById('tags-suggestions');
     var chip = suggestions.querySelector('.suggestion-chip');
