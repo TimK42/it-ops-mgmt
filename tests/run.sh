@@ -108,12 +108,17 @@ done
 
 echo ""
 echo ">>> Mocha Unit Tests (Issue #94, #107)"
-npx mocha tests/test-issue94-search.js tests/test-issue107-chips.js --timeout 15000 2>&1 | while IFS= read -r line; do
-  case "$line" in
-    *"passing"*) IFS=' ' read -r P _ <<< "$line" && pass "mocha: $P passed" ;;
-    *"failing"*) IFS=' ' read -r _ _ F _ <<< "$line" && [ "$F" != "0" ] && fail "mocha: $F test(s) failed" ;;
-  esac
-done
+MOCHA_OUTPUT=$(npx mocha tests/test-issue94-search.js tests/test-issue107-chips.js --timeout 15000 2>&1)
+MOCHA_EXIT=$?
+echo "$MOCHA_OUTPUT"
+MOCHA_LINE=$(echo "$MOCHA_OUTPUT" | tail -3 | grep -E '[0-9]+ passing|[0-9]+ failing' | tail -1)
+if [ -n "$MOCHA_LINE" ]; then
+  MOCHA_PASS=$(echo "$MOCHA_LINE" | grep -oE '[0-9]+ passing' | grep -oE '[0-9]+')
+  MOCHA_FAIL=$(echo "$MOCHA_LINE" | grep -oE '[0-9]+ failing' | grep -oE '[0-9]+')
+  [ -n "$MOCHA_PASS" ] && pass "mocha: $MOCHA_PASS passing"
+  [ -n "$MOCHA_FAIL" ] && [ "$MOCHA_FAIL" != "0" ] && fail "mocha: $MOCHA_FAIL failing"
+fi
+[ "$MOCHA_EXIT" -ne 0 ] && fail "mocha: exit code $MOCHA_EXIT"
 
 # ── Start test server ──
 echo ""

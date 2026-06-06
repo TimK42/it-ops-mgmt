@@ -1352,6 +1352,9 @@ tr.row-click {
   flex-wrap: wrap;
   gap: 6px;
   padding: 8px 0 0;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .suggestion-chip {
   display: inline-flex;

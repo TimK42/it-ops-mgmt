@@ -1082,7 +1082,7 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
     var selected = getSelectedTags();
     // Exclude already-selected tags
     var filtered = tags.filter(function (t) {
-      return selected.indexOf(t.name) === -1;
+      return !selected.some(function (s) { return s.toLowerCase() === t.name.toLowerCase(); });
     });
     if (!filtered.length) {
       suggestions.innerHTML = '';
