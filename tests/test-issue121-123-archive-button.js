@@ -44,7 +44,13 @@ function resetDOM() {
   Object.defineProperty(dom.window, 'matchMedia', {
     writable: true,
     value: function () {
-      return { matches: false, addListener: function () {}, removeListener: function () {}, addEventListener: function () {}, removeEventListener: function () {} };
+      return {
+        matches: false,
+        addListener: function () {},
+        removeListener: function () {},
+        addEventListener: function () {},
+        removeEventListener: function () {},
+      };
     },
   });
 
@@ -90,8 +96,12 @@ function setupDetail(role) {
   state.sessionExpired = false;
   state.users = null;
 
-  global.loadQA = async function () { return { data: state.qaEntries, total: 1, page: 1 }; };
-  global.loadQATotalCount = async function () { state.qaTotalCount = null; };
+  global.loadQA = async function () {
+    return { data: state.qaEntries, total: 1, page: 1 };
+  };
+  global.loadQATotalCount = async function () {
+    state.qaTotalCount = null;
+  };
   global.toast = function () {};
   global.api = async function (url) {
     if (url === '/api/qa/1') return JSON.parse(JSON.stringify(mockQAEntry));
@@ -115,7 +125,10 @@ describe('Archive button visibility by role', function () {
     await showQADetail(1);
     var html = document.getElementById('detail-modal').innerHTML;
     assert.ok(html.indexOf('data-action="delete-qa"') !== -1, 'Admin should see Delete button');
-    assert.ok(html.indexOf('data-action="archive-qa"') === -1, 'Admin should NOT see Archive button');
+    assert.ok(
+      html.indexOf('data-action="archive-qa"') === -1,
+      'Admin should NOT see Archive button',
+    );
   });
 
   it('Editor sees Archive button, no Delete button', async function () {
@@ -123,15 +136,24 @@ describe('Archive button visibility by role', function () {
     await showQADetail(1);
     var html = document.getElementById('detail-modal').innerHTML;
     assert.ok(html.indexOf('data-action="archive-qa"') !== -1, 'Editor should see Archive button');
-    assert.ok(html.indexOf('data-action="delete-qa"') === -1, 'Editor should NOT see Delete button');
+    assert.ok(
+      html.indexOf('data-action="delete-qa"') === -1,
+      'Editor should NOT see Delete button',
+    );
   });
 
   it('Viewer sees neither Archive nor Delete nor Edit button', async function () {
     setupDetail('Viewer');
     await showQADetail(1);
     var html = document.getElementById('detail-modal').innerHTML;
-    assert.ok(html.indexOf('data-action="delete-qa"') === -1, 'Viewer should NOT see Delete button');
-    assert.ok(html.indexOf('data-action="archive-qa"') === -1, 'Viewer should NOT see Archive button');
+    assert.ok(
+      html.indexOf('data-action="delete-qa"') === -1,
+      'Viewer should NOT see Delete button',
+    );
+    assert.ok(
+      html.indexOf('data-action="archive-qa"') === -1,
+      'Viewer should NOT see Archive button',
+    );
     assert.ok(html.indexOf('data-action="edit-qa"') === -1, 'Viewer should NOT see Edit button');
   });
 
