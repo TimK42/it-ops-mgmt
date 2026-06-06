@@ -101,9 +101,12 @@ function initSchema() {
 
   // migration: rename Contributor role to Editor
   // SQLite CHECK constraints cannot be altered — temporarily disable constraint checking
-  db.exec('PRAGMA ignore_check_constraints = ON');
-  db.exec("UPDATE users SET role = 'Editor' WHERE role = 'Contributor'");
-  db.exec('PRAGMA ignore_check_constraints = OFF');
+  try {
+    db.exec('PRAGMA ignore_check_constraints = ON');
+    db.exec("UPDATE users SET role = 'Editor' WHERE role = 'Contributor'");
+  } finally {
+    db.exec('PRAGMA ignore_check_constraints = OFF');
+  }
 }
 
 function seedUsers() {
