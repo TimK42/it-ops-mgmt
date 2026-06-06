@@ -1075,9 +1075,9 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
     window.matchMedia('(pointer: coarse)').matches
   ) {
     input.onfocus = function () {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       setTimeout(function () {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
       }, 300);
     };
   }
