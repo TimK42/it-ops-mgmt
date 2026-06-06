@@ -110,6 +110,9 @@ app.use(
   require('./routes/qa'),
 );
 
+// Tags — all authenticated roles
+app.use('/api/tags', require('./routes/tags'));
+
 // Categories — Admin only
 app.use('/api/categories', requireRole('Admin'), require('./routes/categories'));
 

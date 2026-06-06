@@ -47,7 +47,7 @@ echo ""
 echo ">>> DB Schema"
 node -e "
 const db = require('./db').getDb();
-const tables = {categories:['id','name','color','icon'], qa_entries:['id','qa_number','title','question','answer','category_id','tags','status'], users:['id','username','password','role','status'], sessions:['sid','expires','data']};
+const tables = {categories:['id','name','color','icon'], qa_entries:['id','qa_number','title','question','answer','category_id','status'], users:['id','username','password','role','status'], sessions:['sid','expires','data'], tags:['id','name','created_at'], qa_entry_tags:['qa_entry_id','tag_id']};
 for (const [table, cols] of Object.entries(tables)) {
   const actual = db.prepare('PRAGMA table_info('+table+')').all().map(r=>r.name);
   const missing = cols.filter(c => !actual.includes(c));

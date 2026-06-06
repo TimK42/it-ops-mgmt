@@ -641,7 +641,7 @@ async function run() {
       'JS: showCreateQA() has inline Question validation (#63)',
     );
     assert(
-      appjs.includes('e.g., password,account (comma separated)'),
+      appjs.includes('Type tag and press Enter or comma'),
       'JS: showCreateQA() tags placeholder updated (#63)',
     );
     assert(
@@ -1045,6 +1045,134 @@ async function run() {
       body: { newPassword: 'NoCurP@ss1' },
     });
     assert(r.status === 400, 'FPR: normal change without currentPassword => 400');
+
+    // ═══ TAGS NORMALIZATION (Issue #96) ═══
+    console.log('\n>>> Tags Normalization (Issue #96)');
+    cookie = await login('admin', '0000');
+
+    // 1. GET /api/tags returns frequency-sorted tags
+    r = await req('GET', '/api/tags', { cookie });
+    assert(r.status === 200, 'GET /api/tags => 200');
+    assert(Array.isArray(r.json), 'GET /api/tags returns array');
+    assert(r.json.length > 0, 'GET /api/tags has at least one tag');
+    assert(r.json[0].name !== undefined, 'GET /api/tags[0] has name');
+    assert(r.json[0].count !== undefined, 'GET /api/tags[0] has count');
+    const passwordTag = r.json.find((t) => t.name === 'password');
+    assert(passwordTag && passwordTag.count >= 1, 'seed tag "password" present with count >= 1');
+
+    // 2. POST /api/qa with tags array
+    r = await req('POST', '/api/qa', {
+      cookie,
+      body: {
+        title: 'Tag Test QA',
+        question: 'Testing tags?',
+        answer: 'Tag answer',
+        category_id: catId,
+        tags: ['test', 'network'],
+      },
+    });
+    assert(r.status === 201, 'QA POST with tags => 201');
+    const tagQaId = r.json?.id;
+    assert(tagQaId, 'QA POST with tags has id');
+
+    // GET the created QA → tags should be ["test", "network"]
+    r = await req('GET', '/api/qa/' + tagQaId, { cookie });
+    assert(r.status === 200, 'GET /api/qa/' + tagQaId + ' => 200');
+    assert(Array.isArray(r.json.tags), 'QA has tags as array');
+    assert(r.json.tags.includes('test'), 'QA tags includes "test"');
+    assert(r.json.tags.includes('network'), 'QA tags includes "network"');
+
+    // 3. PUT /api/qa/:id updates tags
+    r = await req('PUT', '/api/qa/' + tagQaId, {
+      cookie,
+      body: { tags: ['updated'] },
+    });
+    assert(r.status === 200, 'PUT /api/qa/' + tagQaId + ' with tags => 200');
+
+    // GET the QA → tags should be ["updated"]
+    r = await req('GET', '/api/qa/' + tagQaId, { cookie });
+    assert(r.status === 200, 'GET /api/qa/' + tagQaId + ' after update => 200');
+    assert(Array.isArray(r.json.tags), 'Updated QA tags is array');
+    assert(r.json.tags.length === 1, 'Updated QA has exactly 1 tag');
+    assert(r.json.tags[0] === 'updated', 'Updated QA tag is "updated"');
+    assert(!r.json.tags.includes('test'), 'Updated QA no longer has "test"');
+    assert(!r.json.tags.includes('network'), 'Updated QA no longer has "network"');
+
+    // 4. POST /api/qa with new tags (auto-create)
+    r = await req('POST', '/api/qa', {
+      cookie,
+      body: {
+        title: 'New Tag Test QA',
+        question: 'New tag question?',
+        answer: 'New tag answer',
+        category_id: catId,
+        tags: ['brand-new-tag'],
+      },
+    });
+    assert(r.status === 201, 'QA POST with new tag => 201');
+    const newTagQaId = r.json?.id;
+
+    // GET /api/tags should now include "brand-new-tag"
+    r = await req('GET', '/api/tags', { cookie });
+    assert(r.status === 200, 'GET /api/tags after new tag => 200');
+    assert(
+      r.json.some((t) => t.name === 'brand-new-tag'),
+      'GET /api/tags includes "brand-new-tag"',
+    );
+
+    // 5. GET /api/qa with tag search
+    r = await req('GET', '/api/qa?tag=password', { cookie });
+    assert(r.status === 200, 'GET /api/qa?tag=password => 200');
+    assert(r.json?.data?.length > 0, 'QA search by tag returns results');
+    assert(
+      r.json.data.some(function (e) {
+        return Array.isArray(e.tags) && e.tags.includes('password');
+      }),
+      'QA search found entry tagged with "password"',
+    );
+
+    // 6. Tag deletion cascades — create QA with unique tag, delete it, verify count
+    r = await req('POST', '/api/qa', {
+      cookie,
+      body: {
+        title: 'Cascade Test QA',
+        question: 'Cascade question?',
+        answer: 'Cascade answer',
+        category_id: catId,
+        tags: ['cascade-test-tag'],
+      },
+    });
+    assert(r.status === 201, 'QA POST for cascade test => 201');
+    const cascadeQaId = r.json?.id;
+    assert(cascadeQaId, 'Cascade QA created with id');
+
+    // Verify "cascade-test-tag" count is 1
+    r = await req('GET', '/api/tags', { cookie });
+    const cascadeTagBefore = r.json.find(function (t) {
+      return t.name === 'cascade-test-tag';
+    });
+    assert(cascadeTagBefore, 'GET /api/tags includes "cascade-test-tag"');
+    assert(cascadeTagBefore.count === 1, '"cascade-test-tag" count is 1 before delete');
+
+    // Delete the QA
+    r = await req('DELETE', '/api/qa/' + cascadeQaId, { cookie });
+    assert(r.status === 200, 'DELETE /api/qa/' + cascadeQaId + ' => 200');
+
+    // Verify "cascade-test-tag" count drops to 0 after QA deletion
+    r = await req('GET', '/api/tags', { cookie });
+    const cascadeTagAfter = r.json.find(function (t) {
+      return t.name === 'cascade-test-tag';
+    });
+    assert(cascadeTagAfter, '"cascade-test-tag" still present in tags list');
+    assert(cascadeTagAfter.count === 0, '"cascade-test-tag" count is 0 after entry deleted');
+
+    // Clean up created QAs
+    if (tagQaId) {
+      r = await req('DELETE', '/api/qa/' + tagQaId, { cookie });
+    }
+    if (newTagQaId) {
+      r = await req('DELETE', '/api/qa/' + newTagQaId, { cookie });
+    }
   } finally {
     server.kill();
   }

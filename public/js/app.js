@@ -880,12 +880,7 @@ async function renderQA(el) {
     .map(
       (q) =>
         `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
-          q.tags
-            ? q.tags
-                .split(',')
-                .map((t) => `<span class="tag">#${esc(t.trim())}</span>`)
-                .join('')
-            : ''
+          q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('') : ''
         }<span style="font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5"><div>🆕 ${fmtDate(q.created_at)}</div><div>✎ ${fmtDate(q.updated_at)}</div></span></div></a>`,
     )
     .join('');
@@ -945,12 +940,7 @@ async function showQADetail(id) {
       <div class="detail-section"><div class="detail-section-title">Question</div><div class="detail-section-content">${esc(q.question)}</div></div>
       ${q.answer ? `<div class="detail-section"><div class="detail-section-title">Answer</div><div class="detail-section-content">${esc(q.answer)}</div></div>` : ''}
       <div class="detail-meta"><div><div class="detail-meta-label">Status</div><span class="badge ${statusClass(q.status)}">● ${q.status}</span></div><div><div class="detail-meta-label">Sub-System</div>${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : '-'}</div><div><div class="detail-meta-label">Tags</div>${
-        q.tags
-          ? q.tags
-              .split(',')
-              .map((t) => `<span class="tag">#${esc(t.trim())}</span>`)
-              .join(' ')
-          : '-'
+        q.tags ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join(' ') : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button><button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
@@ -967,7 +957,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account (comma separated)"></div>`;
+    <div class="form-group"><label class="form-label">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="autocomplete-dropdown" id="tags-autocomplete" style="display:none"></div></div></div>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
   modal.dataset.editQaId = isEdit ? String(data.id) : '';
@@ -985,7 +975,7 @@ async function showCreateQA(data) {
       answer: document.getElementById('f-answer').value,
       category_id: document.getElementById('f-q-cat').value || null,
       status: document.getElementById('f-q-status').value,
-      tags: document.getElementById('f-tags').value,
+      tags: getChipValues('tags-chips'),
     };
     const titleErr = document.getElementById('f-q-title-error');
     const questionErr = document.getElementById('f-q-question-error');
@@ -1015,7 +1005,152 @@ async function showCreateQA(data) {
     }
   };
   openModal('form-modal');
+  // Pre-populate chips on edit
+  const existingTags = isEdit && data.tags ? (Array.isArray(data.tags) ? data.tags : []) : [];
+  initChips('tags-chips', 'f-tags-input', 'tags-autocomplete', existingTags);
 }
+
+// ===== CHIP INPUT HELPERS =====
+function getChipValues(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('.chip')).map(function (c) {
+    return c.dataset.tag;
+  });
+}
+
+function initChips(containerId, inputId, dropdownId, existingTags) {
+  const container = document.getElementById(containerId);
+  const input = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+  if (!container || !input || !dropdown) return;
+
+  // Clear existing chips
+  container.innerHTML = '';
+
+  // Pre-populate
+  if (existingTags && existingTags.length) {
+    existingTags.forEach(function (t) {
+      addChip(t.trim());
+    });
+  }
+
+  function addChip(tag) {
+    tag = tag.trim();
+    if (!tag) return;
+    // Dedup
+    var existing = container.querySelectorAll('.chip');
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].dataset.tag === tag) return;
+    }
+    var chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.dataset.tag = tag;
+    chip.innerHTML =
+      esc(tag) +
+      '<button class="chip-remove" type="button" aria-label="Remove ' +
+      esc(tag) +
+      '">\u2715</button>';
+    chip.querySelector('.chip-remove').onclick = function (e) {
+      e.stopPropagation();
+      chip.remove();
+    };
+    container.appendChild(chip);
+  }
+
+  // Cache tags with 60s TTL to reduce network calls
+  var tagsCache = { data: null, ts: 0 };
+  var TAGS_CACHE_TTL = 60000;
+
+  async function fetchTags() {
+    var now = Date.now();
+    if (tagsCache.data && now - tagsCache.ts < TAGS_CACHE_TTL) {
+      return tagsCache.data;
+    }
+    tagsCache.data = await api('/api/tags');
+    tagsCache.ts = now;
+    return tagsCache.data;
+  }
+
+  // Input handler: fetch autocomplete (cached)
+  input.oninput = debounce(async function () {
+    var val = this.value.trim();
+    if (!val) {
+      dropdown.style.display = 'none';
+      return;
+    }
+    try {
+      var tags = await fetchTags();
+      var filtered = tags.filter(function (t) {
+        return t.name.toLowerCase().includes(val.toLowerCase());
+      });
+      if (filtered.length) {
+        dropdown.innerHTML = filtered
+          .map(function (t) {
+            return (
+              '<div class="autocomplete-item" data-tag="' +
+              esc(t.name) +
+              '">' +
+              esc(t.name) +
+              ' <span class="autocomplete-count">(' +
+              t.count +
+              ')</span></div>'
+            );
+          })
+          .join('');
+        dropdown.style.display = 'block';
+      } else {
+        dropdown.style.display = 'none';
+      }
+    } catch (e) {
+      dropdown.style.display = 'none';
+    }
+  }, 200);
+
+  // Keyboard handlers
+  input.onkeydown = function (e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      var val = this.value.trim().replace(/,/g, '');
+      if (val) addChip(val);
+      this.value = '';
+      dropdown.style.display = 'none';
+    }
+    if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    }
+  };
+
+  // Click dropdown item
+  dropdown.onclick = function (e) {
+    var item = e.target.closest('.autocomplete-item');
+    if (item) {
+      var tag = item.dataset.tag;
+      addChip(tag);
+      input.value = '';
+      dropdown.style.display = 'none';
+      input.focus();
+    }
+  };
+
+  // Close dropdown on blur (with delay to allow click on dropdown item)
+  input.onblur = function () {
+    setTimeout(function () {
+      dropdown.style.display = 'none';
+    }, 200);
+  };
+
+  // Focus input when wrapper container is clicked
+  var wrapper = container.parentElement;
+  if (wrapper) {
+    wrapper.addEventListener('click', function (e) {
+      if (!e.target.closest('.chip-remove')) {
+        input.focus();
+      }
+    });
+  }
+}
+
 function editQA(id) {
   closeModal('detail-modal');
   const d = state.qaEntries.find((q) => q.id === id);
