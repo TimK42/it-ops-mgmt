@@ -242,6 +242,11 @@ document.addEventListener('click', (e) => {
           showQADetail(Number(editId));
         }
       }
+      // Clear chip state on any form-modal close (Issue #111)
+      if (modal === 'form-modal') {
+        var cc = document.getElementById('tags-chips');if(cc)cc.innerHTML='';
+        var ss = document.getElementById('tags-suggestions');if(ss)ss.innerHTML='';
+      }
       break;
     case 'close-confirm':
       closeConfirm();
@@ -969,10 +974,6 @@ async function showCreateQA(data) {
     `<button class="btn btn-ghost btn-sm" id="f-q-cancel">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
   document.getElementById('f-q-cancel').onclick = () => {
     delete modal.dataset.editQaId;
-    var chips = document.getElementById('tags-chips');
-    if (chips) chips.innerHTML = '';
-    var sug = document.getElementById('tags-suggestions');
-    if (sug) sug.innerHTML = '';
     closeModal('form-modal');
     if (isEdit) showQADetail(data.id);
   };
@@ -1066,9 +1067,10 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
     container.appendChild(chip);
   }
 
-  // On mobile, ensure the tag input and suggestions are scrolled into view (Issue #111)
-  if (typeof input.scrollIntoView === 'function') {
+  // On mobile (coarse pointer), ensure the tag input and suggestions are scrolled into view (Issue #111)
+  if (typeof input.scrollIntoView === 'function' && window.matchMedia('(pointer: coarse)').matches) {
     input.onfocus = function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       setTimeout(function () {
         input.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 300);
