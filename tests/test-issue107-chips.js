@@ -88,8 +88,9 @@ function createChipFixture() {
   return dom;
 }
 
-// Bootstrap app.js once
+// Bootstrap app.js once (if not already loaded by another test file)
 before(function () {
+  if (typeof initChips !== 'undefined') return; // already bootstrapped
   const dom = createChipFixture();
   const appJsPath = path.resolve(__dirname, '../public/js/app.js');
   const code = fs.readFileSync(appJsPath, 'utf-8');
@@ -102,23 +103,22 @@ before(function () {
 
 // Setup state globals that app.js expects
 function setupState() {
-  global.state = global.state || {};
+  if (!global.state) global.state = {};
   global.state.page = 'qa';
   global.state.user = { id: 'u1', username: 'admin', role: 'Admin' };
 }
 
-beforeEach(function () {
-  createChipFixture();
-  setupState();
-  mockFetchTags();
-});
-
-afterEach(function () {
-  // Clean up fetch mock
-  delete global.fetch;
-});
-
 describe('Issue #107 — Inline suggestion chips for tag input', function () {
+  beforeEach(function () {
+    createChipFixture();
+    setupState();
+    mockFetchTags();
+  });
+
+  afterEach(function () {
+    // Clean up fetch mock
+    delete global.fetch;
+  });
   // Helper: wait for promises to settle
   function wait(ms) {
     return new Promise(function (resolve) { setTimeout(resolve, ms); });

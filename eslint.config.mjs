@@ -34,6 +34,9 @@ export default [
         loadQATotalCount: 'readonly',
         toast: 'readonly',
         debounce: 'readonly',
+        initChips: 'readonly',
+        getChipValues: 'readonly',
+        fetchTags: 'readonly',
       },
     },
     rules: {
