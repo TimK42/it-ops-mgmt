@@ -34,7 +34,11 @@ function req(method, urlPath, opts = {}) {
             status: res.statusCode,
             body,
             headers: res.headers,
-            setCookie: Array.isArray(res.headers['set-cookie']) ? res.headers['set-cookie'] : (res.headers['set-cookie'] ? [res.headers['set-cookie']] : []),
+            setCookie: Array.isArray(res.headers['set-cookie'])
+              ? res.headers['set-cookie']
+              : res.headers['set-cookie']
+                ? [res.headers['set-cookie']]
+                : [],
           });
         });
       },
