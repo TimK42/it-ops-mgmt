@@ -34,7 +34,7 @@ function req(method, urlPath, opts = {}) {
             status: res.statusCode,
             body,
             headers: res.headers,
-            setCookie: res.headers['set-cookie'] || [],
+            setCookie: Array.isArray(res.headers['set-cookie']) ? res.headers['set-cookie'] : (res.headers['set-cookie'] ? [res.headers['set-cookie']] : []),
           });
         });
       },
@@ -87,13 +87,12 @@ describe('Issue #119 — #app flex container layout fix', () => {
     const r = await req('GET', '/css/style.css');
     assert.strictEqual(r.status, 200, 'GET /css/style.css must return 200');
 
-    // Verify the #app rule from the fix
-    const appRuleStart = r.body.indexOf('#app {');
-    assert.ok(appRuleStart >= 0, 'CSS must contain #app rule');
+    // Verify the #app rule from the fix (regex-based, formatting-agnostic)
+    const appRule = r.body.match(/#app\s*\{[^}]*\}/);
+    assert.ok(appRule, 'CSS must contain #app rule');
 
     // Check the block contains all three required properties
-    const blockEnd = r.body.indexOf('}', appRuleStart);
-    const block = r.body.slice(appRuleStart, blockEnd + 1);
+    const block = appRule[0];
     assert.ok(block.includes('display: flex'), '#app rule must include display: flex');
     assert.ok(block.includes('flex: 1'), '#app rule must include flex: 1');
     assert.ok(block.includes('min-width: 0'), '#app rule must include min-width: 0');
