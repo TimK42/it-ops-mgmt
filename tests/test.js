@@ -1190,7 +1190,9 @@ async function run() {
     r = await req('GET', '/js/app.js');
     const appJs = r.body;
     assert(
-      !appJs.includes('font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5'),
+      !appJs.includes(
+        'font-size:11px;color:#888;margin-left:auto;text-align:right;line-height:1.5',
+      ),
       '#115: JS renderQA no longer has timestamp span in list cards',
     );
 
