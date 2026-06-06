@@ -85,8 +85,7 @@ router.post('/register', (req, res) => {
   const pwErr = validatePassword(password);
   if (pwErr) return res.status(400).json({ error: pwErr });
   const r = role || 'Viewer';
-  if (!['Editor', 'Viewer'].includes(r))
-    return res.status(400).json({ error: 'Invalid role' });
+  if (!['Editor', 'Viewer'].includes(r)) return res.status(400).json({ error: 'Invalid role' });
 
   const db = getDb();
   const exists = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
