@@ -393,6 +393,28 @@ process.exit(body.includes(\"closeModal('detail-modal')\") ? 0 : 1);
 # R4-H1 fix: showQADetail() must clear page-content
 echo "$JS" | grep -q "page-content').innerHTML = ''" && pass "JS: showQADetail() clears page-content" || fail "JS: showQADetail() missing page-content clear"
 
+# Issue #105: edit form X button fix
+echo "$JS" > /tmp/check_105.js
+node -e '
+var js = require("fs").readFileSync("/tmp/check_105.js","utf8");
+// Check 1: editQaId is set inside showCreateQA() (not just referenced in handler)
+var setLine = "modal.dataset.editQaId = isEdit ? String(data.id) : \x27\x27";
+var sf = js.indexOf("async function showCreateQA");
+var sqEnd = js.indexOf("async function editQA", sf);
+var showQA = sqEnd > 0 ? js.slice(sf, sqEnd) : js.slice(sf);
+if (!showQA.includes(setLine)) process.exit(1);
+// Check 2: delete editQaId in submit handler (not just Cancel)
+var submitIdx = js.indexOf("getElementById(\x27f-q-submit\x27).onclick");
+var closeIdx = js.indexOf("closeModal(\x27form-modal\x27)", submitIdx);
+var subChunk = submitIdx > 0 ? js.slice(submitIdx, closeIdx) : "";
+if (!subChunk.includes("delete modal.dataset.editQaId")) process.exit(1);
+// Check 3: close-modal handler checks editQaId
+var cm = js.indexOf("case \x27close-modal\x27");
+var chunk = js.slice(cm, cm + 300);
+if (!chunk.includes("form-modal") || !chunk.includes("editQaId")) process.exit(1);
+process.exit(0);
+' && pass "JS: #105 X button fix (editQaId set in showCreateQA, cleared on submit, checked in close-modal)" || fail "JS: #105 X button fix failed checks"
+
 # ── Cleanup ──
 kill $SPID 2>/dev/null
 

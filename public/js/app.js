@@ -233,6 +233,15 @@ document.addEventListener('click', (e) => {
       break;
     case 'close-modal':
       closeModal(modal);
+      // If closing form-modal while editing a QA entry, reopen detail
+      if (modal === 'form-modal') {
+        const fm = document.getElementById('form-modal');
+        const editId = fm.dataset.editQaId;
+        if (editId) {
+          delete fm.dataset.editQaId;
+          showQADetail(Number(editId));
+        }
+      }
       break;
     case 'close-confirm':
       closeConfirm();
@@ -959,9 +968,13 @@ async function showCreateQA(data) {
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
     <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="f-tags" value="${isEdit ? esc(data.tags || '') : ''}" placeholder="e.g., password,account (comma separated)"></div>`;
+  // Track edit ID on modal so the global close-modal handler can
+  // reopen detail when the X button (which goes through delegation) is clicked
+  modal.dataset.editQaId = isEdit ? String(data.id) : '';
   modal.querySelector('.modal-footer').innerHTML =
     `<button class="btn btn-ghost btn-sm" id="f-q-cancel">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
   document.getElementById('f-q-cancel').onclick = () => {
+    delete modal.dataset.editQaId;
     closeModal('form-modal');
     if (isEdit) showQADetail(data.id);
   };
@@ -994,6 +1007,7 @@ async function showCreateQA(data) {
         await api('/api/qa', { method: 'POST', body: JSON.stringify(body) });
         toast('Created');
       }
+      delete modal.dataset.editQaId;
       closeModal('form-modal');
       navigate('qa');
     } catch (e) {
