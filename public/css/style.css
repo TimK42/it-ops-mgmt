@@ -46,6 +46,11 @@ body {
     color 0.3s;
   scrollbar-gutter: stable;
 }
+#app {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
 @media (prefers-reduced-motion: reduce) {
   body {
     transition: none;
