@@ -4,3 +4,5 @@ data/
 *.db-wal
 *.db-shm
 .planning/
+
+docs/UX_AUDIT_TAG_CHIPS.md

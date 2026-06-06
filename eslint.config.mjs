@@ -35,8 +35,6 @@ export default [
         toast: 'readonly',
         debounce: 'readonly',
         initChips: 'readonly',
-        getChipValues: 'readonly',
-        fetchTags: 'readonly',
       },
     },
     rules: {

@@ -246,6 +246,18 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
 
     var countSpan = chip.querySelector('.suggestion-count');
     assert.ok(countSpan, 'Chip should have .suggestion-count element');
+
+    // Verify a11y attributes (Issue #109)
+    assert.ok(chip.hasAttribute('aria-label'), 'Suggestion chip should have aria-label');
+    assert.ok(
+      chip.getAttribute('aria-label').startsWith('Add tag:'),
+      'aria-label should start with "Add tag:"'
+    );
+    assert.strictEqual(
+      countSpan.getAttribute('aria-hidden'),
+      'true',
+      'Count span should be aria-hidden'
+    );
   });
 
   // ---------- R7: Enter key adds chip ----------
