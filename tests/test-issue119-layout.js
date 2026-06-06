@@ -103,11 +103,7 @@ describe('Issue #119 — #app flex container layout fix', () => {
     const routes = ['/', '/register', '/css/style.css', '/js/app.js', '/manifest.json'];
     for (const route of routes) {
       const r = await req('GET', route);
-      assert.strictEqual(
-        r.status,
-        200,
-        `GET ${route} must return 200, got ${r.status}`,
-      );
+      assert.strictEqual(r.status, 200, `GET ${route} must return 200, got ${r.status}`);
     }
   });
 
@@ -135,10 +131,7 @@ describe('Issue #119 — #app flex container layout fix', () => {
       body: JSON.stringify({ username: 'admin', password: '0000' }),
     });
     assert.strictEqual(loginR.status, 200, 'Login admin/0000 must return 200');
-    assert.ok(
-      loginR.setCookie.length > 0,
-      'Login response must include Set-Cookie header',
-    );
+    assert.ok(loginR.setCookie.length > 0, 'Login response must include Set-Cookie header');
 
     // Verify session with /me
     const cookie = loginR.setCookie[0].split(';')[0];
@@ -159,11 +152,7 @@ describe('Issue #119 — #app flex container layout fix', () => {
     const apiRoutes = ['/api/qa', '/api/categories', '/api/users', '/api/tags', '/api/stats'];
     for (const route of apiRoutes) {
       const r = await req('GET', route, { cookie });
-      assert.strictEqual(
-        r.status,
-        200,
-        `GET ${route} must return 200 for admin, got ${r.status}`,
-      );
+      assert.strictEqual(r.status, 200, `GET ${route} must return 200 for admin, got ${r.status}`);
     }
   });
 });
