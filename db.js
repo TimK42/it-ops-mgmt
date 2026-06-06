@@ -91,7 +91,11 @@ function initSchema() {
       db.exec('ALTER TABLE qa_entries DROP COLUMN tags');
     } catch (e) {
       // SQLite throws error if column doesn't exist or DROP COLUMN unsupported — ignore
-      if (!e.message.includes('no such column') && !e.message.toLowerCase().includes('syntax error')) throw e;
+      if (
+        !e.message.includes('no such column') &&
+        !e.message.toLowerCase().includes('syntax error')
+      )
+        throw e;
     }
   }
 }
