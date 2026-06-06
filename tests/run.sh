@@ -394,16 +394,26 @@ process.exit(body.includes(\"closeModal('detail-modal')\") ? 0 : 1);
 echo "$JS" | grep -q "page-content').innerHTML = ''" && pass "JS: showQADetail() clears page-content" || fail "JS: showQADetail() missing page-content clear"
 
 # Issue #105: edit form X button fix
-echo "$JS" | grep -q "editQaId" && pass "JS: editQaId dataset used on form-modal" || fail "JS: editQaId dataset missing on form-modal"
-echo "$JS" | grep -q "delete modal.dataset.editQaId" && pass "JS: editQaId cleared on submit" || fail "JS: editQaId missing clear on submit"
-echo "$JS" > /tmp/check_cm.js
+echo "$JS" > /tmp/check_105.js
 node -e '
-var js = require("fs").readFileSync("/tmp/check_cm.js","utf8");
+var js = require("fs").readFileSync("/tmp/check_105.js","utf8");
+// Check 1: editQaId is set inside showCreateQA() (not just referenced in handler)
+var setLine = "modal.dataset.editQaId = isEdit ? String(data.id) : \x27\x27";
+var sf = js.indexOf("async function showCreateQA");
+var sqEnd = js.indexOf("async function editQA", sf);
+var showQA = sqEnd > 0 ? js.slice(sf, sqEnd) : js.slice(sf);
+if (!showQA.includes(setLine)) process.exit(1);
+// Check 2: delete editQaId in submit handler (not just Cancel)
+var submitIdx = js.indexOf("getElementById(\x27f-q-submit\x27).onclick");
+var closeIdx = js.indexOf("closeModal(\x27form-modal\x27)", submitIdx);
+var subChunk = submitIdx > 0 ? js.slice(submitIdx, closeIdx) : "";
+if (!subChunk.includes("delete modal.dataset.editQaId")) process.exit(1);
+// Check 3: close-modal handler checks editQaId
 var cm = js.indexOf("case \x27close-modal\x27");
-if (cm < 0) process.exit(1);
 var chunk = js.slice(cm, cm + 300);
-process.exit(chunk.includes("form-modal") && chunk.includes("editQaId") ? 0 : 1);
-' && pass "JS: close-modal handler checks editQaId for form-modal" || fail "JS: close-modal handler missing editQaId check"
+if (!chunk.includes("form-modal") || !chunk.includes("editQaId")) process.exit(1);
+process.exit(0);
+' && pass "JS: #105 X button fix (editQaId set in showCreateQA, cleared on submit, checked in close-modal)" || fail "JS: #105 X button fix failed checks"
 
 # ── Cleanup ──
 kill $SPID 2>/dev/null
