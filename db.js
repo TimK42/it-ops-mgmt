@@ -82,7 +82,9 @@ function initSchema() {
   }
 
   // migration: drop tags column from qa_entries (moved to normalized junction tables)
-  const hasTagsColumn = db.prepare("SELECT name FROM pragma_table_info('qa_entries') WHERE name = 'tags'").get();
+  const hasTagsColumn = db
+    .prepare("SELECT name FROM pragma_table_info('qa_entries') WHERE name = 'tags'")
+    .get();
   if (hasTagsColumn) {
     try {
       db.exec('ALTER TABLE qa_entries DROP COLUMN tags');
