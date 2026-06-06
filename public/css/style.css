@@ -1285,7 +1285,6 @@ tr.row-click {
   background: var(--surface);
   padding: 4px 8px;
   cursor: text;
-  position: relative;
   transition: border-color 0.15s;
 }
 .chip-input-wrapper:focus-within {
@@ -1348,41 +1347,46 @@ tr.row-click {
   color: var(--text-secondary);
   font-size: 14px;
 }
-.autocomplete-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background: var(--surface);
+.suggestions-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0 0;
+}
+.suggestion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  max-height: 200px;
-  overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-.autocomplete-item {
-  padding: 8px 12px;
-  font-size: 13px;
-  cursor: pointer;
+  background: var(--bg-muted);
   color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.4;
+  transition: background 0.15s, border-color 0.15s;
+  /* 44px min height for mobile touch targets (WCAG 2.5.5) */
+  min-height: 44px;
 }
-.autocomplete-item:hover {
+.suggestion-chip:hover {
   background: var(--bg-hover);
+  border-color: var(--primary);
 }
-.autocomplete-item.active {
-  background: var(--bg-hover);
-  font-weight: 600;
+.suggestion-chip:active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }
-.autocomplete-count {
+.suggestion-count {
   font-size: 11px;
   color: var(--text-secondary);
-  background: var(--bg-muted);
+  background: var(--surface);
   padding: 0 6px;
   border-radius: 8px;
+  line-height: 1.5;
 }
 
 .confirm-modal .modal-footer {

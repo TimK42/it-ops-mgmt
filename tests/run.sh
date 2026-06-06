@@ -106,6 +106,15 @@ else console.log('FAIL bcrypt accepted wrong password');
   case "$line" in OK*) pass "$line";; FAIL*) fail "$line";; *) [ -n "$line" ] && echo "  $line";; esac
 done
 
+echo ""
+echo ">>> Mocha Unit Tests (Issue #94, #107)"
+npx mocha tests/test-issue94-search.js tests/test-issue107-chips.js --timeout 15000 2>&1 | while IFS= read -r line; do
+  case "$line" in
+    *"passing"*) IFS=' ' read -r P _ <<< "$line" && pass "mocha: $P passed" ;;
+    *"failing"*) IFS=' ' read -r _ _ F _ <<< "$line" && [ "$F" != "0" ] && fail "mocha: $F test(s) failed" ;;
+  esac
+done
+
 # ── Start test server ──
 echo ""
 echo "===== INTEGRATION TESTS ====="
