@@ -82,11 +82,14 @@ function initSchema() {
   }
 
   // migration: drop tags column from qa_entries (moved to normalized junction tables)
-  try {
-    db.exec('ALTER TABLE qa_entries DROP COLUMN tags');
-  } catch (e) {
-    // SQLite throws error if column doesn't exist — ignore, re-throw everything else
-    if (!e.message.includes('no such column')) throw e;
+  const hasTagsColumn = db.prepare("SELECT name FROM pragma_table_info('qa_entries') WHERE name = 'tags'").get();
+  if (hasTagsColumn) {
+    try {
+      db.exec('ALTER TABLE qa_entries DROP COLUMN tags');
+    } catch (e) {
+      // SQLite throws error if column doesn't exist or DROP COLUMN unsupported — ignore
+      if (!e.message.includes('no such column')) throw e;
+    }
   }
 }
 

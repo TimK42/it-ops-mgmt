@@ -1058,7 +1058,21 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
     container.appendChild(chip);
   }
 
-  // Input handler: fetch autocomplete
+  // Cache tags with 60s TTL to reduce network calls
+  var tagsCache = { data: null, ts: 0 };
+  var TAGS_CACHE_TTL = 60000;
+
+  async function fetchTags() {
+    var now = Date.now();
+    if (tagsCache.data && now - tagsCache.ts < TAGS_CACHE_TTL) {
+      return tagsCache.data;
+    }
+    tagsCache.data = await api('/api/tags');
+    tagsCache.ts = now;
+    return tagsCache.data;
+  }
+
+  // Input handler: fetch autocomplete (cached)
   input.oninput = debounce(async function () {
     var val = this.value.trim();
     if (!val) {
@@ -1066,7 +1080,7 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
       return;
     }
     try {
-      var tags = await api('/api/tags');
+      var tags = await fetchTags();
       var filtered = tags.filter(function (t) {
         return t.name.toLowerCase().includes(val.toLowerCase());
       });
@@ -1125,6 +1139,16 @@ function initChips(containerId, inputId, dropdownId, existingTags) {
       dropdown.style.display = 'none';
     }, 200);
   };
+
+  // Focus input when wrapper container is clicked
+  var wrapper = container.parentElement;
+  if (wrapper) {
+    wrapper.addEventListener('click', function (e) {
+      if (!e.target.closest('.chip-remove')) {
+        input.focus();
+      }
+    });
+  }
 }
 
 function editQA(id) {

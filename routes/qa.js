@@ -15,11 +15,14 @@ function setEntryTags(db, entryId, tags) {
   if (!tags || !Array.isArray(tags) || tags.length === 0) return;
   const insertTag = db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)');
   const linkTag = db.prepare(
-    'INSERT INTO qa_entry_tags (qa_entry_id, tag_id) VALUES (?, (SELECT id FROM tags WHERE name = ?))',
+    'INSERT OR IGNORE INTO qa_entry_tags (qa_entry_id, tag_id) VALUES (?, (SELECT id FROM tags WHERE name = ?))',
   );
+  const seen = new Set();
   for (const name of tags) {
+    if (typeof name !== 'string') continue;
     const trimmed = name.trim();
-    if (trimmed) {
+    if (trimmed && !seen.has(trimmed)) {
+      seen.add(trimmed);
       insertTag.run(trimmed);
       linkTag.run(entryId, trimmed);
     }
