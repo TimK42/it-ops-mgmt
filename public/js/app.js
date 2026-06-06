@@ -957,7 +957,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
     <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
+    <div class="form-group"><label class="form-label" for="f-tags-input">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" aria-label="Add tags" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
   modal.dataset.editQaId = isEdit ? String(data.id) : '';
@@ -1093,9 +1093,11 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
         return (
           '<button type="button" class="suggestion-chip" data-tag="' +
           esc(t.name) +
+          '" aria-label="Add tag: ' +
+          esc(t.name) +
           '">#' +
           esc(t.name) +
-          ' <span class="suggestion-count">(' +
+          ' <span class="suggestion-count" aria-hidden="true">(' +
           t.count +
           ')</span></button>'
         );
