@@ -107,7 +107,7 @@ else console.log('FAIL bcrypt accepted wrong password');
 done
 
 echo ""
-echo ">>> Mocha Unit Tests (Issue #94, #107)"
+echo ">>> Mocha Unit Tests (Issue #94, #107, #117)"
 MOCHA_OUTPUT=$(npx mocha tests/test-issue94-search.js tests/test-issue107-chips.js tests/test-issue117-export.js --timeout 15000 2>&1)
 MOCHA_EXIT=$?
 echo "$MOCHA_OUTPUT"
