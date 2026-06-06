@@ -98,14 +98,17 @@ function resetDOM() {
 
 // Bootstrap app.js once before all tests
 before(function () {
-  var dom = resetDOM();
-  var appJsPath = path.resolve(__dirname, '../public/js/app.js');
-  var code = fs.readFileSync(appJsPath, 'utf-8');
-  vm.runInThisContext(code, { filename: 'app.js' });
-  // Clean up the bootstrap DOM
-  delete global.window;
-  delete global.document;
-  delete global.navigator;
+  // Only bootstrap if not already loaded by a preceding test (same process)
+  if (typeof state === 'undefined') {
+    var dom = resetDOM();
+    var appJsPath = path.resolve(__dirname, '../public/js/app.js');
+    var code = fs.readFileSync(appJsPath, 'utf-8');
+    vm.runInThisContext(code, { filename: 'app.js' });
+    // Clean up the bootstrap DOM
+    delete global.window;
+    delete global.document;
+    delete global.navigator;
+  }
 });
 
 beforeEach(function () {
