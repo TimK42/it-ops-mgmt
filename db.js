@@ -59,6 +59,18 @@ function initSchema() {
       data TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires);
+
+    CREATE TABLE IF NOT EXISTS tags (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS qa_entry_tags (
+      qa_entry_id INTEGER NOT NULL REFERENCES qa_entries(id) ON DELETE CASCADE,
+      tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+      PRIMARY KEY (qa_entry_id, tag_id)
+    );
   `);
 
   // migrations: add must_change_password column if not present
@@ -67,6 +79,14 @@ function initSchema() {
   } catch (e) {
     // SQLite throws SQLITE_ERROR for duplicate column — ignore, re-throw everything else
     if (!e.message.includes('duplicate column')) throw e;
+  }
+
+  // migration: drop tags column from qa_entries (moved to normalized junction tables)
+  try {
+    db.exec('ALTER TABLE qa_entries DROP COLUMN tags');
+  } catch (e) {
+    // SQLite throws error if column doesn't exist — ignore, re-throw everything else
+    if (!e.message.includes('no such column')) throw e;
   }
 }
 
@@ -145,9 +165,21 @@ function seedData() {
     ],
   ];
   for (const q of qas) {
-    db.prepare(
-      'INSERT INTO qa_entries (qa_number,title,question,answer,category_id,tags,status) VALUES (?,?,?,?,?,?,?)',
-    ).run(q[0], q[1], q[2], q[3], catMap[q[4]], q[5], q[6]);
+    const result = db.prepare(
+      'INSERT INTO qa_entries (qa_number,title,question,answer,category_id,status) VALUES (?,?,?,?,?,?)',
+    ).run(q[0], q[1], q[2], q[3], catMap[q[4]], q[6]);
+
+    // populate tags and junction table
+    const tags = q[5].split(',').map(t => t.trim()).filter(Boolean);
+    for (const tagName of tags) {
+      db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)').run(tagName);
+      const tagRow = db.prepare('SELECT id FROM tags WHERE name = ?').get(tagName);
+      if (tagRow) {
+        db.prepare('INSERT OR IGNORE INTO qa_entry_tags (qa_entry_id, tag_id) VALUES (?,?)').run(
+          result.lastInsertRowid, tagRow.id
+        );
+      }
+    }
   }
 }
 
