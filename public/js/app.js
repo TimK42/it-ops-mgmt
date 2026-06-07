@@ -976,7 +976,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : canEdit ? `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${canEdit ? `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>` : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
   </div>`;
 }
 
