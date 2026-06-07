@@ -26,7 +26,9 @@ function initTheme() {
   try {
     const stored = localStorage.getItem('theme');
     if (stored === 'dark' || stored === 'light') theme = stored;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   if (!theme) {
     if (typeof window.matchMedia === 'function') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -43,7 +45,9 @@ function initTheme() {
       let stored = null;
       try {
         stored = localStorage.getItem('theme');
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       if (!stored || (stored !== 'dark' && stored !== 'light')) {
         const isDark = e.matches;
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
@@ -70,7 +74,9 @@ function toggleTheme() {
   updateThemeColor(next);
   try {
     localStorage.setItem('theme', next);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   const btn = document.getElementById('theme-toggle');
   if (btn) {
     btn.textContent = next === 'dark' ? '☀️' : '🌙';
@@ -114,7 +120,9 @@ function initPWA() {
   if (isIOS()) {
     try {
       if (localStorage.getItem('pwa-ios-dismissed')) return;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     banner.innerHTML =
       '<div class="pwa-ios-banner" id="pwa-ios-banner">' +
       '<div class="pwa-banner-content">' +
@@ -132,7 +140,9 @@ function initPWA() {
         banner.innerHTML = '';
         try {
           localStorage.setItem('pwa-ios-dismissed', '1');
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       });
     }
     return;
@@ -144,7 +154,9 @@ function initPWA() {
     // Otherwise let Chrome's native prompt handle it
     try {
       if (localStorage.getItem('pwa-android-dismissed')) return;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     e.preventDefault();
     deferredInstallPrompt = e;
     showAndroidInstallButton(banner);
@@ -184,7 +196,9 @@ function showAndroidInstallButton(banner) {
       banner.innerHTML = '';
       try {
         localStorage.setItem('pwa-android-dismissed', '1');
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     });
   }
 }
@@ -484,7 +498,9 @@ function debounce(fn, ms) {
 async function loadCategories() {
   try {
     state.categories = await api('/api/categories');
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 async function loadQATotalCount() {
   try {
@@ -691,7 +707,9 @@ function renderLogin(mode) {
 async function logout() {
   try {
     await api('/api/auth/logout', { method: 'POST' });
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   state.user = null;
   state.qaEntries = [];
   state.categories = [];
@@ -1455,7 +1473,9 @@ function showChangePassword(forced) {
     document.getElementById('cp-cancel-logout').onclick = async () => {
       try {
         await api('/api/auth/logout', { method: 'POST' });
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       state.user = null;
       stopActivityTracking();
       closeModal('form-modal');
