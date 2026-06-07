@@ -131,7 +131,7 @@ function resetDOM() {
 
 // Bootstrap app.js once before all tests
 before(function () {
-  const dom = resetDOM();
+  resetDOM();
   const appJsPath = path.resolve(__dirname, '../public/js/app.js');
   const code = fs.readFileSync(appJsPath, 'utf-8');
   vm.runInThisContext(code, { filename: 'app.js' });
@@ -162,7 +162,7 @@ function setupQA(opts = {}) {
   document.getElementById('page-content').innerHTML = '';
 
   // Mock helpers
-  global.loadQA = async (signal) => {
+  global.loadQA = async () => {
     return { data: state.qaEntries, total: state.qaTotal, page: state.qaPage };
   };
   global.loadQATotalCount = async () => {

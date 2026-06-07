@@ -98,7 +98,7 @@ function createChipFixture() {
 // Bootstrap app.js once (if not already loaded by another test file)
 before(function () {
   if (typeof initChips !== 'undefined') return; // already bootstrapped
-  const dom = createChipFixture();
+  dom = createChipFixture();
   const appJsPath = path.resolve(__dirname, '../public/js/app.js');
   const code = fs.readFileSync(appJsPath, 'utf-8');
   vm.runInThisContext(code, { filename: 'app.js' });

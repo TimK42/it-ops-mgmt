@@ -2,6 +2,8 @@
 // Admin sees Delete, Editor sees Archive, Viewer sees neither
 // Runs against real app.js code in JSDOM context
 
+/* global showQADetail */
+
 const vm = require('vm');
 const { JSDOM } = require('jsdom');
 const fs = require('fs');
@@ -68,7 +70,7 @@ function resetDOM() {
 // Bootstrap app.js once before all tests
 before(function () {
   if (typeof state === 'undefined') {
-    var dom = resetDOM();
+    resetDOM();
     var appJsPath = path.resolve(__dirname, '../public/js/app.js');
     var code = fs.readFileSync(appJsPath, 'utf-8');
     vm.runInThisContext(code, { filename: 'app.js' });
@@ -115,7 +117,7 @@ function setupDetail(role) {
   }
 }
 
-// ============================================================
+
 // Tests
 // ============================================================
 
