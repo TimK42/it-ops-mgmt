@@ -35,6 +35,7 @@ export default [
         toast: 'readonly',
         debounce: 'readonly',
         initChips: 'readonly',
+        showQADetail: 'readonly',
       },
     },
     rules: {

@@ -26,7 +26,9 @@ function initTheme() {
   try {
     const stored = localStorage.getItem('theme');
     if (stored === 'dark' || stored === 'light') theme = stored;
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   if (!theme) {
     if (typeof window.matchMedia === 'function') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -43,7 +45,9 @@ function initTheme() {
       let stored = null;
       try {
         stored = localStorage.getItem('theme');
-      } catch {}
+      } catch {
+        /* ignore */
+      }
       if (!stored || (stored !== 'dark' && stored !== 'light')) {
         const isDark = e.matches;
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
@@ -70,7 +74,9 @@ function toggleTheme() {
   updateThemeColor(next);
   try {
     localStorage.setItem('theme', next);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   const btn = document.getElementById('theme-toggle');
   if (btn) {
     btn.textContent = next === 'dark' ? '☀️' : '🌙';
@@ -114,7 +120,9 @@ function initPWA() {
   if (isIOS()) {
     try {
       if (localStorage.getItem('pwa-ios-dismissed')) return;
-    } catch (e) {}
+    } catch {
+      /* ignore */
+    }
     banner.innerHTML =
       '<div class="pwa-ios-banner" id="pwa-ios-banner">' +
       '<div class="pwa-banner-content">' +
@@ -132,7 +140,9 @@ function initPWA() {
         banner.innerHTML = '';
         try {
           localStorage.setItem('pwa-ios-dismissed', '1');
-        } catch (e) {}
+        } catch {
+          /* ignore */
+        }
       });
     }
     return;
@@ -144,7 +154,9 @@ function initPWA() {
     // Otherwise let Chrome's native prompt handle it
     try {
       if (localStorage.getItem('pwa-android-dismissed')) return;
-    } catch (er) {}
+    } catch {
+      /* ignore */
+    }
     e.preventDefault();
     deferredInstallPrompt = e;
     showAndroidInstallButton(banner);
@@ -184,7 +196,9 @@ function showAndroidInstallButton(banner) {
       banner.innerHTML = '';
       try {
         localStorage.setItem('pwa-android-dismissed', '1');
-      } catch (e) {}
+      } catch {
+        /* ignore */
+      }
     });
   }
 }
@@ -341,7 +355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.reload();
         return;
       }
-    } catch (e) {
+    } catch {
       /* not authenticated, continue to register */
     }
     renderLogin('register');
@@ -367,7 +381,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showQADetail(id);
       } else navigate('404');
     } else navigate('404');
-  } catch (e) {
+  } catch {
     renderLogin();
   }
 });
@@ -484,13 +498,15 @@ function debounce(fn, ms) {
 async function loadCategories() {
   try {
     state.categories = await api('/api/categories');
-  } catch (e) {}
+  } catch {
+    /* ignore */
+  }
 }
 async function loadQATotalCount() {
   try {
     const s = await api('/api/stats');
     state.qaTotalCount = s && s.qa && typeof s.qa.total === 'number' ? s.qa.total : 0;
-  } catch (e) {
+  } catch {
     state.qaTotalCount = 0;
   }
 }
@@ -499,7 +515,7 @@ async function loadUsers() {
     const data = await api('/api/users');
     state.users = data;
     state.usersPage = 1;
-  } catch (e) {
+  } catch {
     state.users = [];
     toast('Failed to load users');
   }
@@ -562,7 +578,7 @@ async function stayLoggedIn() {
     sessionWarned = false;
     closeModal('session-warning-modal');
     toast('Session refreshed');
-  } catch (e) {
+  } catch {
     state.sessionExpired = true;
     closeModal('session-warning-modal');
     logout();
@@ -691,7 +707,9 @@ function renderLogin(mode) {
 async function logout() {
   try {
     await api('/api/auth/logout', { method: 'POST' });
-  } catch (e) {}
+  } catch {
+    /* ignore */
+  }
   state.user = null;
   state.qaEntries = [];
   state.categories = [];
@@ -1149,7 +1167,7 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
         return t.name.toLowerCase().includes(val.toLowerCase());
       });
       renderSuggestions(matched);
-    } catch (e) {
+    } catch {
       suggestions.innerHTML = '';
     }
   }, 200);
@@ -1455,7 +1473,9 @@ function showChangePassword(forced) {
     document.getElementById('cp-cancel-logout').onclick = async () => {
       try {
         await api('/api/auth/logout', { method: 'POST' });
-      } catch {}
+      } catch {
+        /* ignore */
+      }
       state.user = null;
       stopActivityTracking();
       closeModal('form-modal');
@@ -1579,7 +1599,7 @@ async function renderDashboard(el) {
       <div class="stat-card"><div class="stat-number">${s.qa.total}</div><div class="stat-label">QA Entries</div></div>
       <div class="stat-card"><div class="stat-number">${s.categories}</div><div class="stat-label">Sub-Systems</div></div>
     </div>`;
-  } catch (e) {
+  } catch {
     el.innerHTML = '<div class="error-msg">Failed to load dashboard</div>';
   }
 }

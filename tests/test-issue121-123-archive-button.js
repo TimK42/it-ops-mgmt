@@ -68,7 +68,7 @@ function resetDOM() {
 // Bootstrap app.js once before all tests
 before(function () {
   if (typeof state === 'undefined') {
-    var dom = resetDOM();
+    resetDOM();
     var appJsPath = path.resolve(__dirname, '../public/js/app.js');
     var code = fs.readFileSync(appJsPath, 'utf-8');
     vm.runInThisContext(code, { filename: 'app.js' });
@@ -115,7 +115,6 @@ function setupDetail(role) {
   }
 }
 
-// ============================================================
 // Tests
 // ============================================================
 
