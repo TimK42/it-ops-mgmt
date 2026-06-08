@@ -241,10 +241,15 @@ describe('POST /api/qa — draft vs published default', function () {
         stdio: ['ignore', 'pipe', 'pipe'],
       },
     );
-    await new Promise((ok) => {
+    await new Promise((ok, fail) => {
       server.stdout.on('data', (d) => {
         if (d.toString().includes('ready')) ok();
       });
+      server.on('error', (e) => fail(e));
+      server.on('exit', (code) => {
+        if (code !== null) fail(new Error('Server exited early with code ' + code));
+      });
+      setTimeout(() => fail(new Error('Server start timeout (10s)')), 10000);
     });
 
     cookie = await login('admin', '0000');
@@ -257,15 +262,15 @@ describe('POST /api/qa — draft vs published default', function () {
   // Track created IDs for cleanup
   var createdIds = [];
 
-  afterEach(function () {
-    // Clean up entries created during integration tests
-    createdIds.forEach(async (id) => {
+  afterEach(async function () {
+    // Clean up entries created during integration tests (await all deletions)
+    await Promise.all(createdIds.map(async (id) => {
       try {
         await req('DELETE', '/api/qa/' + id, { cookie });
       } catch (e) {
         // ignore cleanup errors
       }
-    });
+    }));
     createdIds = [];
   });
 
