@@ -107,6 +107,33 @@ function initSchema() {
   } finally {
     db.exec('PRAGMA ignore_check_constraints = OFF');
   }
+
+  // migration: recreate users table with CHECK constraint allowing 'Editor' role
+  // The previous migration only updates role values but cannot alter the CHECK constraint
+  // SQLite does not support ALTER TABLE ... ALTER CHECK, so recreate the table
+  const userSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+  if (userSchema && !userSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
+    try {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS users_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT NOT NULL UNIQUE,
+          password TEXT NOT NULL,
+          role TEXT NOT NULL DEFAULT 'Viewer' CHECK(role IN ('Admin','Editor','Viewer')),
+          status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('active','pending','disabled')),
+          must_change_password INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT DEFAULT (datetime('now')),
+          updated_at TEXT DEFAULT (datetime('now'))
+        );
+        INSERT INTO users_new SELECT * FROM users;
+        DROP TABLE users;
+        ALTER TABLE users_new RENAME TO users;
+      `);
+    } catch (e) {
+      // Idempotent: if migration already ran, temp table may not exist
+      if (!e.message.includes('no such table')) throw e;
+    }
+  }
 }
 
 function seedUsers() {
