@@ -1244,18 +1244,26 @@ async function deleteQA(id) {
 
 async function archiveQA(id) {
   showConfirm('Archive', 'Archive this entry? It will be hidden from default views.', async () => {
-    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Archived' }) });
-    toast('Archived');
-    history.replaceState(null, '', '/qa');
-    navigate('qa');
+    try {
+      await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Archived' }) });
+      toast('Archived');
+      history.replaceState(null, '', '/qa');
+      navigate('qa');
+    } catch (e) {
+      toast('Failed to archive: ' + (e.message || 'Unknown error'));
+    }
   });
 }
 
 async function unarchiveQA(id) {
-  await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
-  toast('Unarchived');
-  history.replaceState(null, '', '/qa');
-  navigate('qa');
+  try {
+    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
+    toast('Unarchived');
+    history.replaceState(null, '', '/qa');
+    navigate('qa');
+  } catch (e) {
+    toast('Failed to unarchive: ' + (e.message || 'Unknown error'));
+  }
 }
 
 function exportCSV() {
