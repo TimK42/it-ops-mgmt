@@ -252,7 +252,11 @@ describe('Unarchive API call', function () {
     assert.strictEqual(calledUrl, '/api/qa/2', 'API URL should be /api/qa/2');
     assert.strictEqual(calledOpts.method, 'PUT', 'Should use PUT method');
     var body = JSON.parse(calledOpts.body);
-    assert.strictEqual(body.status, 'Draft', 'Should set status to Draft (Issue #146: Unarchive→Draft)');
+    assert.strictEqual(
+      body.status,
+      'Draft',
+      'Should set status to Draft (Issue #146: Unarchive→Draft)',
+    );
   });
 
   it('toast is called with "Unarchived" on success', async function () {
