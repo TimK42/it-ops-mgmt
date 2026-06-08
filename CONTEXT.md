@@ -26,6 +26,10 @@ When typing in the tag input field, a dropdown shows matching existing tags sort
 
 A knowledge-base record with `title`, `question`, `answer`, `category`, `tags`, and `status` (Published / Draft / Archived).
 
+### Unarchive
+
+The inverse operation of Archive (Issue #134). Sets an Archived QA entry's status back to Published. Available to Admin and Editor roles via an Unarchive button in the detail modal footer (replaces the Archive button when status is Archived, same position). No confirmation dialog. Implemented via existing PUT /api/qa/:id with status='Published'. No backend changes needed.
+
 ### Role
 
 A named authorization level assigned to every user, determining what resources they can access and what operations they can perform.
@@ -36,7 +40,7 @@ A privileged role with full system access. The only role that can manage **Users
 
 ### Editor
 
-A role focused on content contribution. Can create, read, update, and archive QA entries, but **cannot** hard-delete them. Has no access to User management or Sub-System administration.
+A role focused on content contribution. Can create, read, update, archive, and unarchive QA entries, but **cannot** hard-delete them. Has no access to User management or Sub-System administration.
 
 ### Viewer
 

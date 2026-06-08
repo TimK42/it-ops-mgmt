@@ -246,8 +246,7 @@ describe('Unarchive API call', function () {
       return {};
     };
 
-    // Directly call the unarchive function via eval
-    eval('unarchiveQA(2)');
+    unarchiveQA(2);
   });
 
   it('toast is called with "Unarchived" on success', function (done) {
@@ -261,6 +260,6 @@ describe('Unarchive API call', function () {
       done();
     };
 
-    eval('unarchiveQA(2)');
+    unarchiveQA(2);
   });
 });

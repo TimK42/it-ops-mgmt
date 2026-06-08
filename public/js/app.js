@@ -1253,6 +1253,7 @@ async function archiveQA(id) {
 async function unarchiveQA(id) {
   await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
   toast('Unarchived');
+  navigate('qa');
 }
 
 function exportCSV() {
