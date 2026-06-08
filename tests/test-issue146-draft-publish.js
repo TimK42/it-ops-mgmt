@@ -264,13 +264,15 @@ describe('POST /api/qa — draft vs published default', function () {
 
   afterEach(async function () {
     // Clean up entries created during integration tests (await all deletions)
-    await Promise.all(createdIds.map(async (id) => {
-      try {
-        await req('DELETE', '/api/qa/' + id, { cookie });
-      } catch (e) {
-        // ignore cleanup errors
-      }
-    }));
+    await Promise.all(
+      createdIds.map(async (id) => {
+        try {
+          await req('DELETE', '/api/qa/' + id, { cookie });
+        } catch (e) {
+          // ignore cleanup errors
+        }
+      }),
+    );
     createdIds = [];
   });
 
