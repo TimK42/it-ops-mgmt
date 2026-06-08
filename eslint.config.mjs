@@ -36,6 +36,12 @@ export default [
         debounce: 'readonly',
         initChips: 'readonly',
         showQADetail: 'readonly',
+        api: 'readonly',
+        navigate: 'readonly',
+        closeModal: 'readonly',
+        showCreateQA: 'readonly',
+        unarchiveQA: 'readonly',
+        publishQA: 'readonly',
       },
     },
     rules: {

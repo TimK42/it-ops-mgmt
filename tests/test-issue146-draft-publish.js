@@ -463,7 +463,7 @@ describe('publishQA function', function () {
       return {};
     };
     global.toast = function () {};
-    global.showQADetail = async function (id) {
+    global.showQADetail = async function () {
       calledShowDetail = true;
     };
     global.renderQA = async function () {

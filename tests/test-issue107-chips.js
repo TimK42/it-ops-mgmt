@@ -1,5 +1,3 @@
-/* global closeModal */
-
 // Test: Issue #107 — Inline suggestion chips for tag input
 // Verifies that initChips() renders inline suggestion chips instead of
 // absolute-positioned autocomplete dropdown
