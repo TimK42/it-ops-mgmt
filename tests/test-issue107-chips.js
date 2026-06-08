@@ -1,3 +1,5 @@
+/* global closeModal */
+
 // Test: Issue #107 — Inline suggestion chips for tag input
 // Verifies that initChips() renders inline suggestion chips instead of
 // absolute-positioned autocomplete dropdown
@@ -341,5 +343,64 @@ describe('Issue #107 — Inline suggestion chips for tag input', function () {
 
     var sugArea = wrapper.querySelector('.suggestions-area');
     assert.ok(sugArea, 'suggestions-area should exist instead of autocomplete-dropdown');
+  });
+});
+
+describe('Issue #111 — closeModal clears tag state', function () {
+  beforeEach(function () {
+    createChipFixture();
+    setupState();
+
+    // Create a form-modal in the DOM for closeModal() to target
+    var fm = document.createElement('div');
+    fm.id = 'form-modal';
+    fm.className = 'modal';
+    document.body.appendChild(fm);
+  });
+
+  it('closeModal("form-modal") resets #tags-chips innerHTML', function () {
+    var chips = document.getElementById('tags-chips');
+    chips.innerHTML = '<div class="chip" data-tag="password">#password<button class="chip-remove">\u2715</button></div>';
+    assert.notStrictEqual(chips.innerHTML, '', 'tags-chips should have content before closeModal');
+
+    closeModal('form-modal');
+
+    assert.strictEqual(chips.innerHTML, '', 'tags-chips should be empty after closeModal');
+  });
+
+  it('closeModal("form-modal") resets #tags-suggestions innerHTML', function () {
+    var sug = document.getElementById('tags-suggestions');
+    sug.innerHTML = '<button class="suggestion-chip">#test (1)</button>';
+    assert.notStrictEqual(sug.innerHTML, '', 'tags-suggestions should have content before closeModal');
+
+    closeModal('form-modal');
+
+    assert.strictEqual(sug.innerHTML, '', 'tags-suggestions should be empty after closeModal');
+  });
+
+  it('closeModal("form-modal") clears both containers with multiple children', function () {
+    var chips = document.getElementById('tags-chips');
+    chips.innerHTML = '<div class="chip" data-tag="a">#a</div><div class="chip" data-tag="b">#b</div>';
+    var sug = document.getElementById('tags-suggestions');
+    sug.innerHTML = '<button class="suggestion-chip">#x (1)</button><button class="suggestion-chip">#y (2)</button>';
+
+    closeModal('form-modal');
+
+    assert.strictEqual(chips.innerHTML, '', 'tags-chips cleared');
+    assert.strictEqual(sug.innerHTML, '', 'tags-suggestions cleared');
+  });
+
+  it('closeModal("other-modal") does NOT reset tag state', function () {
+    var other = document.createElement('div');
+    other.id = 'other-modal';
+    other.className = 'modal';
+    document.body.appendChild(other);
+
+    var chips = document.getElementById('tags-chips');
+    chips.innerHTML = '<div class="chip">#keep</div>';
+
+    closeModal('other-modal');
+
+    assert.notStrictEqual(chips.innerHTML, '', 'tags-chips should remain unchanged for other modals');
   });
 });
