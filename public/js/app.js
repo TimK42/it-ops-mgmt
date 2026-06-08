@@ -1246,6 +1246,7 @@ async function archiveQA(id) {
   showConfirm('Archive', 'Archive this entry? It will be hidden from default views.', async () => {
     await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Archived' }) });
     toast('Archived');
+    history.replaceState(null, '', '/qa');
     navigate('qa');
   });
 }
