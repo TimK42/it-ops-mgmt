@@ -78,6 +78,7 @@ function resetDOM() {
   global.HTMLElement = dom.window.HTMLElement;
   global.HTMLInputElement = dom.window.HTMLInputElement;
   global.self = dom.window;
+  global.history = dom.window.history;
 
   return dom;
 }
@@ -234,32 +235,40 @@ describe('Unarchive button visibility by status and role', function () {
 });
 
 describe('Unarchive API call', function () {
-  it('calling unarchiveQA sends PUT with status=Published', function (done) {
+  it('calling unarchiveQA sends PUT with status=Published', async function () {
     setupDetail('Admin', archivedQA);
+    let calledUrl, calledOpts;
 
     global.api = async function (url, opts) {
-      assert.strictEqual(url, '/api/qa/2', 'API URL should be /api/qa/2');
-      assert.strictEqual(opts.method, 'PUT', 'Should use PUT method');
-      var body = JSON.parse(opts.body);
-      assert.strictEqual(body.status, 'Published', 'Should set status to Published');
-      done();
+      calledUrl = url;
+      calledOpts = opts;
       return {};
     };
+    global.toast = function () {};
+    global.navigate = function () {};
 
-    unarchiveQA(2);
+    await unarchiveQA(2);
+
+    assert.strictEqual(calledUrl, '/api/qa/2', 'API URL should be /api/qa/2');
+    assert.strictEqual(calledOpts.method, 'PUT', 'Should use PUT method');
+    var body = JSON.parse(calledOpts.body);
+    assert.strictEqual(body.status, 'Published', 'Should set status to Published');
   });
 
-  it('toast is called with "Unarchived" on success', function (done) {
+  it('toast is called with "Unarchived" on success', async function () {
     setupDetail('Admin', archivedQA);
+    let toastMsg;
 
     global.api = async function () {
       return {};
     };
     global.toast = function (msg) {
-      assert.strictEqual(msg, 'Unarchived', 'Toast should say "Unarchived"');
-      done();
+      toastMsg = msg;
     };
+    global.navigate = function () {};
 
-    unarchiveQA(2);
+    await unarchiveQA(2);
+
+    assert.strictEqual(toastMsg, 'Unarchived', 'Toast should say "Unarchived"');
   });
 });
