@@ -32,7 +32,7 @@ A knowledge-base record with `title`, `question`, `answer`, `category`, `tags`, 
 
 ### Unarchive
 
-The inverse operation of Archive (Issue #134). Sets an Archived QA entry's status back to Draft. Available to Admin and Editor roles via an Unarchive button in the detail modal footer (replaces the Archive button when status is Archived, same position). No confirmation dialog. Implemented via existing PUT /api/qa/:id with status='Draft'. No backend changes needed.
+The inverse operation of Archive (Issue #134). Sets an Archived QA entry's status back to Draft. **Admin-only** (Issue #146) — only the Admin role sees the Unarchive button in the detail modal footer (replaces the Archive button when status is Archived, same position). No confirmation dialog. Implemented via existing PUT /api/qa/:id with status='Draft'.
 
 ### Role
 
@@ -44,16 +44,19 @@ A privileged role with full system access. The only role that can manage **Users
 
 ### Editor
 
-A role focused on content contribution. Can create, read, update, archive, and unarchive QA entries, but **cannot** hard-delete them. Has no access to User management or Sub-System administration.
+A role focused on content contribution. Can create, read, update, and archive QA entries, but **cannot** unarchive or hard-delete them. Unarchive is Admin-only (Issue #146). Has no access to User management or Sub-System administration.
 
 - Can create new QA entries (always Draft)
 - Can edit Draft entries (stays Draft)
 - Can edit Published entries (stays Published — cannot un-publish via edit)
 - **Cannot publish** — only Admin can promote Draft → Published
+- **Cannot unarchive** — only Admin can restore Archived → Draft
 
 ### Viewer
 
 A read-only role. Can view only Published QA entries. Cannot see Draft or Archived entries. Cannot create, edit, archive, delete, or export QA entries.
+
+> **Note:** The UI currently does not enforce Viewer-only-Published filtering on the backend. Viewers can see Draft/Archived entries if they know the URL or use the API directly. This should be enforced server-side in a future change.
 
 ### Sub-System (Category)
 

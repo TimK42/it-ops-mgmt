@@ -1,7 +1,8 @@
 // Test: Unarchive button replaces Archive when status is Archived (Issue #134)
-// Admin/Editor sees Unarchive button when status=Archived
+// Admin sees Unarchive button when status=Archived
 // Admin/Editor sees Archive button when status=Published/Draft
 // Viewer sees neither Archive nor Unarchive
+// Note: Unarchive is Admin-only per Issue #146
 
 const vm = require('vm');
 const { JSDOM } = require('jsdom');
@@ -181,13 +182,13 @@ describe('Unarchive button visibility by status and role', function () {
     );
   });
 
-  it('Editor sees Unarchive button (not Archive) when status is Archived', async function () {
+  it('Editor does NOT see Unarchive button when status is Archived (Admin-only)', async function () {
     setupDetail('Editor', archivedQA);
     await showQADetail(2);
     var html = document.getElementById('detail-modal').innerHTML;
     assert.ok(
-      html.indexOf('data-action="unarchive-qa"') !== -1,
-      'Editor should see Unarchive button when Archived',
+      html.indexOf('data-action="unarchive-qa"') === -1,
+      'Editor should NOT see Unarchive button when Archived (Admin-only per Issue #146)',
     );
     assert.ok(
       html.indexOf('data-action="archive-qa"') === -1,
@@ -205,7 +206,7 @@ describe('Unarchive button visibility by status and role', function () {
     );
     assert.ok(
       html.indexOf('data-action="unarchive-qa"') === -1,
-      'Editor should NOT see Unarchive button when Published',
+      'Editor should NOT see Unarchive button when Published (Admin-only per Issue #146)',
     );
   });
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /Users/tim_openclaw/.openclaw/workspace/Git-Repository/it-ops-mgmt
+cd "$(dirname "$0")"
 node server.js &
 SERVER_PID=$!
 sleep 2

@@ -254,6 +254,21 @@ describe('POST /api/qa — draft vs published default', function () {
     if (server) server.kill();
   });
 
+  // Track created IDs for cleanup
+  var createdIds = [];
+
+  afterEach(function () {
+    // Clean up entries created during integration tests
+    createdIds.forEach(async (id) => {
+      try {
+        await req('DELETE', '/api/qa/' + id, { cookie });
+      } catch (e) {
+        // ignore cleanup errors
+      }
+    });
+    createdIds = [];
+  });
+
   it('POST /api/qa without status creates Draft', async function () {
     var r = await req('POST', '/api/qa', {
       cookie,
@@ -262,6 +277,7 @@ describe('POST /api/qa — draft vs published default', function () {
     assert.strictEqual(r.status, 201, 'QA POST => 201');
     var id = r.json?.id;
     assert(id, 'Has id');
+    createdIds.push(id);
 
     // Fetch the entry to check its status
     r = await req('GET', '/api/qa/' + id, { cookie });
@@ -277,6 +293,7 @@ describe('POST /api/qa — draft vs published default', function () {
     assert.strictEqual(r.status, 201, 'QA POST with Published => 201');
     var id = r.json?.id;
     assert(id, 'Has id');
+    createdIds.push(id);
 
     r = await req('GET', '/api/qa/' + id, { cookie });
     assert.strictEqual(r.status, 200, 'GET /api/qa/:id => 200');
@@ -347,27 +364,20 @@ describe('Publish button visibility', function () {
   });
 });
 
-describe('Edit form — Status dropdown preserved', function () {
-  it('showCreateQA() with edit data renders Status dropdown', async function () {
+describe('Edit form — Status dropdown removed', function () {
+  it('showCreateQA() with edit data does NOT render Status dropdown (edit preserves status)', async function () {
     setupEditForm(publishedQA);
     await showCreateQA(publishedQA);
     var body = document.querySelector('#form-modal .modal-body');
     var statusEl = body.querySelector('#f-q-status');
-    assert.ok(statusEl !== null, 'Edit form should have Status dropdown');
+    assert.strictEqual(statusEl, null, 'Edit form should NOT have Status dropdown');
   });
 
-  it('showCreateQA() with edit data shows correct status value', async function () {
+  it('showCreateQA() with edit data does not include Status label', async function () {
     setupEditForm(publishedQA);
     await showCreateQA(publishedQA);
-    var statusEl = document.querySelector('#form-modal .modal-body #f-q-status');
-    assert.strictEqual(statusEl.value, 'Published', 'Status dropdown should show "Published"');
-  });
-
-  it('showCreateQA() with Draft edit data shows Draft status', async function () {
-    setupEditForm(draftQA);
-    await showCreateQA(draftQA);
-    var statusEl = document.querySelector('#form-modal .modal-body #f-q-status');
-    assert.strictEqual(statusEl.value, 'Draft', 'Status dropdown should show "Draft"');
+    var html = document.querySelector('#form-modal .modal-body').innerHTML;
+    assert.ok(html.indexOf('Status') === -1, 'Edit form should not contain Status label');
   });
 });
 
