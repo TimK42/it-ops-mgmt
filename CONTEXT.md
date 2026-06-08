@@ -32,7 +32,7 @@ A knowledge-base record with `title`, `question`, `answer`, `category`, `tags`, 
 
 ### Unarchive
 
-The inverse operation of Archive (Issue #134). Sets an Archived QA entry's status back to Published. Available to Admin and Editor roles via an Unarchive button in the detail modal footer (replaces the Archive button when status is Archived, same position). No confirmation dialog. Implemented via existing PUT /api/qa/:id with status='Published'. No backend changes needed.
+The inverse operation of Archive (Issue #134). Sets an Archived QA entry's status back to Draft. Available to Admin and Editor roles via an Unarchive button in the detail modal footer (replaces the Archive button when status is Archived, same position). No confirmation dialog. Implemented via existing PUT /api/qa/:id with status='Draft'. No backend changes needed.
 
 ### Role
 
