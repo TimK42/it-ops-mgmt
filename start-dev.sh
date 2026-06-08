@@ -1,8 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")"
-# Trap Ctrl-C to cleanly kill background server process
-trap 'kill $SERVER_PID 2>/dev/null; exit' INT TERM
+
+cleanup() { kill "${SERVER_PID:--}" 2>/dev/null; }
+# Fire cleanup on any exit (INT, SIGTERM, set -e, normal end)
+trap cleanup EXIT INT TERM
+
 node server.js &
 SERVER_PID=$!
 sleep 2
