@@ -3,6 +3,8 @@
 // Admin/Editor sees Archive button when status=Published/Draft
 // Viewer sees neither Archive nor Unarchive
 
+/* global unarchiveQA */
+
 const vm = require('vm');
 const { JSDOM } = require('jsdom');
 const fs = require('fs');
