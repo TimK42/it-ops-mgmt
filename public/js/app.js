@@ -278,6 +278,9 @@ document.addEventListener('click', (e) => {
     case 'archive-qa':
       archiveQA(id);
       break;
+    case 'unarchive-qa':
+      unarchiveQA(id);
+      break;
     case 'delete-qa':
       deleteQA(id);
       break;
@@ -977,7 +980,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${canEdit ? `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>` : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${canEdit ? (q.status === 'Archived' ? `<button class="btn btn-sm btn-unarchive" data-action="unarchive-qa" data-id="${q.id}">Unarchive</button>` : `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>`) : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
   </div>`;
 }
 
@@ -1241,10 +1244,26 @@ async function deleteQA(id) {
 
 async function archiveQA(id) {
   showConfirm('Archive', 'Archive this entry? It will be hidden from default views.', async () => {
-    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Archived' }) });
-    toast('Archived');
-    navigate('qa');
+    try {
+      await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Archived' }) });
+      toast('Archived');
+      history.replaceState(null, '', '/qa');
+      navigate('qa');
+    } catch (e) {
+      toast('Failed to archive: ' + (e.message || 'Unknown error'));
+    }
   });
+}
+
+async function unarchiveQA(id) {
+  try {
+    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
+    toast('Unarchived');
+    history.replaceState(null, '', '/qa');
+    navigate('qa');
+  } catch (e) {
+    toast('Failed to unarchive: ' + (e.message || 'Unknown error'));
+  }
 }
 
 function exportCSV() {
