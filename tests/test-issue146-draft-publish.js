@@ -496,6 +496,10 @@ describe('publishQA function', function () {
     await publishQA(1);
 
     assert.strictEqual(calledShowDetail, true, 'showQADetail should be called');
-    assert.strictEqual(calledRenderQA, false, 'renderQA should NOT be called (list behind modal is unnecessary)');
+    assert.strictEqual(
+      calledRenderQA,
+      false,
+      'renderQA should NOT be called (list behind modal is unnecessary)',
+    );
   });
 });
