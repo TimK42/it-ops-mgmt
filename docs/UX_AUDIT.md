@@ -1,29 +1,30 @@
 # IT Ops Management — UI/UX Audit Report
 
+> **Round 6:** 2026-06-08 16:59 HKT · via CDP snapshot + JS evaluate + curl
 > **Round 5:** 2026-06-04 11:10 HKT · via CDP snapshot + JS evaluate + curl  
 > **Round 4:** 2026-06-03 17:26 HKT · via Browser (CDP) snapshot + JS evaluate + curl  
 > **Round 3:** 2026-06-03 12:40 HKT  
 > **Round 2:** 2026-06-03 03:56 HKT  
 > **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L)  
-> **Pages audited:** QA Library, QA Detail, Categories, Users, Dashboard, Login, Register, 404  
-> **Auth:** Admin (105 QA entries, 4 categories, users exist)  
-> **Viewports:** 416×902 (mobile portrait), 1000×542 (desktop collapsed)  
-> **Themes:** Light + Dark (toggled, verified CSS custom properties)  
-> **DB:** Seeded — 105 QA entries, 4 categories, multiple users  
-> **Focus:** Fix verification for PRs #62, #64, #72, #57 + remaining open issues
+> **Pages audited:** QA Library, QA Detail, New QA Entry, Categories, Users, Dashboard, Change Password, 404, Login, Register  
+> **Auth:** admin / 0000 (5 QA entries, 4 categories)  
+> **Viewports:** 416×902 (mobile portrait), 462×1002, 781×1694 
+> **Themes:** Light + Dark (toggled, verified)  
+> **DB:** Seeded — 5 QA entries, 4 categories  
+> **Focus:** Comprehensive mobile RWD audit of ALL pages + PWA verification
 
 ---
 
 ## Status Summary
 
-| Issue          | Round 1 | Round 2 | Round 3 | Round 4   | Round 5     |
-| -------------- | ------- | ------- | ------- | --------- | ----------- |
-| 🔴 Critical    | 4       | 0       | 0       | 0         | 0           |
-| 🟧 High        | 5       | 0       | 3       | 2 (NEW)   | 1 (2 ↘)     |
-| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) | 2 (2 ↘)     |
-| 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   | 2 (↗ R5-L1) |
-| **Total Open** | **19**  | **3**   | **10**  | **7**     | **5**       |
-| **Fixed**      | —       | 19      | 2       | 6 (R3)    | 3 (R4)      |
+| Issue          | Round 1 | Round 2 | Round 3 | Round 4   | Round 5     | Round 6     |
+| -------------- | ------- | ------- | ------- | --------- | ----------- | ----------- |
+| 🔴 Critical    | 4       | 0       | 0       | 0         | 0           | 0           |
+| 🟧 High        | 5       | 0       | 3       | 2 (NEW)   | 1 (2 ↘)     | 1 (↘ R3-H1 FIXED) |
+| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) | 2 (2 ↘)     | 5 (2 NEW R6-H3, R2-2 ↗) |
+| 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   | 2 (↗ R5-L1) | 4 (2 NEW R6-H4, R4-L1 ↗) |
+| **Total Open** | **19**  | **3**   | **10**  | **7**     | **5**       | **10**      |
+| **Fixed**      | —       | 19      | 2       | 6 (R3)    | 3 (R4)      | 4 (R5+R6)   |
 
 ---
 
@@ -281,6 +282,253 @@ X-Permitted-Cross-Domain-Policies: none
 
 ---
 
+## 🆕 Round 6 Findings — Full Mobile Audit (2026-06-08)
+
+**Focus:** Comprehensive mobile RWD audit of ALL pages + PWA verification + regression check + dark mode persistence
+**Viewports:** 416×902 (mobile), 462×1002, 513×1113, 570×1236, 633×1373, 781×1694 (viewport drifts on SPA nav)
+**Login:** admin / 0000
+**DB:** 5 QA entries, 4 categories
+
+---
+
+### R5-L1. QA Detail Title Overflow — STILL OPEN ❌
+
+**Severity:** Low · **Page:** QA Detail  
+**Status:** NOT FIXED — `white-space: nowrap` on `.topbar-title` still causes overflow at narrow viewports. Measured at 416×902: `body.scrollWidth > body.clientWidth = true`. The H1 title element scrolls beyond its parent container.  
+**Suggested fix:** Remove `white-space: nowrap` or add `overflow-wrap: break-word` / `word-break: break-word`.
+
+---
+
+### R3-H1. PWA — NOW FULLY IMPLEMENTED ✅
+
+**Severity:** High → **FIXED & VERIFIED**
+
+Full PWA support confirmed:
+- `manifest.json` at `/manifest.json` — 200, valid JSON with: name, short_name, description, start_url, scope, display (standalone), background_color, theme_color (#4f46e5), orientation, categories, icons (192×192 + 512×512, both `any maskable`)
+- Service worker at `/sw.js` — 200, registered with: network-only for API, network-first for navigation, stale-while-revalidate for static assets. caches named `it-ops-kb-v1`. `self.skipWaiting()` + `self.clients.claim()` for immediate activation.
+- PWA install banner visible on all pages (prompts install)
+- Icons: `public/icons/icon-192.png` (1,610B), `public/icons/icon-512.png` (4,729B) — both exist
+
+### R4-M2. theme-color + Apple PWA Meta — FIXED ✅
+
+All meta tags present in `index.html`:
+```html
+<meta name="theme-color" content="#4f46e5" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="IT Ops KB" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+```
+
+---
+
+### 🆕 R6-H3. 🌙 Dark Mode Resets on SPA Navigation
+
+**Severity:** Medium · **Page:** All authenticated pages
+**Status:** NEW — Unreported
+
+**Symptom:** When navigating between pages via sidebar links, the `data-theme` attribute on `<html>` resets to `light` regardless of the user's previous theme selection. Users must re-toggle dark mode on every page navigation.
+
+**Evidence:**
+1. Navigate to QA Library, toggle dark mode → `data-theme="dark"`, body bg `rgb(15,15,26)` ✅
+2. Click sidebar **Users** → `data-theme="light"`, body bg `rgb(245,245,245)` — **regressed to light mode** ❌
+
+**Scope:** Affects ALL sidebar navigation. Confirmed on: QA Library → Users, Users → Dashboard, Dashboard → Categories. Theme persists on full page navigation (e.g., directly loading `/qa` in dark mode via URL bar).
+
+**Root cause:** The SPA `navigate()` function likely re-initializes the theme state from a default rather than reading the current `data-theme` attribute. Or: the `document.documentElement.setAttribute('data-theme', ...)` changes are preserved in the DOM but the function that renders each page resets it.
+
+**Suggested fix:** In `navigate()`, read current `data-theme` before route rendering and re-apply it after the page content is inserted. Alternatively: store theme preference in `localStorage` and restore on every page load.
+
+### 🆕 R6-H4. Change Password Input Height 41px (< 44px)
+
+**Severity:** Low · **Page:** Change Password modal
+**Status:** NEW — Unreported in previous rounds
+
+**Symptom:** All three password input fields in the Change Password modal have `height: 41px` — 3px short of the WCAG 2.5.5 minimum touch target of 44px. Other modal inputs (New Entry Title, QA Detail fields) are 44px, suggesting inconsistent CSS.
+
+**Evidence (781×1694 viewport, light mode):**
+```
+Current Password INPUT: 592×41, font 16px
+New Password INPUT: 592×41, font 16px
+Confirm Password INPUT: 592×41, font 16px
+```
+
+Inputs have proper `autocomplete` attributes (`current-password`, `new-password`, `new-password`). Font size 16px ✅ prevents iOS auto-zoom.
+
+**Suggested fix:** Add `min-height: 44px` or set `height: 44px` on modal form inputs in the Change Password modal CSS.
+
+### 🆕 R6-H1. PWA Install Banner Overlays Content on All Pages
+
+**Severity:** High · **Page:** All  
+**Symptom:** The PWA install banner (`📲 Install IT Operations KB`) is a fixed-position bottom banner. On pages with content near the bottom (Register, QA Detail with many textareas), the banner overlaps content. On Register page at 355×631 viewport: banner starts at 552px, register card bottom at 608px = **56px overlap**.  
+**GitHub Issue:** #137 (bug, High)  
+**Suggested fix:** Add `padding-bottom: 68px` to `<main>` when PWA banner is visible. Or: use IntersectionObserver to detect overlap and add padding dynamically.
+
+### 🆕 R6-H2. SPA Login/Register Missing `<main>` Landmark
+
+**Severity:** Medium · **Page:** Login, Register  
+**Symptom:** `renderLogin()` in `public/js/app.js` clears the app container (`document.getElementById('app').innerHTML`) and renders login inputs without a `<main>` landmark. Server-rendered `<main id="main-content">` and skip-link `<a href="#main-content">Skip to content</a>` are removed during SPA hydration.  
+**Suggested fix:** `renderLogin()` should preserve the `<main>` wrapper or re-create it.  
+**GitHub Issue:** #138 (Medium)
+
+### 🆕 R6-M1. New Entry Modal — Tags Input Too Short (28px)
+
+**Severity:** Medium · **Page:** New QA Entry modal  
+**Symptom:** The tags input field has height 28px — well below WCAG 2.5.5 minimum of 44px. Other inputs in the same form (Title 44px, Question textarea 60px, selects 44px) all meet the target. Tags input is an `<input>` with `placeholder="Type tag and press Enter or comma..."` styled with `height: 28px`.  
+**Evidence (462×1002):** `INPUT "Type tag and press Enter or comma..."` = 374×28, font 16px  
+**Suggested fix:** Increase tags input to min-height 44px.
+
+### 🆕 R6-M2. Login Page Background Always Dark Regardless of Theme
+
+**Severity:** Medium · **Page:** Login  
+**Symptom:** Login page CSS has hardcoded `linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)` — an always-dark gradient. When user has light theme selected and gets logged out, the login page reverts to the dark gradient. No CSS custom property integration.  
+**Suggested fix:** Replace hardcoded gradient with CSS custom properties (`var(--bg-gradient)` or similar) that switch with the theme.  
+**GitHub Issue:** #139 (Low → upgraded to Medium for consistency)
+
+### 🆕 R6-L1. Login Page Card Padding + Small Fonts on Mobile
+
+---
+
+### 🆕 Positive Findings (Round 6 — New)
+
+- **All Round 5 touch target fixes confirmed** — Theme toggle 47×44 ✅, Export 79×44 ✅, pagination Prev/Next 63×44 / 64×44 ✅, filter pills, search input, hamburger all verified
+- **404 page fully functional in dark mode** — H1, `<main>`, skip-link, Go to QA Library button (142×44), all interactive elements ≥44px ✅
+- **New QA Entry modal form inputs all 44px+** — Title 44px, Question textarea 60px, Answer textarea 118px, selects 44px, Cancel/Create buttons 44px. Font sizes 16px ✅
+- **QA Detail buttons updated** — Approve/Reject replaced with Archive/Delete (from PRs #132/#136), all ≥44px ✅
+- **No horizontal overflow on any page** — Body scrollWidth == clientWidth at viewports ≥462×1002. 1px overflow only present at 416×902 (smallest viewport tested)
+- **Dark mode colors good** — body `rgb(15,15,26)`, text `rgb(224,224,224)`, card `rgb(26,26,46)` — estimated contrast ratios all ≥8:1 (AAA)
+- **Users table no overflow** — 5 columns fit within mobile viewport at 633×1373
+
+**Severity:** Low · **Page:** Login, Register  
+**Symptom:** Login card CSS: `max-width: 90vw; width: 400px; padding: 40px` — at 355px viewport, content area is only ~240px wide after padding. `.login-sub` font: 13px, `.login-link a` font: 12px — below recommended minimum 14px for body text.  
+**GitHub Issues:** #140 (padding), #141 (fonts)  
+**Suggested fix:** Reduce padding to 24px on mobile (<480px). Increase `.login-sub` to 14px and `.login-link a` to 14px.
+
+---
+
+### ✅ Round 6 — Mobile Touch Targets Verification
+
+All previously-fixed touch targets (PR #64) confirmed still ≥44px:
+
+| Element                | Measured (R6) | WCAG 2.5.5 |
+| ---------------------- | ------------- | ---------- |
+| Hamburger ☰           | 44×44         | ✅ Pass    |
+| Theme toggle 🌙/☀️     | 47×44         | ✅ Pass    |
+| Filter: All           | 44×44         | ✅ Pass    |
+| Filter: Published     | 89×44         | ✅ Pass    |
+| Filter: Draft         | 59×44         | ✅ Pass    |
+| Filter: Archived      | 83×44         | ✅ Pass    |
+| Search input          | 386×44 / 16px | ✅ Pass    |
+| Export 📥             | 79×44         | ✅ Pass    |
+| ＋ New Entry          | 99×44         | ✅ Pass    |
+| ‹ Prev / Next ›      | 63×44 / 64×44 | ✅ Pass    |
+| QA entry links        | 430×101       | ✅ Pass    |
+
+#### QA Detail Panel (verified)
+
+| Element  | Measured | WCAG     |
+| -------- | -------- | -------- |
+| Close ✕  | 44×44    | ✅ Pass  |
+| Close    | 58×44    | ✅ Pass  |
+| Edit     | 46×44    | ✅ Pass  |
+| Archive  | 68×44    | ✅ Pass  |
+| Delete   | 62×44    | ✅ Pass  |
+
+#### New QA Entry Modal (verified)
+
+| Element           | Before (R4)        | After (R6)        | WCAG     |
+| ----------------- | ------------------ | ----------------- | -------- |
+| Close ✕          | 23×31 🔴           | 44×44            | ✅ Pass  |
+| Title input       | 33px h / 13px 🔴   | 44×44 / 16px     | ✅ Pass  |
+| Question textarea | 33px h / 13px 🔴   | 60×44 / 16px     | ✅ Pass  |
+| Answer textarea   | 33px h / 13px 🔴   | 118×44 / 16px    | ✅ Pass  |
+| Sub-System select | 33px h / 13px 🔴   | 44×44 / 16px     | ✅ Pass  |
+| Status select     | 33px h / 13px 🔴   | 44×44 / 16px     | ✅ Pass  |
+| Tags input        | —                  | 28px h 👾        | ❌ Fail  |
+| Cancel button     | 61×24 🔴           | 65×44            | ✅ Pass  |
+| Create button     | 58×24 🔴           | 62×44            | ✅ Pass  |
+
+#### Sidebar (open, mobile) — ALL ≥44px ✅
+
+| Element             | Measured |
+| ------------------- | -------- |
+| QA Library          | 224×44   |
+| Sub-Systems         | 224×44   |
+| Users               | 224×44   |
+| Dashboard           | 224×44   |
+| Change Password     | 240×44   |
+| Sign Out            | 240×44   |
+
+#### Change Password Modal
+
+| Element          | Measured | WCAG     |
+| ---------------- | -------- | -------- |
+| Close ✕         | 44×44    | ✅ Pass  |
+| Current password | 592×41   | ❌ Fail (41px) |
+| New password     | 592×41   | ❌ Fail (41px) |
+| Confirm password | 592×41   | ❌ Fail (41px) |
+| Cancel button    | 65×44    | ✅ Pass  |
+| Change Password  | 128×44   | ✅ Pass  |
+
+> **Note:** Input heights in Change Password modal are 41px (3px short of 44px). This is a regression — QA Library input is 44px, suggesting inconsistent CSS between page-specific and modal inputs.
+
+#### 404 Page
+
+| Element          | Measured | WCAG     |
+| ---------------- | -------- | -------- |
+| Skip to content  | 131×44   | ✅ Pass  |
+| Hamburger ☰     | 44×44    | ✅ Pass  |
+| Theme toggle     | 47×44    | ✅ Pass  |
+| Go to QA Library | 142×44   | ✅ Pass  |
+| PWA Install      | 58×44    | ✅ Pass  |
+| PWA Dismiss ✕   | 44×44    | ✅ Pass  |
+
+> **Note:** 404 page's "Go to QA Library" button was previously 131×30 (R4 audit). Now **142×44** — FIXED.
+
+---
+
+### ✅ Round 6 — PWA & a11y Audit Results
+
+| Check                          | Status   | Notes |
+| ------------------------------ | -------- | ----- |
+| `manifest.json`                | ✅       | Fully valid JSON with all required fields + icons |
+| Service worker                 | ✅       | Registered, proper cache strategies for API/nav/static |
+| `theme-color` meta (light)     | ✅       | `#4f46e5` — matches manifest |
+| `theme-color` meta (dark)      | ✅       | `#0f0f1a` — matches dark background |
+| Apple web app meta             | ✅       | `apple-mobile-web-app-capable`, `status-bar-style`, `title` |
+| Apple touch icon               | ✅       | `/icons/icon-192.png` (192×192) |
+| Icons exist on disk            | ✅       | icon-192.png (1,610B), icon-512.png (4,729B) |
+| `<main>` landmark              | ✅       | All authenticated pages |
+| `<h1>` on every page           | ✅       | All pages (Dashboard, QA Library, QA Detail, Categories, Users, 404) |
+| `<h2>` sections                | ⚠️       | QA Detail has only H1 (no H2) — title-only page |
+| Skip-to-content link           | ✅       | First focusable on all authenticated pages |
+| Focus-visible indicator        | ✅       | Custom `outline: 2px solid var(--primary)` |
+| Form `<label>` for inputs      | ✅       | All inputs have proper labels |
+| `autocomplete` attributes      | ✅       | Login: username/current-password, Register: new-password |
+| Dark mode contrast (body)      | ✅       | 14.42:1 ratio (AAA) |
+| Horizontal overflow (QA Detail)| ❌       | R5-L1 still open |
+| Horizontal overflow (others)   | ✅       | QA Library, Categories, Users, Dashboard, 404 — all clean |
+
+---
+
+### ✅ Round 6 — Regression Checks
+
+| Check                           | Status |
+| ------------------------------- | ------ |
+| QA Detail renders as overlay    | ✅     | No QA Library list visible behind detail |
+| QA Detail doesn't persist       | ✅     | Navigation closes detail modal |
+| Login SPA uses `<form>`         | ✅     | Wrapped in `<form id="login-form">` |
+| Sidebar scrim on mobile         | ✅     | Visible when sidebar open |
+| Sub-system Remove confirmation  | ✅     | Modal with Cancel/Confirm appears |
+| Search clear ✕ button           | ✅     | Appears when search has text |
+| QA cards are `<a>` elements     | ✅     | Semantic links with proper hrefs |
+| Users pagination                | ✅     | 20/page, Prev/Next buttons |
+| Export only on QA Library       | ✅     | Not present on other pages |
+| QA library controls don't leak  | ✅     | Search/Export absent from non-QA pages |
+
+---
+
 ## 🆕 Round 5 Findings — Fix Verification (2026-06-04)
 
 **Focus:** Verify fixes from PRs #57, #62, #64, #72, #61 + remaining open issues
@@ -373,20 +621,34 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## Open Issues — Priority Order
 
-| #   | ID    | Sev | Description                          | Page      | Fix                                       |
-| --- | ----- | --- | ------------------------------------ | --------- | ----------------------------------------- |
-| 1   | R3-H1 | 🟧  | PWA completely missing               | All       | manifest.json, SW, meta tags              |
-| 2   | R2-2  | 🟨  | Dashboard very sparse                | Dashboard | Add recent entries, charts, per-category  |
-| 3   | R4-M2 | 🟨  | Missing theme-color / Apple PWA meta | All       | Add `<meta name="theme-color">` dynamic   |
-| 4   | R4-L1 | 🟩  | No explicit `<footer>` element       | All       | Optional — sidebar serves same purpose    |
-| 5   | R5-L1 | 🟩  | QA Detail title overflow at mobile   | QA Detail | Remove `white-space: nowrap` or add break |
+| #   | ID    | Sev | Description                          | Page            | Fix                                       |
+| --- | ----- | --- | ------------------------------------ | --------------- | ----------------------------------------- |
+| 1   | R6-H1 | 🟧  | PWA install banner overlaps content  | All             | `padding-bottom` on `<main>` when visible |
+| 2   | R6-H2 | 🟨  | SPA login missing `<main>` landmark  | Login, Register | Preserve/recreate `<main>` in renderLogin |
+| 3   | R6-M1 | 🟨  | New Entry tags input too short (28px)| New Entry modal | Increase to min-height 44px              |
+| 4   | R6-M2 | 🟨  | Login bg always dark (no theme)     | Login           | Use CSS custom property for gradient     |
+| 5   | R5-L1 | 🟩  | QA Detail title overflow at mobile   | QA Detail       | Remove `white-space: nowrap` or add break|
+| 6   | R6-L1 | 🟩  | Login card padding + small fonts     | Login, Register | Reduce padding, increase fonts          |
+| 7   | R6-H3 | 🟨  | Dark mode resets on SPA navigation  | All             | #142 — Persist data-theme across page transitions |
+| 8   | R6-H4 | 🟩  | Change Password input height 41px   | Change Password | #144 — Set min-height: 44px on modal inputs |
+| 9   | R2-2  | 🟨  | Dashboard very sparse                | Dashboard       | Add charts, recent entries, per-category |
+| 10  | R4-L1 | 🟩  | No explicit `<footer>` element       | All             | Optional — sidebar serves same purpose  |
+
+## Fixed This Round
+
+| Issue                          | Note                                        |
+| ------------------------------ | ------------------------------------------- |
+| R3-H1 — PWA completely missing | manifest.json, SW, icons, meta all present  |
+| R4-M2 — theme-color/Apple PWA  | All meta tags verified in HTML source       |
+| R5 touch targets (verification)| All 10 touch targets confirmed ≥44px ✅     |
 
 ---
 
 ## Previously Fixed (all rounds)
 
 | Issue                            | Fix PR/Commit | Note                                            |
-| -------------------------------- | ------------- | ----------------------------------------------- |
+| R3-H1 (PWA missing)             | R6 Verified   | manifest.json, SW, icons, meta all present      |
+| R4-M2 (theme-color / Apple PWA)  | R6 Verified   | All meta tags verified in HTML source           |
 | R4-H1 (QA Detail below list)     | PR #61        | Detail renders as overlay, list hidden          |
 | R4-H2 (QA Detail persists)       | PR #61 (#56)  | `navigate()` calls `closeModal('detail-modal')` |
 | R4-M1 (Login SPA `<form>`)       | PR #57 (#53)  | `renderLogin()` wraps in `<form>`               |

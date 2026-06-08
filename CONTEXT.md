@@ -26,6 +26,10 @@ When typing in the tag input field, a dropdown shows matching existing tags sort
 
 A knowledge-base record with `title`, `question`, `answer`, `category`, `tags`, and `status` (Published / Draft / Archived).
 
+- **New entries default to Draft** — users create entries as Draft, then an Admin explicitly publishes them
+- **Edit preserves status** — editing a Published entry keeps it Published; editing a Draft entry keeps it Draft
+- **Published → Draft** is NOT allowed via edit — only Archive is the reverse operation for Published entries
+
 ### Unarchive
 
 The inverse operation of Archive (Issue #134). Sets an Archived QA entry's status back to Published. Available to Admin and Editor roles via an Unarchive button in the detail modal footer (replaces the Archive button when status is Archived, same position). No confirmation dialog. Implemented via existing PUT /api/qa/:id with status='Published'. No backend changes needed.
@@ -36,15 +40,20 @@ A named authorization level assigned to every user, determining what resources t
 
 ### Admin
 
-A privileged role with full system access. The only role that can manage **Users** and **Sub-Systems**, hard-delete QA entries, and approve pending registrations.
+A privileged role with full system access. The only role that can manage **Users** and **Sub-Systems**, hard-delete QA entries, approve pending registrations, and **publish** QA entries (Draft → Published).
 
 ### Editor
 
 A role focused on content contribution. Can create, read, update, archive, and unarchive QA entries, but **cannot** hard-delete them. Has no access to User management or Sub-System administration.
 
+- Can create new QA entries (always Draft)
+- Can edit Draft entries (stays Draft)
+- Can edit Published entries (stays Published — cannot un-publish via edit)
+- **Cannot publish** — only Admin can promote Draft → Published
+
 ### Viewer
 
-A read-only role. Can view all QA entries regardless of status (Published, Draft, Archived). Cannot create, edit, archive, delete, or export QA entries.
+A read-only role. Can view only Published QA entries. Cannot see Draft or Archived entries. Cannot create, edit, archive, delete, or export QA entries.
 
 ### Sub-System (Category)
 
@@ -74,6 +83,7 @@ A set of validation rules applied to all password creation and modification oper
 - **Search behavior**: Post-migration, tag search will use `LIKE` on the normalized tag name via JOIN.
 - **Password complexity rules**: Min 8 chars, uppercase + lowercase + digit + special character. Applied to register, admin create, and change password (Issue #99).
 - **Change password endpoint**: New endpoint at `POST /api/user/change-password` requiring current password verification + new password complexity check.
+- **QA Draft-as-default workflow**: New entries always created as Draft. Only Admin can Publish (Draft → Published). Editing preserves the current status (Editor can edit Published but it stays Published). Admin-only publish prevents Editors from accidentally un-publishing content. **Viewer only sees Published** — Draft and Archived entries are hidden from Viewer role.
 
 ### Forced Password Reset
 
