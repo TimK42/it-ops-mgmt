@@ -111,7 +111,9 @@ function initSchema() {
   // migration: recreate users table with CHECK constraint allowing 'Editor' role
   // The previous migration only updates role values but cannot alter the CHECK constraint
   // SQLite does not support ALTER TABLE ... ALTER CHECK, so recreate the table
-  const userSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+  const userSchema = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'")
+    .get();
   if (userSchema && !userSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
     try {
       db.exec(`

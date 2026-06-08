@@ -42,7 +42,9 @@ const OLD_SCHEMA = `
 
 // ── The migration block from db.js (copy-paste of the fix) ──
 function applyMigration(db) {
-  const userSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+  const userSchema = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'")
+    .get();
   if (userSchema && !userSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
     try {
       db.exec(`
@@ -77,10 +79,14 @@ function run() {
     db.exec(OLD_SCHEMA);
 
     // Verify old schema rejects Editor
-    const oldSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+    const oldSchema = db
+      .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'")
+      .get();
     try {
       db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-        'editor_try', 'pass123', 'Editor',
+        'editor_try',
+        'pass123',
+        'Editor',
       );
       testFail(
         'Editor rejection in old schema',
@@ -96,13 +102,19 @@ function run() {
 
     // ═══ 2. Insert a Contributor row into old schema (simulates existing data) ──
     db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-      'old_contrib', 'pass123', 'Contributor',
+      'old_contrib',
+      'pass123',
+      'Contributor',
     );
     db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-      'old_admin', 'pass123', 'Admin',
+      'old_admin',
+      'pass123',
+      'Admin',
     );
     db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-      'old_viewer', 'pass123', 'Viewer',
+      'old_viewer',
+      'pass123',
+      'Viewer',
     );
 
     // ═══ 3. Run the rename migration (preceding migration in db.js) ──
@@ -115,7 +127,9 @@ function run() {
     }
 
     // Verify old_contrib was renamed to Editor
-    const renamedContrib = db.prepare("SELECT role FROM users WHERE username = 'old_contrib'").get();
+    const renamedContrib = db
+      .prepare("SELECT role FROM users WHERE username = 'old_contrib'")
+      .get();
     if (renamedContrib && renamedContrib.role === 'Editor') {
       test('Pre-migration rename: Contributor→Editor via PRAGMA ignore_check_constraints');
     } else {
@@ -126,17 +140,24 @@ function run() {
     applyMigration(db);
 
     // Verify schema was updated
-    const migratedSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+    const migratedSchema = db
+      .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'")
+      .get();
     if (migratedSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
       test('Migration updates CHECK constraint to allow Editor');
     } else {
-      testFail('Migration updates CHECK constraint', `Schema still lacks Editor: ${migratedSchema.sql}`);
+      testFail(
+        'Migration updates CHECK constraint',
+        `Schema still lacks Editor: ${migratedSchema.sql}`,
+      );
     }
 
     // ═══ 5. Editor registration succeeds after migration ──
     try {
       db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-        'new_editor', 'pass123', 'Editor',
+        'new_editor',
+        'pass123',
+        'Editor',
       );
       test('Editor INSERT succeeds after migration');
     } catch (e) {
@@ -146,7 +167,9 @@ function run() {
     // ═══ 6. Contributor role is still rejected (constraint compatibility) ──
     try {
       db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-        'try_contrib', 'pass123', 'Contributor',
+        'try_contrib',
+        'pass123',
+        'Contributor',
       );
       testFail(
         'Contributor rejection after migration',
@@ -176,10 +199,7 @@ function run() {
     if (oldAdmin && oldAdmin.role === 'Admin') {
       test('Existing data preserved: old Admin row survives migration');
     } else {
-      testFail(
-        'Data preservation',
-        `Expected old_admin/Admin, got: ${JSON.stringify(oldAdmin)}`,
-      );
+      testFail('Data preservation', `Expected old_admin/Admin, got: ${JSON.stringify(oldAdmin)}`);
     }
 
     const oldViewer = users.find((u) => u.username === 'old_viewer');
@@ -209,7 +229,9 @@ function run() {
     }
 
     // Verify schema still correct after second run
-    const finalSchema = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'").get();
+    const finalSchema = db
+      .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'")
+      .get();
     if (finalSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
       test('Schema remains correct after second migration run');
     } else {
@@ -219,16 +241,19 @@ function run() {
     // ═══ 9. Extra: ensure Admin/Viewer still work ──
     try {
       db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-        'new_admin', 'pass123', 'Admin',
+        'new_admin',
+        'pass123',
+        'Admin',
       );
       db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
-        'new_viewer', 'pass123', 'Viewer',
+        'new_viewer',
+        'pass123',
+        'Viewer',
       );
       test('Admin and Viewer roles still accepted after migration');
     } catch (e) {
       testFail('Admin/Viewer acceptance', `Unexpected error: ${e.message}`);
     }
-
   } finally {
     db.close();
     try {
