@@ -134,7 +134,11 @@ function initSchema() {
       `);
       db.exec('COMMIT');
     } catch (e) {
-      try { db.exec('ROLLBACK'); } catch { /* ignore rollback errors */ }
+      try {
+        db.exec('ROLLBACK');
+      } catch {
+        /* ignore rollback errors */
+      }
       // Idempotent: if migration already ran, temp table may not exist
       if (!e.message.includes('no such table')) throw e;
     }
