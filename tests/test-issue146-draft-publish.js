@@ -63,7 +63,11 @@ async function login(username, password) {
   });
   const setCookie = r.headers['set-cookie'] || [];
   const cookie = Array.isArray(setCookie)
-    ? setCookie.map(function(c) { return c.split(';')[0]; }).join('; ')
+    ? setCookie
+        .map(function (c) {
+          return c.split(';')[0];
+        })
+        .join('; ')
     : setCookie.split(';')[0];
   return cookie;
 }
