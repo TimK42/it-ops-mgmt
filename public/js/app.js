@@ -1269,7 +1269,7 @@ async function unarchiveQA(id) {
 }
 
 async function publishQA(id) {
-  if (state.user.role !== 'Admin') return toast('Only Admin can publish');
+  if (!state.user || state.user.role !== 'Admin') return toast('Only Admin can publish');
   try {
     await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
     toast('Published');
