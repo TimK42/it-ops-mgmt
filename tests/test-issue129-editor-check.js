@@ -9,7 +9,6 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const assert = require('assert');
 
 let passed = 0,
   failed = 0;
@@ -46,6 +45,7 @@ function applyMigration(db) {
     .get();
   if (userSchema && !userSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
     try {
+      db.exec('BEGIN TRANSACTION');
       db.exec(`
         CREATE TABLE IF NOT EXISTS users_new (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,7 +61,9 @@ function applyMigration(db) {
         DROP TABLE users;
         ALTER TABLE users_new RENAME TO users;
       `);
+      db.exec('COMMIT');
     } catch (e) {
+      try { db.exec('ROLLBACK'); } catch { /* ignore rollback errors */ }
       // Idempotent: if migration already ran, temp table may not exist
       if (!e.message.includes('no such table')) throw e;
     }
@@ -86,9 +88,6 @@ function run() {
     }
 
     // Verify old schema rejects Editor
-    const oldSchema = db
-      .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'")
-      .get();
     try {
       db.prepare('INSERT INTO users (username, password, role) VALUES (?,?,?)').run(
         'editor_try',

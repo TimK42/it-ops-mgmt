@@ -116,6 +116,7 @@ function initSchema() {
     .get();
   if (userSchema && !userSchema.sql.includes("CHECK(role IN ('Admin','Editor','Viewer'))")) {
     try {
+      db.exec('BEGIN TRANSACTION');
       db.exec(`
         CREATE TABLE IF NOT EXISTS users_new (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -131,7 +132,9 @@ function initSchema() {
         DROP TABLE users;
         ALTER TABLE users_new RENAME TO users;
       `);
+      db.exec('COMMIT');
     } catch (e) {
+      try { db.exec('ROLLBACK'); } catch { /* ignore rollback errors */ }
       // Idempotent: if migration already ran, temp table may not exist
       if (!e.message.includes('no such table')) throw e;
     }
