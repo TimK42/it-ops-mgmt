@@ -256,13 +256,6 @@ document.addEventListener('click', (e) => {
           showQADetail(Number(editId));
         }
       }
-      // Clear chip state on any form-modal close (Issue #111)
-      if (modal === 'form-modal') {
-        var cc = document.getElementById('tags-chips');
-        if (cc) cc.innerHTML = '';
-        var ss = document.getElementById('tags-suggestions');
-        if (ss) ss.innerHTML = '';
-      }
       break;
     case 'close-confirm':
       closeConfirm();
@@ -413,6 +406,13 @@ function openModal(id) {
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+  // Clear tag chip state on form-modal close (Issue #111)
+  if (id === 'form-modal') {
+    var cc = document.getElementById('tags-chips');
+    if (cc) cc.innerHTML = '';
+    var ss = document.getElementById('tags-suggestions');
+    if (ss) ss.innerHTML = '';
+  }
 }
 // ===== PASSWORD VALIDATION =====
 // Mirrors server lib/password.js validatePassword — must stay in sync
@@ -1099,7 +1099,8 @@ function initChips(containerId, inputId, suggestionsId, existingTags) {
     input.onfocus = function () {
       var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       setTimeout(function () {
-        input.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
+        var el = suggestions.offsetHeight > 0 ? suggestions : input;
+        el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' });
       }, 300);
     };
   }
