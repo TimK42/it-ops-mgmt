@@ -127,7 +127,7 @@ function initSchema() {
           created_at TEXT DEFAULT (datetime('now')),
           updated_at TEXT DEFAULT (datetime('now'))
         );
-        INSERT INTO users_new SELECT * FROM users;
+        INSERT INTO users_new (id, username, password, role, status, must_change_password, created_at, updated_at) SELECT id, username, password, role, status, must_change_password, created_at, updated_at FROM users;
         DROP TABLE users;
         ALTER TABLE users_new RENAME TO users;
       `);

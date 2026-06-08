@@ -120,6 +120,16 @@ if [ -n "$MOCHA_LINE" ]; then
 fi
 [ "$MOCHA_EXIT" -ne 0 ] && fail "mocha: exit code $MOCHA_EXIT"
 
+echo ""
+echo ">>> Standalone Node Tests"
+# Issue #129: Editor CHECK constraint migration (standalone, uses node + better-sqlite3)
+node tests/test-issue129-editor-check.js 2>&1
+if [ $? -eq 0 ]; then
+  pass "node: test-issue129-editor-check.js passed"
+else
+  fail "node: test-issue129-editor-check.js failed"
+fi
+
 # ── Start test server ──
 echo ""
 echo "===== INTEGRATION TESTS ====="

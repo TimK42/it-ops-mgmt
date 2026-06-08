@@ -34,7 +34,6 @@ const OLD_SCHEMA = `
     password TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'Viewer' CHECK(role IN ('Admin','Contributor','Viewer')),
     status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('active','pending','disabled')),
-    must_change_password INTEGER NOT NULL DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
   );
@@ -58,7 +57,7 @@ function applyMigration(db) {
           created_at TEXT DEFAULT (datetime('now')),
           updated_at TEXT DEFAULT (datetime('now'))
         );
-        INSERT INTO users_new SELECT * FROM users;
+        INSERT INTO users_new (id, username, password, role, status, must_change_password, created_at, updated_at) SELECT id, username, password, role, status, must_change_password, created_at, updated_at FROM users;
         DROP TABLE users;
         ALTER TABLE users_new RENAME TO users;
       `);
@@ -75,8 +74,16 @@ function run() {
   const db = new Database(dbPath);
 
   try {
-    // ═══ 1. Create OLD schema (before fix) ──
+    // ═══ 1. Create OLD schema (before fix), simulating column added via ALTER TABLE ──
+    // The initial schema (pre-issue #103) did not include must_change_password;
+    // it was added via ALTER TABLE, which appends it at the end of the column list.
     db.exec(OLD_SCHEMA);
+    try {
+      db.exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
+    } catch (e) {
+      // SQLite throws for duplicate column — ignore, re-throw everything else
+      if (!e.message.toLowerCase().includes('duplicate')) throw e;
+    }
 
     // Verify old schema rejects Editor
     const oldSchema = db
