@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-cleanup() { kill "${SERVER_PID:--}" 2>/dev/null; }
+cleanup() { kill "${SERVER_PID:--}" 2>/dev/null || true; }
 # Fire cleanup on any exit (INT, SIGTERM, set -e, normal end)
 trap cleanup EXIT INT TERM
 

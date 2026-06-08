@@ -1258,6 +1258,7 @@ async function archiveQA(id) {
 }
 
 async function unarchiveQA(id) {
+  if (!state.user || state.user.role !== 'Admin') return toast('Only Admin can unarchive');
   try {
     await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Draft' }) });
     toast('Unarchived');

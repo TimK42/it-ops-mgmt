@@ -255,7 +255,16 @@ describe('POST /api/qa — draft vs published default', function () {
       server.on('exit', (code) => {
         if (code !== null) fail(new Error('Server exited early with code ' + code));
       });
-      setTimeout(() => fail(new Error('Server start timeout (10s)')), 10000);
+      var timeout = setTimeout(() => fail(new Error('Server start timeout (10s)')), 10000);
+      server.stdout.on('data', function (d) {
+        if (d.toString().includes('ready')) clearTimeout(timeout);
+      });
+      server.on('error', function () {
+        clearTimeout(timeout);
+      });
+      server.on('exit', function () {
+        clearTimeout(timeout);
+      });
     });
 
     cookie = await login('admin', '0000');
