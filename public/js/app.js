@@ -1273,9 +1273,8 @@ async function publishQA(id) {
   try {
     await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
     toast('Published');
-    // Refresh the detail view and the QA Library list
+    // Refresh the detail view (QA list behind modal will re-render on navigation close)
     await showQADetail(id);
-    await renderQA(document.getElementById('page-content'));
   } catch (e) {
     toast('Failed to publish: ' + (e.message || 'Unknown error'));
   }
