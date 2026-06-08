@@ -477,7 +477,7 @@ describe('publishQA function', function () {
     assert.strictEqual(toastMsg, 'Published', 'Toast should say "Published"');
   });
 
-  it('publishQA calls showQADetail and renderQA on success', async function () {
+  it('publishQA calls showQADetail on success (renderQA removed as unnecessary)', async function () {
     setupDetail('Admin', draftQA);
     let calledShowDetail = false;
     let calledRenderQA = false;
@@ -496,6 +496,6 @@ describe('publishQA function', function () {
     await publishQA(1);
 
     assert.strictEqual(calledShowDetail, true, 'showQADetail should be called');
-    assert.strictEqual(calledRenderQA, true, 'renderQA should be called');
+    assert.strictEqual(calledRenderQA, false, 'renderQA should NOT be called (list behind modal is unnecessary)');
   });
 });
