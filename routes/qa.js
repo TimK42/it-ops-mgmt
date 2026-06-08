@@ -133,7 +133,7 @@ router.post('/', (req, res) => {
         question || '',
         answer || '',
         category_id || null,
-        status || 'Published',
+        status || 'Draft',
       );
 
     const entryId = r.lastInsertRowid;

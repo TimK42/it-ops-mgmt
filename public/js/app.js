@@ -281,6 +281,9 @@ document.addEventListener('click', (e) => {
     case 'unarchive-qa':
       unarchiveQA(id);
       break;
+    case 'publish-qa':
+      publishQA(id);
+      break;
     case 'delete-qa':
       deleteQA(id);
       break;
@@ -980,7 +983,7 @@ async function showQADetail(id) {
           : '-'
       }</div><div><div class="detail-meta-label">Created</div>${fmtDate(q.created_at)}</div><div><div class="detail-meta-label">Modified</div>${fmtDate(q.updated_at)}</div></div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${canEdit ? (q.status === 'Archived' ? `<button class="btn btn-sm btn-unarchive" data-action="unarchive-qa" data-id="${q.id}">Unarchive</button>` : `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>`) : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
+    <div class="modal-footer"><button class="btn btn-ghost btn-sm" data-action="close-detail">Close</button>${state.user.role === 'Admin' && q.status === 'Draft' ? `<button class="btn btn-sm btn-primary" data-action="publish-qa" data-id="${q.id}">Publish</button>` : ''}${canEdit ? `<button class="btn btn-sm btn-edit" data-action="edit-qa" data-id="${q.id}">Edit</button>` : ''}${state.user.role === 'Admin' && q.status === 'Archived' ? `<button class="btn btn-sm btn-unarchive" data-action="unarchive-qa" data-id="${q.id}">Unarchive</button>` : ''}${canEdit && q.status !== 'Archived' ? `<button class="btn btn-sm btn-archive" data-action="archive-qa" data-id="${q.id}">Archive</button>` : ''}${canDelete ? `<button class="btn btn-sm btn-danger" data-action="delete-qa" data-id="${q.id}">Delete</button>` : ''}</div>
   </div>`;
 }
 
@@ -992,8 +995,7 @@ async function showCreateQA(data) {
     <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"><div class="form-error" id="f-q-title-error"></div></div>
     <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea><div class="form-error" id="f-q-question-error"></div></div>
     <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
-    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-q-status">${['Published', 'Draft', 'Archived'].map((s) => `<option value="${s}" ${isEdit && data.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div></div>
     <div class="form-group"><label class="form-label" for="f-tags-input">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" aria-label="Add tags" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
@@ -1011,9 +1013,9 @@ async function showCreateQA(data) {
       question: document.getElementById('f-question').value,
       answer: document.getElementById('f-answer').value,
       category_id: document.getElementById('f-q-cat').value || null,
-      status: document.getElementById('f-q-status').value,
       tags: getChipValues('tags-chips'),
     };
+    // Status is preserved during edit; only Publish/Archive/Unarchive actions change status
     const titleErr = document.getElementById('f-q-title-error');
     const questionErr = document.getElementById('f-q-question-error');
     titleErr.textContent = '';
@@ -1256,13 +1258,26 @@ async function archiveQA(id) {
 }
 
 async function unarchiveQA(id) {
+  if (!state.user || state.user.role !== 'Admin') return toast('Only Admin can unarchive');
   try {
-    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
+    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Draft' }) });
     toast('Unarchived');
     history.replaceState(null, '', '/qa');
     navigate('qa');
   } catch (e) {
     toast('Failed to unarchive: ' + (e.message || 'Unknown error'));
+  }
+}
+
+async function publishQA(id) {
+  if (!state.user || state.user.role !== 'Admin') return toast('Only Admin can publish');
+  try {
+    await api(`/api/qa/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'Published' }) });
+    toast('Published');
+    // Refresh the detail view (QA list behind modal will re-render on navigation close)
+    await showQADetail(id);
+  } catch (e) {
+    toast('Failed to publish: ' + (e.message || 'Unknown error'));
   }
 }
 

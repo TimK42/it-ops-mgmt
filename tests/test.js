@@ -416,6 +416,7 @@ async function run() {
         question: 'ignore',
         answer: 'unique_secret_string_reply',
         category_id: catId,
+        status: 'Published',
       },
     });
     assert(r.status === 201, 'QA create for answer search => 201');
@@ -452,6 +453,7 @@ async function run() {
         question: 'Q',
         answer: 'A',
         category_id: catSearchId,
+        status: 'Published',
       },
     });
     assert(r.status === 201, 'QA create for category search => 201');
