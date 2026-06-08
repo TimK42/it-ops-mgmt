@@ -2,6 +2,16 @@ const express = require('express');
 const { getDb } = require('../db');
 const router = express.Router();
 
+// Middleware: restrict endpoint to specific roles
+function roleGuard(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.session.role)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    next();
+  };
+}
+
 function getTagsForEntry(db, entryId) {
   return db
     .prepare(
@@ -29,7 +39,7 @@ function setEntryTags(db, entryId, tags) {
   }
 }
 
-router.get('/', (req, res) => {
+router.get('/', roleGuard('Admin', 'Editor', 'Viewer'), (req, res) => {
   const db = getDb();
   const {
     status,
@@ -100,7 +110,7 @@ router.get('/', (req, res) => {
   res.json({ data, total, page, per_page: perPage });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', roleGuard('Admin', 'Editor', 'Viewer'), (req, res) => {
   const db = getDb();
   const row = db
     .prepare(
@@ -113,7 +123,7 @@ router.get('/:id', (req, res) => {
   res.json(row);
 });
 
-router.post('/', (req, res) => {
+router.post('/', roleGuard('Admin', 'Editor'), (req, res) => {
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!title || !question) return res.status(400).json({ error: 'Title and question required' });
   const db = getDb();
@@ -148,11 +158,26 @@ router.post('/', (req, res) => {
   res.status(201).json(result);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', roleGuard('Admin', 'Editor'), (req, res) => {
   const db = getDb();
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!db.prepare('SELECT id FROM qa_entries WHERE id=?').get(req.params.id))
     return res.status(404).json({ error: 'Not found' });
+
+  // Role-based status transition guards
+  if (status && req.session.role !== 'Admin') {
+    // Only Admin can publish (status → Published)
+    if (status === 'Published') {
+      return res.status(403).json({ error: 'Only Admin can publish QA entries' });
+    }
+    // Only Admin can unarchive (setting status=Draft on an Archived entry)
+    if (status === 'Draft') {
+      const current = db.prepare('SELECT status FROM qa_entries WHERE id=?').get(req.params.id);
+      if (current && current.status === 'Archived') {
+        return res.status(403).json({ error: 'Only Admin can unarchive QA entries' });
+      }
+    }
+  }
 
   const runTransaction = db.transaction(() => {
     db.prepare(
@@ -171,7 +196,7 @@ router.put('/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', roleGuard('Admin'), (req, res) => {
   getDb().prepare('DELETE FROM qa_entries WHERE id=?').run(req.params.id);
   res.json({ ok: true });
 });

@@ -37,7 +37,7 @@ function initSchema() {
       answer TEXT DEFAULT '',
       category_id INTEGER REFERENCES categories(id),
       tags TEXT DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'Published' CHECK(status IN ('Published','Draft','Archived')),
+      status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN ('Published','Draft','Archived')),
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -142,6 +142,15 @@ function initSchema() {
       // Idempotent: if migration already ran, temp table may not exist
       if (!e.message.includes('no such table')) throw e;
     }
+  }
+
+  // migration: update qa_entries.status DEFAULT from 'Published' to 'Draft'
+  // SQLite supports ALTER TABLE ALTER COLUMN SET DEFAULT for string constants
+  try {
+    db.exec("ALTER TABLE qa_entries ALTER COLUMN status SET DEFAULT 'Draft'");
+  } catch (e) {
+    // Idempotent: if already migrated or unsupported SQLite version, ignore
+    if (!e.message.includes('syntax error') && !e.message.toLowerCase().includes('already')) throw e;
   }
 }
 
