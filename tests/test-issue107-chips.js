@@ -360,7 +360,8 @@ describe('Issue #111 — closeModal clears tag state', function () {
 
   it('closeModal("form-modal") resets #tags-chips innerHTML', function () {
     var chips = document.getElementById('tags-chips');
-    chips.innerHTML = '<div class="chip" data-tag="password">#password<button class="chip-remove">\u2715</button></div>';
+    chips.innerHTML =
+      '<div class="chip" data-tag="password">#password<button class="chip-remove">\u2715</button></div>';
     assert.notStrictEqual(chips.innerHTML, '', 'tags-chips should have content before closeModal');
 
     closeModal('form-modal');
@@ -371,7 +372,11 @@ describe('Issue #111 — closeModal clears tag state', function () {
   it('closeModal("form-modal") resets #tags-suggestions innerHTML', function () {
     var sug = document.getElementById('tags-suggestions');
     sug.innerHTML = '<button class="suggestion-chip">#test (1)</button>';
-    assert.notStrictEqual(sug.innerHTML, '', 'tags-suggestions should have content before closeModal');
+    assert.notStrictEqual(
+      sug.innerHTML,
+      '',
+      'tags-suggestions should have content before closeModal',
+    );
 
     closeModal('form-modal');
 
@@ -380,9 +385,11 @@ describe('Issue #111 — closeModal clears tag state', function () {
 
   it('closeModal("form-modal") clears both containers with multiple children', function () {
     var chips = document.getElementById('tags-chips');
-    chips.innerHTML = '<div class="chip" data-tag="a">#a</div><div class="chip" data-tag="b">#b</div>';
+    chips.innerHTML =
+      '<div class="chip" data-tag="a">#a</div><div class="chip" data-tag="b">#b</div>';
     var sug = document.getElementById('tags-suggestions');
-    sug.innerHTML = '<button class="suggestion-chip">#x (1)</button><button class="suggestion-chip">#y (2)</button>';
+    sug.innerHTML =
+      '<button class="suggestion-chip">#x (1)</button><button class="suggestion-chip">#y (2)</button>';
 
     closeModal('form-modal');
 
@@ -401,6 +408,10 @@ describe('Issue #111 — closeModal clears tag state', function () {
 
     closeModal('other-modal');
 
-    assert.notStrictEqual(chips.innerHTML, '', 'tags-chips should remain unchanged for other modals');
+    assert.notStrictEqual(
+      chips.innerHTML,
+      '',
+      'tags-chips should remain unchanged for other modals',
+    );
   });
 });
