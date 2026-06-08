@@ -1,5 +1,5 @@
 // Test: Archive button visibility by role (Issue #121-123)
-// Admin sees Delete, Editor sees Archive, Viewer sees neither
+// Admin sees Delete + Archive, Editor sees Archive, Viewer sees neither
 // Runs against real app.js code in JSDOM context
 
 const vm = require('vm');
@@ -119,15 +119,12 @@ function setupDetail(role) {
 // ============================================================
 
 describe('Archive button visibility by role', function () {
-  it('Admin sees Delete button, no Archive button', async function () {
+  it('Admin sees Delete button and Archive button', async function () {
     setupDetail('Admin');
     await showQADetail(1);
     var html = document.getElementById('detail-modal').innerHTML;
     assert.ok(html.indexOf('data-action="delete-qa"') !== -1, 'Admin should see Delete button');
-    assert.ok(
-      html.indexOf('data-action="archive-qa"') === -1,
-      'Admin should NOT see Archive button',
-    );
+    assert.ok(html.indexOf('data-action="archive-qa"') !== -1, 'Admin should see Archive button');
   });
 
   it('Editor sees Archive button, no Delete button', async function () {
