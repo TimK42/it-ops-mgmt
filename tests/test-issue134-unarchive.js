@@ -235,7 +235,7 @@ describe('Unarchive button visibility by status and role', function () {
 });
 
 describe('Unarchive API call', function () {
-  it('calling unarchiveQA sends PUT with status=Published', async function () {
+  it('calling unarchiveQA sends PUT with status=Draft', async function () {
     setupDetail('Admin', archivedQA);
     let calledUrl, calledOpts;
 
@@ -252,7 +252,7 @@ describe('Unarchive API call', function () {
     assert.strictEqual(calledUrl, '/api/qa/2', 'API URL should be /api/qa/2');
     assert.strictEqual(calledOpts.method, 'PUT', 'Should use PUT method');
     var body = JSON.parse(calledOpts.body);
-    assert.strictEqual(body.status, 'Published', 'Should set status to Published');
+    assert.strictEqual(body.status, 'Draft', 'Should set status to Draft (Issue #146: Unarchive→Draft)');
   });
 
   it('toast is called with "Unarchived" on success', async function () {
