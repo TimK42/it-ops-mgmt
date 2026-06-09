@@ -11,6 +11,7 @@ function getDb() {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     db = new Database(DB_PATH);
     db.pragma('journal_mode = WAL');
+    db.pragma('wal_autocheckpoint = 100');
     db.pragma('foreign_keys = ON');
     initSchema();
     seedUsers();
