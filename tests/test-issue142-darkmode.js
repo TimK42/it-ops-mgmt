@@ -12,11 +12,14 @@ const assert = require('assert');
 // ============================================================
 
 function resetDOM() {
-  var dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="app"></div></body></html>', {
-    url: 'http://localhost:3199',
-    pretendToBeVisual: true,
-    runScripts: 'dangerously',
-  });
+  var dom = new JSDOM(
+    '<!DOCTYPE html><html><head></head><body><div id="app"></div></body></html>',
+    {
+      url: 'http://localhost:3199',
+      pretendToBeVisual: true,
+      runScripts: 'dangerously',
+    },
+  );
 
   Object.defineProperty(dom.window, 'matchMedia', {
     writable: true,
