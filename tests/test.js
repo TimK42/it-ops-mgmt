@@ -233,11 +233,11 @@ async function run() {
     // ═══ NO-JS FALLBACK ═══
     console.log('\n>>> No-JS Fallback');
     r = await req('GET', '/');
-    assert(r.body.includes('id="login-fallback"'), 'GET / => login fallback present');
-    assert(r.body.includes('id="login-form"'), 'GET / => login form present');
+    assert(r.body.includes('class="loading-screen"'), 'GET / => loading screen present');
+    assert(r.body.includes('<div id="app"'), 'GET / => app shell present');
     r = await req('GET', '/nonexistent-page');
     assert(r.status === 404, 'Catch-all => 404');
-    assert(r.body.includes('id="login-fallback"'), 'Catch-all 404 => login fallback present');
+    assert(r.body.includes('class="loading-screen"'), 'Catch-all 404 => loading screen present');
 
     // ═══ AUTH ═══
     console.log('\n>>> Auth');
@@ -562,7 +562,7 @@ async function run() {
       'GET /qa/1 => Content-Type includes html',
     );
     assert(r.body.includes('<div id="app"'), 'GET /qa/1 => contains app shell');
-    assert(r.body.includes('id="login-fallback"'), 'GET /qa/1 => login fallback present');
+    assert(r.body.includes('class="loading-screen"'), 'GET /qa/1 => loading screen present');
     assert(r.body.includes('skip-link'), 'GET /qa/1 => skip-link present');
 
     // ═══ SPA CATEGORIES ROUTE (R4-H2) ═══
