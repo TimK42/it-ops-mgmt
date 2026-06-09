@@ -641,7 +641,7 @@ function renderLogin(mode) {
         ${fallbackError}${expiredMsg}
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
-        <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
+        <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username"></div>
         <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? '<div class="pw-hints" id="auth-pass-hints"></div>' : ''}
         ${isRegister ? '<div class="form-group"><label for="auth-pass-confirm" class="sr-only">Confirm Password</label><input class="form-input" type="password" id="auth-pass-confirm" placeholder="Confirm Password" autocomplete="new-password"><div class="form-error" id="auth-pass-confirm-error"></div></div>' : ''}
