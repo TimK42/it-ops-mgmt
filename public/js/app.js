@@ -101,6 +101,11 @@ function restoreTheme() {
   }
   document.documentElement.setAttribute('data-theme', theme);
   updateThemeColor(theme);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    btn.setAttribute('aria-pressed', String(theme === 'dark'));
+  }
 }
 
 initTheme();
