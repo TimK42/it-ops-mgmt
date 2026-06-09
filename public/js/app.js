@@ -84,6 +84,25 @@ function toggleTheme() {
   }
 }
 
+function restoreTheme() {
+  let theme = null;
+  try {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || stored === 'light') theme = stored;
+  } catch {
+    /* ignore */
+  }
+  if (!theme) {
+    if (typeof window.matchMedia === 'function') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } else {
+      theme = 'light';
+    }
+  }
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeColor(theme);
+}
+
 initTheme();
 
 // ===== PWA INSTALL PROMPT =====
@@ -781,6 +800,7 @@ function closeSidebar() {
 }
 
 function navigate(page) {
+  restoreTheme();
   closeModal('detail-modal');
   closeSidebar();
   state.page = page;
