@@ -1,9 +1,9 @@
 // Test: Issue #152 — SQLite WAL autocheckpoint lowered from 1000 to 100 pages
 //
 // Verifies:
-//   1. PRAGMA wal_autocheckpoint is set to 100 after getDb()
-//   2. Data integrity: schema initialisation and seed data load correctly
-//   3. WAL file stays small (<= 1 MB) after moderate write activity
+//   1. PRAGMA wal_autocheckpoint is set to 100 in buildTestDb()
+//   2. Data integrity after schema init and seed data load
+//   3. WAL file stays small (<= 1 MB) after moderate write activity with fix
 //   4. Without the fix (default 1000), WAL grows larger under identical writes
 //
 // Usage: node tests/test-issue152-wal-autocheckpoint.js
@@ -29,8 +29,8 @@ function testFail(name, msg) {
 }
 
 /**
- * Build a fresh in-memory database with the same schema + seed data as db.js,
- * using the given wal_autocheckpoint value.
+ * Build a fresh on-disk database in a temp directory with the same schema + seed
+ * data as db.js, using the given wal_autocheckpoint value.
  */
 function buildTestDb(autocheckpoint) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'itops-test-152-'));
