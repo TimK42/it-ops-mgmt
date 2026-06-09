@@ -106,24 +106,12 @@ describe('Issue #153 — Login form flash fix', () => {
       r.body.includes('class="loading-spinner"'),
       'HTML must contain loading-spinner element',
     );
-    assert.ok(
-      r.body.includes('class="loading-text"'),
-      'HTML must contain loading-text element',
-    );
+    assert.ok(r.body.includes('class="loading-text"'), 'HTML must contain loading-text element');
 
     // Should NOT contain the old server-rendered login form
-    assert.ok(
-      !r.body.includes('login-page'),
-      'HTML must NOT contain login-page element',
-    );
-    assert.ok(
-      !r.body.includes('login-fallback'),
-      'HTML must NOT contain login-fallback element',
-    );
-    assert.ok(
-      !r.body.includes('login-card'),
-      'HTML must NOT contain login-card element',
-    );
+    assert.ok(!r.body.includes('login-page'), 'HTML must NOT contain login-page element');
+    assert.ok(!r.body.includes('login-fallback'), 'HTML must NOT contain login-fallback element');
+    assert.ok(!r.body.includes('login-card'), 'HTML must NOT contain login-card element');
     assert.ok(
       !r.body.includes('id="login-form"'),
       'HTML must NOT contain server-rendered login form',
@@ -148,14 +136,8 @@ describe('Issue #153 — Login form flash fix', () => {
     );
 
     // main#main-content must be present
-    assert.ok(
-      r.body.includes('id="main-content"'),
-      'HTML must contain main#main-content',
-    );
-    assert.ok(
-      r.body.includes('class="main"'),
-      'HTML must contain main element with class="main"',
-    );
+    assert.ok(r.body.includes('id="main-content"'), 'HTML must contain main#main-content');
+    assert.ok(r.body.includes('class="main"'), 'HTML must contain main element with class="main"');
 
     // The app container must exist
     assert.ok(
@@ -180,10 +162,7 @@ describe('Issue #153 — Login form flash fix', () => {
       r.body.includes('class="loading-screen"'),
       'HTML must contain loading-screen element',
     );
-    assert.ok(
-      !r.body.includes('login-page'),
-      'HTML must NOT contain login-page element',
-    );
+    assert.ok(!r.body.includes('login-page'), 'HTML must NOT contain login-page element');
   });
 
   test('GET / serves loading screen via actual authenticated session', async () => {
@@ -203,10 +182,7 @@ describe('Issue #153 — Login form flash fix', () => {
         r.body.includes('class="loading-screen"'),
         'Authenticated GET / must contain loading-screen',
       );
-      assert.ok(
-        !r.body.includes('login-form'),
-        'Authenticated GET / must NOT contain login form',
-      );
+      assert.ok(!r.body.includes('login-form'), 'Authenticated GET / must NOT contain login form');
     } else {
       // Skip test if we couldn't login
       // This is acceptable — the previous tests already verify the HTML structure
