@@ -100,6 +100,7 @@ function isIOS() {
 }
 
 function isStandalone() {
+  if (typeof window === 'undefined') return false;
   if (typeof window.navigator.standalone !== 'undefined' && window.navigator.standalone)
     return true;
   if (typeof window.matchMedia === 'function') {
@@ -111,6 +112,7 @@ function isStandalone() {
 
 function initPWA() {
   // Already running as a PWA — hide all prompts
+  if (typeof document === 'undefined') return;
   if (isStandalone()) return;
 
   const banner = document.getElementById('pwa-install-banner');
@@ -345,6 +347,7 @@ window.addEventListener('popstate', () => {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof window === 'undefined') return;
   const initPath = window.location.pathname;
   if (initPath === '/register' || initPath === '/register/') {
     try {

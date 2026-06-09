@@ -135,10 +135,6 @@ before(function () {
   const appJsPath = path.resolve(__dirname, '../public/js/app.js');
   const code = fs.readFileSync(appJsPath, 'utf-8');
   vm.runInThisContext(code, { filename: 'app.js' });
-  // Clean up the bootstrap DOM
-  delete global.window;
-  delete global.document;
-  delete global.navigator;
 });
 
 beforeEach(function () {
