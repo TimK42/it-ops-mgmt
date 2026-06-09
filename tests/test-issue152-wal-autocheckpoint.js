@@ -106,9 +106,23 @@ function buildTestDb(autocheckpoint) {
   // ── Seed QA entries ──
   const qas = [
     ['QA-0001', '如何重置使用者密碼', '使用者忘記密碼該如何處理？', 'Step 1…', 'CAD', 'Published'],
-    ['QA-0002', 'API 504 處理流程', 'Gateway timeout 時如何回應客戶？', '1. 確認…', 'GIS', 'Published'],
+    [
+      'QA-0002',
+      'API 504 處理流程',
+      'Gateway timeout 時如何回應客戶？',
+      '1. 確認…',
+      'GIS',
+      'Published',
+    ],
     ['QA-0003', 'VPN 連線設定', '如何連線公司內部 VPN？', 'Windows: …', 'PVNS', 'Published'],
-    ['QA-0004', '登入異常基本檢查', '使用者反應無法登入時的先檢查項目', '1. 帳號…', 'ACOS', 'Published'],
+    [
+      'QA-0004',
+      '登入異常基本檢查',
+      '使用者反應無法登入時的先檢查項目',
+      '1. 帳號…',
+      'ACOS',
+      'Published',
+    ],
     ['QA-0005', '報表匯出格式說明', '系統支援哪些報表匯出格式？', '支援 CSV…', 'CAD', 'Draft'],
   ];
   for (const q of qas) {
@@ -255,7 +269,9 @@ function run() {
     } catch {
       /* WAL may have been deleted after truncate checkpoint */
     }
-    process.stdout.write(`    WAL size after 200 writes + checkpoint (fix): ${walSizeAfter} bytes\n`);
+    process.stdout.write(
+      `    WAL size after 200 writes + checkpoint (fix): ${walSizeAfter} bytes\n`,
+    );
 
     if (walSizeAfter <= 1024 * 1024) {
       test(`WAL ≤ 1 MB (fix): ${walSizeAfter} bytes`);
@@ -268,7 +284,10 @@ function run() {
     if (countAfter && countAfter.c === 200) {
       test(`Data integrity: ${countAfter.c} sessions persisted`);
     } else {
-      testFail('Data integrity after writes', `Expected 200 sessions, got ${JSON.stringify(countAfter)}`);
+      testFail(
+        'Data integrity after writes',
+        `Expected 200 sessions, got ${JSON.stringify(countAfter)}`,
+      );
     }
   } finally {
     t3.db.close();
@@ -327,7 +346,9 @@ function run() {
     // before auto-checkpoint triggered vs. autocheckpoint=100
     // We verify: the original WAL size WITHOUT fix should be > 0
     if (walSizeNoFix > 0) {
-      test(`WAL with autocheckpoint=1000 accumulated: ${walSizeNoFix} bytes (improvement expected from fix)`);
+      test(
+        `WAL with autocheckpoint=1000 accumulated: ${walSizeNoFix} bytes (improvement expected from fix)`,
+      );
     } else {
       testFail('WAL accumulation (no fix)', `Expected WAL > 0 bytes with autocheckpoint=1000`);
     }
@@ -337,7 +358,10 @@ function run() {
     if (countAfter && countAfter.c === 200) {
       test(`Data integrity (no fix): ${countAfter.c} sessions persisted`);
     } else {
-      testFail('Data integrity after writes (no fix)', `Expected 200, got ${JSON.stringify(countAfter)}`);
+      testFail(
+        'Data integrity after writes (no fix)',
+        `Expected 200, got ${JSON.stringify(countAfter)}`,
+      );
     }
   } finally {
     t4.db.close();
