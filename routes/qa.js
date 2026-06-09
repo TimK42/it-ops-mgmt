@@ -2,16 +2,6 @@ const express = require('express');
 const { getDb } = require('../db');
 const router = express.Router();
 
-// Middleware: restrict endpoint to specific roles
-function roleGuard(...roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.session.role)) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    next();
-  };
-}
-
 function getTagsForEntry(db, entryId) {
   return db
     .prepare(
@@ -39,7 +29,10 @@ function setEntryTags(db, entryId, tags) {
   }
 }
 
-router.get('/', roleGuard('Admin', 'Editor', 'Viewer'), (req, res) => {
+// Auth is handled by server.js middleware — roleGuard removed to avoid
+// dual-authority drift (see server.js /api/qa middleware).
+// Status transition guards (publish/unarchive Admin-only) remain inline.
+router.get('/', (req, res) => {
   const db = getDb();
   const {
     status,
@@ -110,7 +103,7 @@ router.get('/', roleGuard('Admin', 'Editor', 'Viewer'), (req, res) => {
   res.json({ data, total, page, per_page: perPage });
 });
 
-router.get('/:id', roleGuard('Admin', 'Editor', 'Viewer'), (req, res) => {
+router.get('/:id', (req, res) => {
   const db = getDb();
   const row = db
     .prepare(
@@ -123,7 +116,7 @@ router.get('/:id', roleGuard('Admin', 'Editor', 'Viewer'), (req, res) => {
   res.json(row);
 });
 
-router.post('/', roleGuard('Admin', 'Editor'), (req, res) => {
+router.post('/', (req, res) => {
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!title || !question) return res.status(400).json({ error: 'Title and question required' });
   const db = getDb();
@@ -158,11 +151,19 @@ router.post('/', roleGuard('Admin', 'Editor'), (req, res) => {
   res.status(201).json(result);
 });
 
-router.put('/:id', roleGuard('Admin', 'Editor'), (req, res) => {
+router.put('/:id', (req, res) => {
   const db = getDb();
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!db.prepare('SELECT id FROM qa_entries WHERE id=?').get(req.params.id))
     return res.status(404).json({ error: 'Not found' });
+
+  // Validate status value before processing transitions
+  const VALID_STATUSES = ['Draft', 'Published', 'Archived'];
+  if (status !== undefined && !VALID_STATUSES.includes(status)) {
+    return res
+      .status(400)
+      .json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+  }
 
   // Role-based status transition guards
   if (status && req.session.role !== 'Admin') {
@@ -196,7 +197,7 @@ router.put('/:id', roleGuard('Admin', 'Editor'), (req, res) => {
   res.json({ ok: true });
 });
 
-router.delete('/:id', roleGuard('Admin'), (req, res) => {
+router.delete('/:id', (req, res) => {
   getDb().prepare('DELETE FROM qa_entries WHERE id=?').run(req.params.id);
   res.json({ ok: true });
 });

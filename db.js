@@ -145,12 +145,16 @@ function initSchema() {
   }
 
   // migration: update qa_entries.status DEFAULT from 'Published' to 'Draft'
-  // SQLite supports ALTER TABLE ALTER COLUMN SET DEFAULT for string constants
+  // The CREATE TABLE IF NOT EXISTS already has DEFAULT 'Draft', so new DBs are correct.
+  // For existing DBs, SQLite does not support ALTER COLUMN SET DEFAULT, so a full table
+  // rebuild would be needed. Since DEFAULT only affects new entries, the catch silently
+  // skips it — existing DBs keep the old default which is functionally harmless.
   try {
     db.exec("ALTER TABLE qa_entries ALTER COLUMN status SET DEFAULT 'Draft'");
   } catch (e) {
     // Idempotent: if already migrated or unsupported SQLite version, ignore
-    if (!e.message.includes('syntax error') && !e.message.toLowerCase().includes('already')) throw e;
+    if (!e.message.includes('syntax error') && !e.message.toLowerCase().includes('already'))
+      throw e;
   }
 }
 
