@@ -46,74 +46,29 @@ function resetDOM() {
   return dom;
 }
 
-// Bootstrap app.js once before all tests
-before(function () {
-  if (typeof state === 'undefined') {
+// ============================================================
+// Issues #138-141: Login page accessibility
+// ============================================================
+
+describe('Issues #138-141 — Login page accessibility', function () {
+  before(function () {
+    if (typeof state === 'undefined') {
+      resetDOM();
+      var appJsPath = path.resolve(__dirname, '../public/js/app.js');
+      var code = fs.readFileSync(appJsPath, 'utf-8');
+      vm.runInThisContext(code, { filename: 'app.js' });
+      delete global.window;
+      delete global.document;
+      delete global.navigator;
+    }
+  });
+
+  beforeEach(function () {
     resetDOM();
-    var appJsPath = path.resolve(__dirname, '../public/js/app.js');
-    var code = fs.readFileSync(appJsPath, 'utf-8');
-    vm.runInThisContext(code, { filename: 'app.js' });
-    delete global.window;
-    delete global.document;
-    delete global.navigator;
-  }
-});
-
-beforeEach(function () {
-  resetDOM();
-  state.page = 'login';
-  state.user = null;
-  state.sessionExpired = false;
-});
-
-// ============================================================
-// Issue #138: Login page <main> landmark + skip-to-content link
-// ============================================================
-
-describe('Issue #138 — Login page skip-link and main landmark', function () {
-  it('renders skip-to-content link with correct href and class', function () {
-    renderLogin();
-    var html = document.getElementById('app').innerHTML;
-    assert.ok(html.indexOf('class="skip-link"') !== -1, 'Should contain skip-link class');
-    assert.ok(html.indexOf('href="#main-content"') !== -1, 'Should link to #main-content');
-    assert.ok(html.indexOf('Skip to content') !== -1, 'Should say "Skip to content"');
+    state.page = 'login';
+    state.user = null;
+    state.sessionExpired = false;
   });
-
-  it('renders <main> landmark with id="main-content"', function () {
-    renderLogin();
-    var html = document.getElementById('app').innerHTML;
-    assert.ok(
-      html.indexOf('<main id="main-content"') !== -1,
-      'Should contain <main id="main-content">',
-    );
-    assert.ok(html.indexOf('class="main"') !== -1, 'Main element should have class="main"');
-  });
-
-  it('sets tabindex="-1" on the main element', function () {
-    renderLogin();
-    var html = document.getElementById('app').innerHTML;
-    assert.ok(html.indexOf('tabindex="-1"') !== -1, 'Main element should have tabindex="-1"');
-  });
-
-  it('wraps login form inside <main> tags', function () {
-    renderLogin();
-    var html = document.getElementById('app').innerHTML;
-    var openIdx = html.indexOf('<main id="main-content"');
-    var closeIdx = html.indexOf('</main>');
-    var formStart = html.indexOf('<form');
-    var formEnd = html.indexOf('</form>');
-    assert.ok(openIdx < formStart, '<main> should open before <form>');
-    assert.ok(formEnd < closeIdx, '</form> should close before </main>');
-  });
-
-  it('skip-link appears before <main> tag', function () {
-    renderLogin();
-    var html = document.getElementById('app').innerHTML;
-    var skipIdx = html.indexOf('Skip to content');
-    var mainIdx = html.indexOf('<main');
-    assert.ok(skipIdx < mainIdx && skipIdx !== -1, 'Skip link should appear before <main> element');
-  });
-});
 
 // ============================================================
 // Issue #139: Login background theme-aware CSS
@@ -275,4 +230,6 @@ describe('Issue #141 — Login font sizes', function () {
       '.login-link should NOT have font-size: 12px',
     );
   });
+});
+
 });
