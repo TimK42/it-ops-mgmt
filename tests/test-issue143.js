@@ -72,7 +72,7 @@ describe('Issue #143 — .chip-input touch target min-height 44px', function () 
 });
 
 // ============================================================
-// Issue #144: WCAG 2.5.5 — #changePWModal .form-input touch target size
+// Issue #144: WCAG 2.5.5 — #form-modal .form-input touch target size
 // ============================================================
 
 describe('Issue #144 — #form-modal .form-input touch target min-height 44px', function () {
