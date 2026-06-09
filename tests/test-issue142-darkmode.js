@@ -58,7 +58,6 @@ before(function () {
 });
 
 describe('Issue #142 — Dark mode resets on SPA page navigation', function () {
-
   describe('restoreTheme() — localStorage', function () {
     beforeEach(function () {
       resetDOM();
