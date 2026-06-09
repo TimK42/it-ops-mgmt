@@ -81,22 +81,13 @@ describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
     assert.strictEqual(r.status, 200, 'GET /css/style.css must return 200');
 
     const cc = r.headers['cache-control'] || '';
-    assert.ok(
-      cc.includes('public'),
-      'Cache-Control must include "public", got: ' + cc,
-    );
-    assert.ok(
-      /max-age\s*=\s*0/.test(cc),
-      'Cache-Control must have max-age=0, got: ' + cc,
-    );
+    assert.ok(cc.includes('public'), 'Cache-Control must include "public", got: ' + cc);
+    assert.ok(/max-age\s*=\s*0/.test(cc), 'Cache-Control must have max-age=0, got: ' + cc);
     assert.ok(
       cc.includes('must-revalidate'),
       'Cache-Control must include "must-revalidate", got: ' + cc,
     );
-    assert.ok(
-      !cc.includes('no-store'),
-      'Cache-Control must NOT contain "no-store", got: ' + cc,
-    );
+    assert.ok(!cc.includes('no-store'), 'Cache-Control must NOT contain "no-store", got: ' + cc);
   });
 
   test('GET /js/app.js returns Cache-Control: public, max-age=0, must-revalidate', async () => {
@@ -104,22 +95,13 @@ describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
     assert.strictEqual(r.status, 200, 'GET /js/app.js must return 200');
 
     const cc = r.headers['cache-control'] || '';
-    assert.ok(
-      cc.includes('public'),
-      'Cache-Control must include "public", got: ' + cc,
-    );
-    assert.ok(
-      /max-age\s*=\s*0/.test(cc),
-      'Cache-Control must have max-age=0, got: ' + cc,
-    );
+    assert.ok(cc.includes('public'), 'Cache-Control must include "public", got: ' + cc);
+    assert.ok(/max-age\s*=\s*0/.test(cc), 'Cache-Control must have max-age=0, got: ' + cc);
     assert.ok(
       cc.includes('must-revalidate'),
       'Cache-Control must include "must-revalidate", got: ' + cc,
     );
-    assert.ok(
-      !cc.includes('no-store'),
-      'Cache-Control must NOT contain "no-store", got: ' + cc,
-    );
+    assert.ok(!cc.includes('no-store'), 'Cache-Control must NOT contain "no-store", got: ' + cc);
   });
 
   test('Conditional GET with valid ETag returns 304 Not Modified', async () => {
@@ -133,11 +115,7 @@ describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
     // Conditional GET with the ETag
     const second = await req('GET', '/css/style.css', { etag });
     assert.strictEqual(second.status, 304, 'Conditional GET with valid ETag must return 304');
-    assert.strictEqual(
-      second.body.length,
-      0,
-      '304 response must have empty body',
-    );
+    assert.strictEqual(second.body.length, 0, '304 response must have empty body');
   });
 
   test('Conditional GET with invalid ETag returns 200 with full content', async () => {
