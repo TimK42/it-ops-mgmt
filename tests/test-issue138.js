@@ -15,14 +15,11 @@ const assert = require('assert');
 // ============================================================
 
 function resetDOM() {
-  var dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"></div></body></html>',
-    {
-      url: 'http://localhost:3199',
-      pretendToBeVisual: true,
-      runScripts: 'dangerously',
-    },
-  );
+  var dom = new JSDOM('<!DOCTYPE html><html><body><div id="app"></div></body></html>', {
+    url: 'http://localhost:3199',
+    pretendToBeVisual: true,
+    runScripts: 'dangerously',
+  });
 
   Object.defineProperty(dom.window, 'matchMedia', {
     writable: true,
@@ -77,18 +74,9 @@ describe('Issue #138 — Login page skip-link and main landmark', function () {
   it('renders skip-to-content link with correct href and class', function () {
     renderLogin();
     var html = document.getElementById('app').innerHTML;
-    assert.ok(
-      html.indexOf('class="skip-link"') !== -1,
-      'Should contain skip-link class',
-    );
-    assert.ok(
-      html.indexOf('href="#main-content"') !== -1,
-      'Should link to #main-content',
-    );
-    assert.ok(
-      html.indexOf('Skip to content') !== -1,
-      'Should say "Skip to content"',
-    );
+    assert.ok(html.indexOf('class="skip-link"') !== -1, 'Should contain skip-link class');
+    assert.ok(html.indexOf('href="#main-content"') !== -1, 'Should link to #main-content');
+    assert.ok(html.indexOf('Skip to content') !== -1, 'Should say "Skip to content"');
   });
 
   it('renders <main> landmark with id="main-content"', function () {
@@ -98,19 +86,13 @@ describe('Issue #138 — Login page skip-link and main landmark', function () {
       html.indexOf('<main id="main-content"') !== -1,
       'Should contain <main id="main-content">',
     );
-    assert.ok(
-      html.indexOf('class="main"') !== -1,
-      'Main element should have class="main"',
-    );
+    assert.ok(html.indexOf('class="main"') !== -1, 'Main element should have class="main"');
   });
 
   it('sets tabindex="-1" on the main element', function () {
     renderLogin();
     var html = document.getElementById('app').innerHTML;
-    assert.ok(
-      html.indexOf('tabindex="-1"') !== -1,
-      'Main element should have tabindex="-1"',
-    );
+    assert.ok(html.indexOf('tabindex="-1"') !== -1, 'Main element should have tabindex="-1"');
   });
 
   it('wraps login form inside <main> tags', function () {
@@ -120,14 +102,8 @@ describe('Issue #138 — Login page skip-link and main landmark', function () {
     var closeIdx = html.indexOf('</main>');
     var formStart = html.indexOf('<form');
     var formEnd = html.indexOf('</form>');
-    assert.ok(
-      openIdx < formStart,
-      '<main> should open before <form>',
-    );
-    assert.ok(
-      formEnd < closeIdx,
-      '</form> should close before </main>',
-    );
+    assert.ok(openIdx < formStart, '<main> should open before <form>');
+    assert.ok(formEnd < closeIdx, '</form> should close before </main>');
   });
 
   it('skip-link appears before <main> tag', function () {
@@ -135,10 +111,7 @@ describe('Issue #138 — Login page skip-link and main landmark', function () {
     var html = document.getElementById('app').innerHTML;
     var skipIdx = html.indexOf('Skip to content');
     var mainIdx = html.indexOf('<main');
-    assert.ok(
-      skipIdx < mainIdx && skipIdx !== -1,
-      'Skip link should appear before <main> element',
-    );
+    assert.ok(skipIdx < mainIdx && skipIdx !== -1, 'Skip link should appear before <main> element');
   });
 });
 
@@ -161,20 +134,17 @@ describe('Issue #139 — Login background theme-aware CSS', function () {
   });
 
   it(':root declares --login-bg-end', function () {
-    assert.ok(
-      css.indexOf('--login-bg-end: #e0e7ff') !== -1,
-      ':root should declare --login-bg-end',
-    );
+    assert.ok(css.indexOf('--login-bg-end: #e0e7ff') !== -1, ':root should declare --login-bg-end');
   });
 
-  it('[data-theme=\'dark\'] declares --login-bg-start', function () {
+  it("[data-theme='dark'] declares --login-bg-start", function () {
     assert.ok(
-      css.indexOf("--login-bg-start: #1a1a2e") !== -1,
+      css.indexOf('--login-bg-start: #1a1a2e') !== -1,
       "[data-theme='dark'] should declare --login-bg-start",
     );
   });
 
-  it('[data-theme=\'dark\'] declares --login-bg-end', function () {
+  it("[data-theme='dark'] declares --login-bg-end", function () {
     assert.ok(
       css.indexOf('--login-bg-end: #16213e') !== -1,
       "[data-theme='dark'] should declare --login-bg-end",
@@ -228,8 +198,7 @@ describe('Issue #140 — Login card responsive padding', function () {
     var afterMedia = css.slice(mediaStart);
     // Look for .login-card padding inside the media block
     assert.ok(
-      afterMedia.indexOf('.login-card') !== -1 &&
-        afterMedia.indexOf('padding: 24px') !== -1,
+      afterMedia.indexOf('.login-card') !== -1 && afterMedia.indexOf('padding: 24px') !== -1,
       '@media block should set .login-card { padding: 24px }',
     );
   });
@@ -247,14 +216,8 @@ describe('Issue #141 — Login font sizes', function () {
   });
 
   it('.login-card .login-sub font-size is 14px', function () {
-    assert.ok(
-      css.indexOf('.login-card .login-sub') !== -1,
-      '.login-card .login-sub should exist',
-    );
-    assert.ok(
-      css.indexOf('font-size: 14px') !== -1,
-      'Should have font-size: 14px',
-    );
+    assert.ok(css.indexOf('.login-card .login-sub') !== -1, '.login-card .login-sub should exist');
+    assert.ok(css.indexOf('font-size: 14px') !== -1, 'Should have font-size: 14px');
 
     // Confirm it's inside the .login-card .login-sub block, not somewhere else
     var subIdx = css.indexOf('.login-card .login-sub');
@@ -268,10 +231,7 @@ describe('Issue #141 — Login font sizes', function () {
   it('.login-link font-size is 14px', function () {
     // Use '.login-link {' to skip earlier '.login-link a' occurrences
     var linkIdx = css.indexOf('.login-link {');
-    assert.ok(
-      linkIdx !== -1,
-      '.login-link block should exist',
-    );
+    assert.ok(linkIdx !== -1, '.login-link block should exist');
 
     var linkBlock = css.slice(linkIdx, linkIdx + 200);
     assert.ok(
