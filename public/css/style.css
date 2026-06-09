@@ -1082,6 +1082,9 @@ tr.row-click {
   .login-card {
     padding: 24px;
   }
+  .login-page.register-mode {
+    padding-bottom: 80px;
+  }
 }
 .login-card h1 {
   font-size: 22px;
