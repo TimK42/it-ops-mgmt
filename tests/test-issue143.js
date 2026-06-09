@@ -115,7 +115,7 @@ describe('No regression — base .form-input', function () {
     var firstIdx = css.indexOf('.form-input,');
     assert.ok(firstIdx !== -1, 'Base .form-input rule should exist');
 
-    // Confirm this is before the mobile media query (line ~811), not reduced-motion one
+    // Confirm this is before the first mobile @media (max-width: 768px)
     var mobileMediaIdx = css.indexOf('@media (max-width: 768px)');
     assert.ok(firstIdx < mobileMediaIdx, 'Base .form-input should appear before mobile @media');
 
