@@ -632,6 +632,8 @@ function renderLogin(mode) {
     : '';
   state.sessionExpired = false;
   document.getElementById('app').innerHTML = `
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <main id="main-content" class="main" tabindex="-1">
     <form class="login-page" id="login-form">
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
@@ -639,7 +641,7 @@ function renderLogin(mode) {
         ${fallbackError}${expiredMsg}
         <div class="login-error" id="login-error"></div>
         <div class="login-success" id="login-success"></div>
-        <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username" autofocus></div>
+        <div class="form-group"><label for="auth-user" class="sr-only">Username</label><input class="form-input" id="auth-user" placeholder="Username" autocomplete="username"></div>
         <div class="form-group"><label for="auth-pass" class="sr-only">Password</label><input class="form-input" type="password" id="auth-pass" placeholder="Password" autocomplete="${isRegister ? 'new-password' : 'current-password'}"></div>
         ${isRegister ? '<div class="pw-hints" id="auth-pass-hints"></div>' : ''}
         ${isRegister ? '<div class="form-group"><label for="auth-pass-confirm" class="sr-only">Confirm Password</label><input class="form-input" type="password" id="auth-pass-confirm" placeholder="Confirm Password" autocomplete="new-password"><div class="form-error" id="auth-pass-confirm-error"></div></div>' : ''}
@@ -647,7 +649,8 @@ function renderLogin(mode) {
         <button class="btn btn-primary" id="auth-submit">${isRegister ? 'Register' : 'Sign In'}</button>
         <div class="login-link">${isRegister ? '<a href="/" data-action="login-link" data-allow-nav>← Back to sign in</a>' : '<a href="/register" data-action="login-link" data-page="register" data-allow-nav>Create account</a>'}</div>
       </div>
-    </form>`;
+    </form>
+    </main>`;
   const err = document.getElementById('login-error');
   const suc = document.getElementById('login-success');
   document.getElementById('login-form').addEventListener('submit', async (e) => {
