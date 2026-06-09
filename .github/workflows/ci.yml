@@ -52,8 +52,8 @@ jobs:
       - name: Node.js test suite (integration)
         run: npm run test:js
 
-      - name: Node test runner (layout regression)
-        run: node --test tests/test-issue119-layout.js
+      - name: Node test runner (regression tests)
+        run: node --test tests/test-issue119-layout.js tests/test-issue151-caching.js
 
       - name: Mocha test suite (DOM/unit)
         run: npm run test:mocha
