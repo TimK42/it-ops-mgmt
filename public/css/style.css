@@ -1318,6 +1318,10 @@ tr.row-click {
   width: 420px;
 }
 
+#changePWModal .form-input {
+  min-height: 44px;
+}
+
 /* ===== CHIP INPUT ===== */
 .chip-input-wrapper {
   display: flex;
@@ -1384,7 +1388,7 @@ tr.row-click {
   font-family: 'Inter', sans-serif;
   color: var(--text);
   min-width: 120px;
-  min-height: 28px;
+  min-height: 44px;
   padding: 2px 0;
   flex: 1 1 120px;
 }
