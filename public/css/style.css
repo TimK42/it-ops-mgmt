@@ -13,6 +13,8 @@
   --bg-hover: #f8f8ff;
   --surface-alt: #fafafa;
   --text-muted: #555;
+  --login-bg-start: #eef2ff;
+  --login-bg-end: #e0e7ff;
 }
 
 [data-theme='dark'] {
@@ -25,6 +27,8 @@
   --bg-hover: #1e1e30;
   --surface-alt: #1a1a2e;
   --text-muted: #aaa;
+  --login-bg-start: #1a1a2e;
+  --login-bg-end: #16213e;
 }
 * {
   margin: 0;
@@ -1063,7 +1067,7 @@ tr.row-click {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, var(--login-bg-start) 0%, var(--login-bg-end) 100%);
 }
 .login-card {
   background: var(--surface);
@@ -1073,6 +1077,12 @@ tr.row-click {
   max-width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 24px;
+  }
+}
 .login-card h1 {
   font-size: 22px;
   font-weight: 700;
@@ -1080,7 +1090,7 @@ tr.row-click {
   color: var(--text);
 }
 .login-card .login-sub {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
   margin-bottom: 24px;
 }
@@ -1113,7 +1123,7 @@ tr.row-click {
 }
 .login-link {
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-secondary);
   margin-top: 12px;
 }
