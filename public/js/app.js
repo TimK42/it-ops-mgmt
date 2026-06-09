@@ -637,7 +637,7 @@ function renderLogin(mode) {
   document.getElementById('app').innerHTML = `
     <a href="#main-content" class="skip-link">Skip to content</a>
     <main id="main-content" class="main" tabindex="-1">
-    <form class="login-page" id="login-form">
+    <form class="login-page${isRegister ? ' register-mode' : ''}" id="login-form">
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
         <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
