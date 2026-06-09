@@ -236,6 +236,14 @@ describe('Unarchive button visibility by status and role', function () {
 });
 
 describe('Unarchive API call', function () {
+  var originalNavigate;
+  beforeEach(function () {
+    originalNavigate = global.navigate; // save at runtime, not at define-time
+  });
+  afterEach(function () {
+    global.navigate = originalNavigate;
+  });
+
   it('calling unarchiveQA sends PUT with status=Draft', async function () {
     setupDetail('Admin', archivedQA);
     let calledUrl, calledOpts;

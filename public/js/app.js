@@ -84,6 +84,32 @@ function toggleTheme() {
   }
 }
 
+function restoreTheme() {
+  let theme = null;
+  try {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || stored === 'light') theme = stored;
+  } catch {
+    /* localStorage unavailable (private mode etc.) — preserve current in-memory theme */
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'dark' || current === 'light') theme = current;
+  }
+  if (!theme) {
+    if (typeof window.matchMedia === 'function') {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    } else {
+      theme = 'light';
+    }
+  }
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeColor(theme);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    btn.setAttribute('aria-pressed', String(theme === 'dark'));
+  }
+}
+
 initTheme();
 
 // ===== PWA INSTALL PROMPT =====
@@ -781,6 +807,7 @@ function closeSidebar() {
 }
 
 function navigate(page) {
+  restoreTheme();
   closeModal('detail-modal');
   closeSidebar();
   state.page = page;
