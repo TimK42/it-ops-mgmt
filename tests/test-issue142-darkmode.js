@@ -46,7 +46,7 @@ function resetDOM() {
 // ============================================================
 
 before(function () {
-  if (typeof state === 'undefined') {
+  if (typeof navigate !== 'function') {
     resetDOM();
     var appJsPath = path.resolve(__dirname, '../public/js/app.js');
     var code = fs.readFileSync(appJsPath, 'utf-8');
