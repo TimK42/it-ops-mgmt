@@ -45,25 +45,19 @@ function resetDOM() {
 // Load app.js once — defines restoreTheme() and navigate()
 // ============================================================
 
-var appLoaded = false;
-
-function loadAppJs() {
-  if (!appLoaded) {
+before(function () {
+  if (typeof state === 'undefined') {
     resetDOM();
     var appJsPath = path.resolve(__dirname, '../public/js/app.js');
     var code = fs.readFileSync(appJsPath, 'utf-8');
     vm.runInThisContext(code, { filename: 'app.js' });
-    appLoaded = true;
     delete global.window;
     delete global.document;
     delete global.navigator;
   }
-}
+});
 
 describe('Issue #142 — Dark mode resets on SPA page navigation', function () {
-  before(function () {
-    loadAppJs();
-  });
 
   describe('restoreTheme() — localStorage', function () {
     beforeEach(function () {
