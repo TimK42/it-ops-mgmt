@@ -1,6 +1,6 @@
 // Tests for Issue #143 and #144
 // #143 — WCAG 2.5.5 touch target: .chip-input min-height 28px → 44px
-// #144 — WCAG 2.5.5 touch target: #changePWModal .form-input min-height 44px
+// #144 — WCAG 2.5.5 touch target: #form-modal .form-input min-height 44px
 
 const fs = require('fs');
 const path = require('path');
@@ -75,10 +75,10 @@ describe('Issue #143 — .chip-input touch target min-height 44px', function () 
 // Issue #144: WCAG 2.5.5 — #changePWModal .form-input touch target size
 // ============================================================
 
-describe('Issue #144 — #changePWModal .form-input touch target min-height 44px', function () {
-  it('#changePWModal .form-input has min-height: 44px', function () {
-    var modalIdx = css.indexOf('#changePWModal .form-input {');
-    assert.ok(modalIdx !== -1, '#changePWModal .form-input block should exist');
+describe('Issue #144 — #form-modal .form-input touch target min-height 44px', function () {
+  it('#form-modal .form-input has min-height: 44px', function () {
+    var modalIdx = css.indexOf('#form-modal .form-input {');
+    assert.ok(modalIdx !== -1, '#form-modal .form-input block should exist');
 
     // Extract the block after the selector up to the closing }
     var blockStart = css.indexOf('{', modalIdx);
@@ -94,12 +94,12 @@ describe('Issue #144 — #changePWModal .form-input touch target min-height 44px
         }
       }
     }
-    assert.ok(blockEnd !== -1, '#changePWModal .form-input closing brace should exist');
+    assert.ok(blockEnd !== -1, '#form-modal .form-input closing brace should exist');
 
     var modalBlock = css.slice(modalIdx, blockEnd + 1);
     assert.ok(
       modalBlock.indexOf('min-height: 44px') !== -1,
-      '#changePWModal .form-input block should set min-height: 44px',
+      '#form-modal .form-input block should set min-height: 44px',
     );
   });
 });
