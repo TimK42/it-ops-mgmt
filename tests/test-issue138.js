@@ -191,14 +191,31 @@ describe('Issue #140 — Login card responsive padding', function () {
   });
 
   it('media rule sets .login-card padding: 24px', function () {
-    // Find the media block
+    // Find the media block and extract its boundaries via brace matching
     var mediaStart = css.indexOf('@media (max-width: 480px)');
     assert.ok(mediaStart !== -1, '@media block must exist');
 
-    var afterMedia = css.slice(mediaStart);
-    // Look for .login-card padding inside the media block
+    var blockStart = css.indexOf('{', mediaStart);
+    assert.ok(blockStart !== -1, '@media opening brace must exist');
+
+    var depth = 0;
+    var blockEnd = -1;
+    for (var i = blockStart; i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      else if (css[i] === '}') {
+        depth--;
+        if (depth === 0) {
+          blockEnd = i;
+          break;
+        }
+      }
+    }
+    assert.ok(blockEnd !== -1, '@media closing brace must exist');
+
+    var mediaBlock = css.slice(mediaStart, blockEnd + 1);
+    // Search only within the extracted media block to avoid false positives
     assert.ok(
-      afterMedia.indexOf('.login-card') !== -1 && afterMedia.indexOf('padding: 24px') !== -1,
+      mediaBlock.indexOf('.login-card') !== -1 && mediaBlock.indexOf('padding: 24px') !== -1,
       '@media block should set .login-card { padding: 24px }',
     );
   });
