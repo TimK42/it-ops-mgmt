@@ -90,7 +90,9 @@ function restoreTheme() {
     const stored = localStorage.getItem('theme');
     if (stored === 'dark' || stored === 'light') theme = stored;
   } catch {
-    /* ignore */
+    /* localStorage unavailable (private mode etc.) — preserve current in-memory theme */
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'dark' || current === 'light') theme = current;
   }
   if (!theme) {
     if (typeof window.matchMedia === 'function') {
