@@ -123,7 +123,9 @@ app.use('/api/users', requireRole('Admin'), require('./routes/users'));
 
 app.get('/api/stats', (req, res) => {
   const db = getDb();
-  const statusCounts = db.prepare("SELECT status, COUNT(*) as c FROM qa_entries GROUP BY status").all();
+  const statusCounts = db
+    .prepare('SELECT status, COUNT(*) as c FROM qa_entries GROUP BY status')
+    .all();
   const byStatus = {};
   for (const row of statusCounts) byStatus[row.status] = row.c;
   res.json({

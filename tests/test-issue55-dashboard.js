@@ -239,8 +239,7 @@ describe('Issue #55 — Dashboard improvements', function () {
 
     it('GET /api/stats status sub-counts sum does not exceed total', async function () {
       var r = await req('GET', '/api/stats', { cookie });
-      var sum =
-        (r.json.qa.published || 0) + (r.json.qa.draft || 0) + (r.json.qa.archived || 0);
+      var sum = (r.json.qa.published || 0) + (r.json.qa.draft || 0) + (r.json.qa.archived || 0);
       assert.ok(
         sum <= r.json.qa.total,
         'Sum of published + draft + archived (' +
@@ -271,7 +270,9 @@ describe('Issue #55 — Dashboard improvements', function () {
   // ============================================================
 
   describe('Dashboard rendering — stats cards', function () {
-    beforeEach(function () { resetDOM(); });
+    beforeEach(function () {
+      resetDOM();
+    });
     it('renderDashboard creates 5 stat cards in the stats grid', async function () {
       setupDashboard('Admin', {
         '/api/stats': { qa: { total: 10, published: 5, draft: 3, archived: 2 }, categories: 4 },
@@ -355,7 +356,9 @@ describe('Issue #55 — Dashboard improvements', function () {
   });
 
   describe('Dashboard rendering — toolbar', function () {
-    beforeEach(function () { resetDOM(); });
+    beforeEach(function () {
+      resetDOM();
+    });
     it('Admin sees ＋ New Entry button in toolbar', async function () {
       setupDashboard('Admin', {
         '/api/stats': { qa: { total: 0, published: 0, draft: 0, archived: 0 }, categories: 0 },
@@ -398,7 +401,9 @@ describe('Issue #55 — Dashboard improvements', function () {
   });
 
   describe('Dashboard rendering — recent entries', function () {
-    beforeEach(function () { resetDOM(); });
+    beforeEach(function () {
+      resetDOM();
+    });
     it('recent entries section renders with loaded data', async function () {
       var entries = [
         {
@@ -473,7 +478,9 @@ describe('Issue #55 — Dashboard improvements', function () {
   });
 
   describe('Dashboard rendering — sub-system coverage bar chart', function () {
-    beforeEach(function () { resetDOM(); });
+    beforeEach(function () {
+      resetDOM();
+    });
     it('bar chart section renders category coverage', async function () {
       var categories = [
         { name: 'CAD', icon: '\u{1F4D0}', qa_count: 10, color: '#6366f1' },
@@ -519,7 +526,9 @@ describe('Issue #55 — Dashboard improvements', function () {
   });
 
   describe('Dashboard rendering — error handling', function () {
-    beforeEach(function () { resetDOM(); });
+    beforeEach(function () {
+      resetDOM();
+    });
     it('stats API failure shows error message', async function () {
       setupDashboard('Admin', {
         '/api/stats': function () {
@@ -597,7 +606,9 @@ describe('Issue #55 — Dashboard improvements', function () {
         '/api/stats': function () {
           return Promise.reject(new Error('Stats fail'));
         },
-        '/api/qa?_per_page=5&sort=newest': { data: [{ id: 1, title: 'Test', status: 'Published' }] },
+        '/api/qa?_per_page=5&sort=newest': {
+          data: [{ id: 1, title: 'Test', status: 'Published' }],
+        },
         '/api/categories': [{ name: 'CAD', icon: '\u{1F4D0}', qa_count: 5, color: '#6366f1' }],
       });
       var el = document.getElementById('page-content');
@@ -689,10 +700,7 @@ describe('Issue #55 — Dashboard improvements', function () {
       assert.ok(lastMediaIdx !== -1, 'CSS should have mobile @media query');
 
       var block = css.slice(lastMediaIdx);
-      assert.ok(
-        block.indexOf('.recent-entry') !== -1,
-        'Mobile @media should target .recent-entry',
-      );
+      assert.ok(block.indexOf('.recent-entry') !== -1, 'Mobile @media should target .recent-entry');
       assert.ok(block.indexOf('.bar-label') !== -1, 'Mobile @media should target .bar-label');
     });
   });
