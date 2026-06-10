@@ -79,7 +79,9 @@ router.get('/', (req, res) => {
   const offset = (page - 1) * perPage;
   let orderClause;
   if (sort === 'popular') {
-    const { max_usage } = db.prepare('SELECT COALESCE(MAX(usage_count),0) as max_usage FROM qa_entries').get();
+    const { max_usage } = db
+      .prepare('SELECT COALESCE(MAX(usage_count),0) as max_usage FROM qa_entries')
+      .get();
     if (max_usage === 0) {
       orderClause = 'ORDER BY q.created_at DESC';
     } else {

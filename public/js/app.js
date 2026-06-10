@@ -21,7 +21,9 @@ let state = {
   try {
     const stored = localStorage.getItem('qaSort');
     if (stored === 'popular' || stored === 'newest') state.qaSort = stored;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 })();
 
 function updateThemeColor(theme) {
@@ -962,7 +964,11 @@ async function renderQA(el) {
       sortSelect.addEventListener('change', () => {
         state.qaSort = sortSelect.value;
         state.qaPage = 1;
-        try { localStorage.setItem('qaSort', state.qaSort); } catch { /* ignore */ }
+        try {
+          localStorage.setItem('qaSort', state.qaSort);
+        } catch {
+          /* ignore */
+        }
         renderQA(el);
       });
     }

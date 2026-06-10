@@ -27,22 +27,49 @@ const PORT = 3199;
 
 const mockQAEntries = [
   {
-    id: 1, qa_number: 'QA-001', title: 'Test Entry 1', question: 'Question 1?',
-    answer: 'Answer 1', status: 'Published', category_name: 'Network',
-    category_color: '#6366f1', category_icon: '🌐', tags: [], usage_count: 5,
-    created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-02T00:00:00.000Z',
+    id: 1,
+    qa_number: 'QA-001',
+    title: 'Test Entry 1',
+    question: 'Question 1?',
+    answer: 'Answer 1',
+    status: 'Published',
+    category_name: 'Network',
+    category_color: '#6366f1',
+    category_icon: '🌐',
+    tags: [],
+    usage_count: 5,
+    created_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-02T00:00:00.000Z',
   },
   {
-    id: 2, qa_number: 'QA-002', title: 'Test Entry 2', question: 'Question 2?',
-    answer: 'Answer 2', status: 'Draft', category_name: 'Server',
-    category_color: '#ef4444', category_icon: '🖥', tags: [], usage_count: 0,
-    created_at: '2026-01-03T00:00:00.000Z', updated_at: '2026-01-04T00:00:00.000Z',
+    id: 2,
+    qa_number: 'QA-002',
+    title: 'Test Entry 2',
+    question: 'Question 2?',
+    answer: 'Answer 2',
+    status: 'Draft',
+    category_name: 'Server',
+    category_color: '#ef4444',
+    category_icon: '🖥',
+    tags: [],
+    usage_count: 0,
+    created_at: '2026-01-03T00:00:00.000Z',
+    updated_at: '2026-01-04T00:00:00.000Z',
   },
   {
-    id: 3, qa_number: 'QA-003', title: 'Popular Entry', question: 'Popular?',
-    answer: 'Yes', status: 'Published', category_name: null,
-    category_color: null, category_icon: null, tags: [], usage_count: 42,
-    created_at: '2026-02-01T00:00:00.000Z', updated_at: '2026-02-02T00:00:00.000Z',
+    id: 3,
+    qa_number: 'QA-003',
+    title: 'Popular Entry',
+    question: 'Popular?',
+    answer: 'Yes',
+    status: 'Published',
+    category_name: null,
+    category_color: null,
+    category_icon: null,
+    tags: [],
+    usage_count: 42,
+    created_at: '2026-02-01T00:00:00.000Z',
+    updated_at: '2026-02-02T00:00:00.000Z',
   },
 ];
 
@@ -78,7 +105,11 @@ function createDOM(localStorageSeed) {
 
   if (localStorageSeed) {
     for (const [k, v] of Object.entries(localStorageSeed)) {
-      try { dom.window.localStorage.setItem(k, v); } catch { /* ignore */ }
+      try {
+        dom.window.localStorage.setItem(k, v);
+      } catch {
+        /* ignore */
+      }
     }
   }
 
@@ -105,7 +136,9 @@ function setupQA(opts = {}) {
   global.loadQA = async () => {
     return { data: state.qaEntries, total: state.qaTotal, page: state.qaPage };
   };
-  global.loadQATotalCount = async () => { state.qaTotalCount = null; };
+  global.loadQATotalCount = async () => {
+    state.qaTotalCount = null;
+  };
   global.toast = () => {};
 }
 
@@ -385,7 +418,9 @@ describe('Issue #177 — Frontend', function () {
       global.fetch = global.api;
 
       // Mock loadQATotalCount since dashboard calls it
-      global.loadQATotalCount = async () => { state.qaTotalCount = 3; };
+      global.loadQATotalCount = async () => {
+        state.qaTotalCount = 3;
+      };
 
       const el = document.getElementById('page-content');
 
@@ -396,7 +431,9 @@ describe('Issue #177 — Frontend', function () {
 
       return renderDashboard(el).then(() => {
         // Find the QA recent entries call
-        const qaRecentCall = capturedUrls.find((u) => u.includes('qa') && u.includes('_per_page=5'));
+        const qaRecentCall = capturedUrls.find(
+          (u) => u.includes('qa') && u.includes('_per_page=5'),
+        );
         assert.ok(qaRecentCall, 'Dashboard should call API for recent QA entries');
         assert.ok(
           qaRecentCall.includes('sort=newest'),
@@ -438,7 +475,11 @@ describe('Issue #177 — Backend usage_count', function () {
           res.on('end', () => {
             const body = Buffer.concat(chunks).toString();
             let json = null;
-            try { json = JSON.parse(body); } catch { /* not json */ }
+            try {
+              json = JSON.parse(body);
+            } catch {
+              /* not json */
+            }
             resolve({
               status: res.statusCode,
               headers: res.headers,
@@ -482,7 +523,10 @@ describe('Issue #177 — Backend usage_count', function () {
     await new Promise((ok, fail) => {
       const to = setTimeout(() => fail(new Error('Server startup timeout (10s)')), 10000);
       server.stdout.on('data', (d) => {
-        if (d.toString().includes('ready')) { clearTimeout(to); ok(); }
+        if (d.toString().includes('ready')) {
+          clearTimeout(to);
+          ok();
+        }
       });
       server.stderr.on('data', (d) => {
         if (d.toString().includes('Error')) {
@@ -519,20 +563,25 @@ describe('Issue #177 — Backend usage_count', function () {
       // Fetch the entry (first view — UPDATE happens AFTER SELECT, so response shows 0)
       const view1 = await request('GET', `/api/qa/${id}`, { cookie });
       assert.strictEqual(view1.status, 200, 'GET /api/qa/:id should return 200');
-      assert.strictEqual(view1.json.usage_count, 0,
-        'First view returns initial usage_count (0) because UPDATE runs after SELECT');
+      assert.strictEqual(
+        view1.json.usage_count,
+        0,
+        'First view returns initial usage_count (0) because UPDATE runs after SELECT',
+      );
 
       // Fetch again (second view — sees the incremented value from first fetch)
       const view2 = await request('GET', `/api/qa/${id}`, { cookie });
       assert.strictEqual(view2.status, 200, 'GET /api/qa/:id should return 200');
-      assert.strictEqual(view2.json.usage_count, 1,
-        'Second view returns usage_count=1 (the previous view incremented it)');
+      assert.strictEqual(
+        view2.json.usage_count,
+        1,
+        'Second view returns usage_count=1 (the previous view incremented it)',
+      );
 
       // Fetch a third time
       const view3 = await request('GET', `/api/qa/${id}`, { cookie });
       assert.strictEqual(view3.status, 200, 'GET /api/qa/:id should return 200');
-      assert.strictEqual(view3.json.usage_count, 2,
-        'Third view returns usage_count=2');
+      assert.strictEqual(view3.json.usage_count, 2, 'Third view returns usage_count=2');
     });
   });
 });
