@@ -40,6 +40,7 @@ function initSchema() {
       category_id INTEGER REFERENCES categories(id),
       tags TEXT DEFAULT '',
       status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN (${VALID_STATUSES.map((s) => `'${s.replace(/'/g, "''")}'`).join(',')})),
+      usage_count INTEGER NOT NULL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );
@@ -146,6 +147,13 @@ function initSchema() {
     }
   }
 
+  // migration: add usage_count column for popularity-based sorting
+  try {
+    db.exec('ALTER TABLE qa_entries ADD COLUMN usage_count INTEGER NOT NULL DEFAULT 0');
+  } catch (e) {
+    if (!e.message.includes('duplicate column')) throw e;
+  }
+
   // migration: update qa_entries.status DEFAULT from 'Published' to 'Draft'
   // The CREATE TABLE IF NOT EXISTS already has DEFAULT 'Draft', so new DBs are correct.
   // For existing DBs, SQLite does not support ALTER COLUMN SET DEFAULT, so a full table
@@ -175,7 +183,7 @@ function initSchema() {
         .prepare("SELECT name FROM pragma_table_info('qa_entries') WHERE name = 'tags'")
         .get();
       const baseCols =
-        'id, qa_number, title, question, answer, category_id, status, created_at, updated_at';
+        'id, qa_number, title, question, answer, category_id, status, usage_count, created_at, updated_at';
       const tagsCols = hasTagsColumn ? ', tags' : '';
       const commonCols = baseCols + tagsCols;
       const tagsTableCol = hasTagsColumn ? ", tags TEXT DEFAULT ''" : '';
@@ -192,6 +200,7 @@ function initSchema() {
             answer TEXT DEFAULT '',
             category_id INTEGER REFERENCES categories(id)${tagsTableCol},
             status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN (${VALID_STATUSES.map((s) => `'${s.replace(/'/g, "''")}'`).join(',')})),
+            usage_count INTEGER NOT NULL DEFAULT 0,
             created_at TEXT DEFAULT (datetime('now')),
             updated_at TEXT DEFAULT (datetime('now'))
           );
