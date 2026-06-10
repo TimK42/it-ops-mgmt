@@ -158,6 +158,55 @@ function initSchema() {
     if (!e.message.includes('syntax error') && !e.message.toLowerCase().includes('already'))
       throw e;
   }
+
+  // migration: ensure qa_entries CHECK constraint matches current VALID_STATUSES
+  // SQLite cannot ALTER CHECK, so rebuild the table when the status list changes
+  const qaSchema = db
+    .prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='qa_entries'")
+    .get();
+  if (qaSchema) {
+    const expectedStatusesSQL =
+      'CHECK(status IN (' +
+      VALID_STATUSES.map((s) => `'${s.replace(/'/g, "''")}'`).join(',') +
+      '))';
+    if (!qaSchema.sql.includes(expectedStatusesSQL)) {
+      // Check if tags column still exists (may have been dropped by earlier migration)
+      const hasTagsColumn = db
+        .prepare("SELECT name FROM pragma_table_info('qa_entries') WHERE name = 'tags'")
+        .get();
+      const commonCols =
+        'id, qa_number, title, question, answer, category_id, status, created_at, updated_at';
+      const tagsTableCol = hasTagsColumn ? ", tags TEXT DEFAULT ''" : '';
+      try {
+        db.exec('BEGIN TRANSACTION');
+        db.exec(`
+          CREATE TABLE IF NOT EXISTS qa_entries_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            qa_number TEXT NOT NULL UNIQUE,
+            title TEXT NOT NULL,
+            question TEXT NOT NULL,
+            answer TEXT DEFAULT '',
+            category_id INTEGER REFERENCES categories(id)${tagsTableCol},
+            status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN (${VALID_STATUSES.map((s) => `'${s.replace(/'/g, "''")}'`).join(',')})),
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+          );
+          INSERT INTO qa_entries_new (${commonCols})
+            SELECT ${commonCols} FROM qa_entries;
+          DROP TABLE qa_entries;
+          ALTER TABLE qa_entries_new RENAME TO qa_entries;
+        `);
+        db.exec('COMMIT');
+      } catch (e) {
+        try {
+          db.exec('ROLLBACK');
+        } catch {
+          /* ignore rollback errors */
+        }
+        if (!e.message.includes('no such table')) throw e;
+      }
+    }
+  }
 }
 
 function seedUsers() {
