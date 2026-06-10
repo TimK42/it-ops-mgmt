@@ -2,6 +2,8 @@ const express = require('express');
 const { getDb } = require('../db');
 const router = express.Router();
 
+const VALID_STATUSES = ['Draft', 'Published', 'Archived'];
+
 function getTagsForEntry(db, entryId) {
   return db
     .prepare(
@@ -119,6 +121,14 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!title || !question) return res.status(400).json({ error: 'Title and question required' });
+
+  // Validate status value
+  if (status !== undefined && !VALID_STATUSES.includes(status)) {
+    return res
+      .status(400)
+      .json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+  }
+
   const db = getDb();
   const last = db.prepare('SELECT qa_number FROM qa_entries ORDER BY id DESC LIMIT 1').get();
   const num = last
@@ -158,7 +168,6 @@ router.put('/:id', (req, res) => {
     return res.status(404).json({ error: 'Not found' });
 
   // Validate status value before processing transitions
-  const VALID_STATUSES = ['Draft', 'Published', 'Archived'];
   if (status !== undefined && !VALID_STATUSES.includes(status)) {
     return res
       .status(400)
