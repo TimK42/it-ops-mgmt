@@ -227,7 +227,7 @@ describe('GET /api/stats — byStatus not polluted by __proto__ (Issue #170)', (
     }
   });
 
-  test('stats endpoint returns correct counts when entries exist', async () => {
+  test('stats endpoint returns expected response shape with three status counters', async () => {
     // Create entries with valid statuses
     const r1 = await request('POST', '/api/qa', {
       cookie,
@@ -263,8 +263,10 @@ describe('GET /api/stats — byStatus not polluted by __proto__ (Issue #170)', (
     assert.ok(typeof qa.draft === 'number', 'qa.draft should be a number');
     assert.ok(typeof qa.archived === 'number', 'qa.archived should be a number');
 
-    // The endpoint should NOT have leaked __proto__ into the counters
-    // (Object.create(null) prevents 'constructor', '__proto__', 'toString' etc. from showing up)
+    // Verify the response shape only contains the 4 expected keys.
+    // This is a shape/type check — the server explicitly constructs
+    // the response object from byStatus counters; count delta
+    // assertions are not meaningful since other tests may create entries.
     assert.strictEqual(
       Object.keys(qa).length,
       4,
