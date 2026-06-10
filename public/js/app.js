@@ -1684,6 +1684,7 @@ async function renderDashboard(el) {
   api('/api/stats')
     .then((s) => {
       const ds = document.getElementById('dash-stats');
+      if (!ds) return;
       ds.className = '';
       ds.innerHTML = `<div class="stats-grid">
       <div class="stat-card"><div class="stat-number">${esc(String(s.qa.total ?? 0))}</div><div class="stat-label">Total QA Entries</div></div>
