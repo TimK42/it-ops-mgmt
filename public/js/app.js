@@ -1696,7 +1696,10 @@ async function renderDashboard(el) {
     })
     .catch(() => {
       const el2 = document.getElementById('dash-stats');
-      if (el2) el2.innerHTML = '<div class="error-msg">Failed to load stats</div>';
+      if (el2) {
+        el2.innerHTML = '<div class="error-msg">Failed to load stats</div>';
+        el2.className = '';
+      }
     });
 
   // --- Quick actions toolbar ---
