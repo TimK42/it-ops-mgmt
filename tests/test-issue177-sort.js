@@ -22,6 +22,29 @@ const { spawn } = require('child_process');
 const PORT = 3199;
 
 // ============================================================
+// Real app.js function references (captured lazily)
+// ============================================================
+
+// Other test files (e.g. test-issue146-draft-publish.js) may mock global functions
+// like renderQA with empty stubs. We need the real implementations for our tests.
+// Since app.js is loaded lazily by other files via before hooks (not at module-load
+// time), we save references the FIRST time they become available using a top-level
+// mocha before hook that runs before any describe blocks.
+const _orig = {};
+
+before(function () {
+  if (typeof state !== 'undefined' && Object.keys(_orig).length === 0) {
+    // app.js has been loaded by a previous test file — save original functions
+    const funcs = ['renderQA','showQADetail','loadQA','loadQATotalCount','navigate','closeModal'];
+    for (const fn of funcs) {
+      if (typeof global[fn] === 'function' && !(fn in _orig)) {
+        _orig[fn] = global[fn];
+      }
+    }
+  }
+});
+
+// ============================================================
 // Fixtures
 // ============================================================
 
@@ -153,6 +176,18 @@ describe('Issue #177 — Frontend', function () {
     const code = fs.readFileSync(appJsPath, 'utf-8');
     if (typeof state === 'undefined') {
       vm.runInThisContext(code, { filename: 'app.js' });
+    } else {
+      // app.js already loaded by a previous test file.
+      // Other test files (e.g. test-issue146-draft-publish.js) may have overridden
+      // global functions with empty mocks. Restore real references captured at
+      // root-level before hook (see top of file).
+      if (_orig.renderQA) renderQA = _orig.renderQA;
+      if (_orig.showQADetail) showQADetail = _orig.showQADetail;
+      if (_orig.loadQA) loadQA = _orig.loadQA;
+      if (_orig.loadQATotalCount) loadQATotalCount = _orig.loadQATotalCount;
+      if (_orig.navigate) navigate = _orig.navigate;
+      if (_orig.closeModal) closeModal = _orig.closeModal;
+      if (_orig.api) api = _orig.api;
     }
   });
 
@@ -593,6 +628,97 @@ describe('Issue #177 — Backend usage_count', function () {
       const view3 = await request('GET', `/api/qa/${id}`, { cookie });
       assert.strictEqual(view3.status, 200, 'GET /api/qa/:id should return 200');
       assert.strictEqual(view3.json.usage_count, 3, 'Third view returns usage_count=3');
+    });
+  });
+
+  describe('GET /api/qa sort behavior', function () {
+    const sortIds = [];
+
+    after(function () {
+      return Promise.all(sortIds.map((id) => request('DELETE', `/api/qa/${id}`, { cookie }).catch(() => {})));
+    });
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    before(async function () {
+      // Create 3 test entries with different usage counts (adding delays for distinct created_at timestamps)
+      const e1 = await request('POST', '/api/qa', {
+        cookie,
+        body: { title: 'Pop Sort A', question: 'Highest usage?', answer: 'A' },
+      });
+      await sleep(1100); // wait >1s for distinct created_at
+      const e2 = await request('POST', '/api/qa', {
+        cookie,
+        body: { title: 'Pop Sort B', question: 'Medium usage?', answer: 'B' },
+      });
+      await sleep(1100);
+      const e3 = await request('POST', '/api/qa', {
+        cookie,
+        body: { title: 'Pop Sort C', question: 'Lowest usage?', answer: 'C' },
+      });
+      sortIds.push(e1.json.id, e2.json.id, e3.json.id);
+
+      // View entry A 3 times (usage_count=3), entry B 2 times (usage_count=2), entry C 1 time (usage_count=1)
+      await request('GET', `/api/qa/${e1.json.id}`, { cookie });
+      await request('GET', `/api/qa/${e1.json.id}`, { cookie });
+      await request('GET', `/api/qa/${e1.json.id}`, { cookie });
+      await request('GET', `/api/qa/${e2.json.id}`, { cookie });
+      await request('GET', `/api/qa/${e2.json.id}`, { cookie });
+      await request('GET', `/api/qa/${e3.json.id}`, { cookie });
+    });
+
+    it('default sort (no param) returns results in popularity order (usage_count DESC)', async function () {
+      const res = await request('GET', '/api/qa', { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa should return 200');
+      const entries = res.json.data;
+      assert.ok(entries.length >= 3, 'Should return at least 3 entries');
+
+      const titles = entries.map((e) => e.title);
+      const aIdx = titles.indexOf('Pop Sort A');
+      const bIdx = titles.indexOf('Pop Sort B');
+      const cIdx = titles.indexOf('Pop Sort C');
+      assert(aIdx >= 0 && bIdx >= 0 && cIdx >= 0, 'All 3 test entries should be in the results');
+      assert(aIdx < bIdx, 'Pop Sort A (usage=3) should appear before Pop Sort B (usage=2)');
+      assert(bIdx < cIdx, 'Pop Sort B (usage=2) should appear before Pop Sort C (usage=1)');
+    });
+
+    it('sort=popular returns results in popularity order', async function () {
+      const res = await request('GET', '/api/qa?sort=popular', { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?sort=popular should return 200');
+      const entries = res.json.data;
+
+      const titles = entries.map((e) => e.title);
+      const aIdx = titles.indexOf('Pop Sort A');
+      const bIdx = titles.indexOf('Pop Sort B');
+      const cIdx = titles.indexOf('Pop Sort C');
+      assert(aIdx < bIdx, 'sort=popular: A before B');
+      assert(bIdx < cIdx, 'sort=popular: B before C');
+    });
+
+    it('sort=newest returns results by created_at DESC', async function () {
+      const res = await request('GET', '/api/qa?sort=newest', { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?sort=newest should return 200');
+      const entries = res.json.data;
+
+      const titles = entries.map((e) => e.title);
+      const aIdx = titles.indexOf('Pop Sort A');
+      const bIdx = titles.indexOf('Pop Sort B');
+      const cIdx = titles.indexOf('Pop Sort C');
+      assert(cIdx < bIdx, 'sort=newest: C (latest) before B');
+      assert(bIdx < aIdx, 'sort=newest: B before A (oldest)');
+    });
+
+    it('sort=oldest returns results by created_at ASC', async function () {
+      const res = await request('GET', '/api/qa?sort=oldest', { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?sort=oldest should return 200');
+      const entries = res.json.data;
+
+      const titles = entries.map((e) => e.title);
+      const aIdx = titles.indexOf('Pop Sort A');
+      const bIdx = titles.indexOf('Pop Sort B');
+      const cIdx = titles.indexOf('Pop Sort C');
+      assert(aIdx < bIdx, 'sort=oldest: A (oldest) before B');
+      assert(bIdx < cIdx, 'sort=oldest: B before C (newest)');
     });
   });
 });
