@@ -641,7 +641,7 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
-> **Scope:** PR #178 / Issue #177 — `usage_count` sort by popularity with frontend select and localStorage persistence.
+> **Scope:** Issue #177 (QA sort by popularity) — audit of `usage_count` sort with frontend select and localStorage persistence. Added as part of PR #180 / Issues #175-#176.
 > **Method:** Browser (CDP) snapshot + JS evaluate + screenshot (1440×900 desktop, 412×915 mobile)
 > **Viewports:** Desktop 1440×900, Mobile 412×915
 > **Auth:** admin (Admin role)
