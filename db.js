@@ -174,13 +174,17 @@ function initSchema() {
       const hasTagsColumn = db
         .prepare("SELECT name FROM pragma_table_info('qa_entries') WHERE name = 'tags'")
         .get();
-      const commonCols =
+      const baseCols =
         'id, qa_number, title, question, answer, category_id, status, created_at, updated_at';
+      const tagsCols = hasTagsColumn ? ', tags' : '';
+      const commonCols = baseCols + tagsCols;
       const tagsTableCol = hasTagsColumn ? ", tags TEXT DEFAULT ''" : '';
       try {
         db.exec('BEGIN TRANSACTION');
+        // Drop temp table first for reliable idempotency (avoids stale temp table from crash)
+        db.exec('DROP TABLE IF EXISTS qa_entries_new');
         db.exec(`
-          CREATE TABLE IF NOT EXISTS qa_entries_new (
+          CREATE TABLE qa_entries_new (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             qa_number TEXT NOT NULL UNIQUE,
             title TEXT NOT NULL,
