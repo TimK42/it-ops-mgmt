@@ -807,7 +807,7 @@ function renderShell() {
         <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
         <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
       </div>
-      <footer class="footer" role="contentinfo"><span class="footer-version">IT Operations KB v${appVersion}</span></footer>
+      <footer class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></footer>
     </nav>
     <div class="sidebar-overlay" id="sidebar-overlay" data-action="close-sidebar"></div>
     <a href="#main-content" class="skip-link">Skip to content</a>
@@ -1712,7 +1712,7 @@ function showResetUserPassword(id) {
 
 // ===== DASHBOARD =====
 async function renderDashboard(el) {
-  el.innerHTML = '<h2>Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
+  el.innerHTML = '<h2 class="sr-only">Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
 
   // --- Stats cards ---
   api('/api/stats')
@@ -1770,7 +1770,7 @@ async function renderDashboard(el) {
     '<div class="section-title">Most Viewed</div><div class="loading">Loading...</div>';
   el.appendChild(popSection);
 
-  api('/api/qa?sort=popular&_per_page=5')
+  api('/api/qa?_per_page=5&sort=popular')
     .then((data) => {
       const entries = data.data || data.entries || data || [];
       const ps = document.getElementById('dash-popular');
@@ -1780,7 +1780,7 @@ async function renderDashboard(el) {
           '<div class="section-title">Most Viewed</div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
         return;
       }
-      ps.innerHTML = `<div class="section-title">Most Viewed</div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span><span class="badge">👁 ${esc(q.usage_count || 0)}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
+      ps.innerHTML = `<div class="section-title">Most Viewed</div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span><span class="badge">👁 ${esc(String(q.usage_count ?? 0))}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
     })
     .catch(() => {
       const ps = document.getElementById('dash-popular');
