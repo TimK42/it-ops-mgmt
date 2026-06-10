@@ -1,5 +1,6 @@
 # IT Ops Management — UI/UX Audit Report
 
+> **Round 7:** 2026-06-10 22:41 HKT · via CDP snapshot + JS evaluate + chrome
 > **Round 6:** 2026-06-08 16:59 HKT · via CDP snapshot + JS evaluate + curl
 > **Round 5:** 2026-06-04 11:10 HKT · via CDP snapshot + JS evaluate + curl  
 > **Round 4:** 2026-06-03 17:26 HKT · via Browser (CDP) snapshot + JS evaluate + curl  
@@ -17,14 +18,14 @@
 
 ## Status Summary
 
-| Issue          | Round 1 | Round 2 | Round 3 | Round 4   | Round 5     | Round 6                  |
-| -------------- | ------- | ------- | ------- | --------- | ----------- | ------------------------ |
-| 🔴 Critical    | 4       | 0       | 0       | 0         | 0           | 0                        |
-| 🟧 High        | 5       | 0       | 3       | 2 (NEW)   | 1 (2 ↘)     | 1 (↘ R3-H1 FIXED)        |
-| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) | 2 (2 ↘)     | 5 (2 NEW R6-H3, R2-2 ↗)  |
-| 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   | 2 (↗ R5-L1) | 4 (2 NEW R6-H4, R4-L1 ↗) |
-| **Total Open** | **19**  | **3**   | **10**  | **7**     | **5**       | **10**                   |
-| **Fixed**      | —       | 19      | 2       | 6 (R3)    | 3 (R4)      | 4 (R5+R6)                |
+| Issue          | Round 1 | Round 2 | Round 3 | Round 4   | Round 5     | Round 6     | Round 7                |
+| -------------- | ------- | ------- | ------- | --------- | ----------- | ----------- | ---------------------- |
+| 🔴 Critical    | 4       | 0       | 0       | 0         | 0           | 0           | 0                      |
+| 🟧 High        | 5       | 0       | 3       | 2 (NEW)   | 1 (2 ↘)     | 1 (↘ R3-H1) | 1                      |
+| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) | 2 (2 ↘)     | 5 (2 NEW)   | 5                      |
+| 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   | 2 (↗ R5-L1) | 4 (2 NEW)   | 4                      |
+| **Total Open** | **19**  | **3**   | **10**  | **7**     | **5**       | **10**      | **10** (no new issues) |
+| **Fixed**      | —       | 19      | 2       | 6 (R3)    | 3 (R4)      | 4 (R5+R6)   | 4                      |
 
 ---
 
@@ -637,6 +638,57 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | 8   | R6-H4 | 🟩  | Change Password input height 41px     | Change Password | #144 — Set min-height: 44px on modal inputs       |
 | 9   | R2-2  | 🟨  | Dashboard very sparse                 | Dashboard       | Add charts, recent entries, per-category          |
 | 10  | R4-L1 | 🟩  | No explicit `<footer>` element        | All             | Optional — sidebar serves same purpose            |
+
+## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
+
+> **Scope:** PR #178 / Issue #177 — `usage_count` sort by popularity with frontend select and localStorage persistence.
+> **Method:** Browser (CDP) snapshot + JS evaluate + screenshot (1440×900 desktop, 412×915 mobile)
+> **Viewports:** Desktop 1440×900, Mobile 412×915
+> **Auth:** admin (Admin role)
+> **Themes:** Light + Dark (toggled, verified)
+> **Data:** 5 QA entries, QA-0001 has usage_count=5, others at 0
+
+### ✅ Verified: Sort Feature (All Passing)
+
+| Check                              | Status | Detail                                                                     |
+| ---------------------------------- | ------ | -------------------------------------------------------------------------- |
+| Sort dropdown renders              | ✅     | `<select id="qa-sort">` in toolbar between search and Export               |
+| Options correct                    | ✅     | "By Popularity" (value=popular), "By Newest" (value=newest)                |
+| Default = By Popularity            | ✅     | First visit defaults to `popular` on first login / fresh localStorage      |
+| localStorage persistence           | ✅     | `localStorage.getItem('qaSort')` survives page navigation and full refresh |
+| Switch to By Newest re-renders     | ✅     | onChange triggers `loadQA()` with `sort=newest` param                      |
+| Switch to By Popularity re-renders | ✅     | onChange triggers `loadQA()` with `sort=popular` param                     |
+| aria-label on sort select          | ✅     | `aria-label="Sort order"` — accessible to screen readers                   |
+| Works with search+filter           | ✅     | Sort param added alongside existing status+search URL params               |
+| Backend usage_count increment      | ✅     | `GET /api/qa/:id` increments `usage_count` on each detail view             |
+| Dark mode — sort select visible    | ✅     | Select dropdown renders clearly in dark mode                               |
+| Mobile responsive — sort fits      | ✅     | Sort dropdown stacks below search on mobile ≤768px                         |
+| No visual regressions              | ✅     | QA toolbar layout unchanged; sort select seamlessly integrated             |
+
+### 🔬 Detailed Checks
+
+**localStorage persistence verification:**
+
+1. Load page → Sort default "By Popularity" → localStorage `qaSort` = `"popular"`
+2. Select "By Newest" → UI re-renders → localStorage `qaSort` = `"newest"`
+3. Navigate to `/qa/1` and back → Sort still "By Newest" ✅
+4. Full page refresh → Sort still "By Newest" ✅
+
+**usage_count increment:**
+
+1. `SELECT usage_count FROM qa_entries WHERE id=1` → 4
+2. Navigate to `/qa/1` (detail page)
+3. Re-query → 5 ✅
+
+**Accessibility (WCAG):**
+
+- Skip-to-content link: ✅ (first focusable element, links to `#main-content`)
+- Main landmark: ✅ (`<main>` present)
+- Heading hierarchy: ✅ H1 → H2 → H2 (no jumps)
+- All form inputs have labels: ✅ (0 inputs without labels/aria-label)
+- No images missing alt text: ✅
+
+**CSS class:** `sort-select` — matches existing toolbar button styling
 
 ## Fixed This Round
 
