@@ -1711,7 +1711,7 @@ async function renderDashboard(el) {
   const recentSection = document.createElement('div');
   recentSection.id = 'dash-recent';
   recentSection.innerHTML =
-    '<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="loading">Loading...</div>';
+    '<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="loading">Loading...</div>';
   el.appendChild(recentSection);
 
   api('/api/qa?_per_page=5&sort=newest')
@@ -1721,16 +1721,16 @@ async function renderDashboard(el) {
       if (!rs) return;
       if (!entries.length) {
         rs.innerHTML =
-          '<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
+          '<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
         return;
       }
-      rs.innerHTML = `<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
+      rs.innerHTML = `<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
     })
     .catch(() => {
       const rs = document.getElementById('dash-recent');
       if (rs) {
         rs.innerHTML =
-          '<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="error-msg">Failed to load recent entries</div>';
+          '<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="error-msg">Failed to load recent entries</div>';
       }
     });
 
