@@ -790,28 +790,28 @@ function renderShell() {
   const userName = u.username;
   const appVersion = '1.1.0';
   document.getElementById('app').innerHTML = `
-    <nav class="sidebar" id="sidebar" aria-label="Main navigation">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">IT Operations</div>
-        <div class="sidebar-title">Knowledge Base</div>
-      </div>
-      <div class="sidebar-nav">
-        <div class="nav-section">Main</div>
-        <button class="nav-item active" data-nav="qa" data-action="navigate" data-page="qa"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
-        ${isAdmin ? `<button class="nav-item" data-nav="categories" data-action="navigate" data-page="categories"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" data-action="navigate" data-page="users"><span class="nav-icon">👥</span> Users</button>` : ''}
-        <div class="nav-section">Workspace</div>
-        <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
-      </div>
-      <div class="sidebar-footer">
-        <div class="nav-item" style="color:rgba(255,255,255,0.5);font-size:12px"><span class="nav-icon" style="font-size:12px"><span class="admin-user-icon">${esc(userName)[0].toUpperCase()}</span></span> ${esc(userName)} (${u.role})</div>
-        <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
-        <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
-      </div>
-      <footer class="footer"><span class="footer-version">IT Operations KB v${appVersion}</span></footer>
-    </nav>
-    <div class="sidebar-overlay" id="sidebar-overlay" data-action="close-sidebar"></div>
-    <a href="#main-content" class="skip-link">Skip to content</a>
-    <main id="main-content" class="main" tabindex="-1">
+    <div class="app-body">
+      <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+        <div class="sidebar-header">
+          <div class="sidebar-logo">IT Operations</div>
+          <div class="sidebar-title">Knowledge Base</div>
+        </div>
+        <div class="sidebar-nav">
+          <div class="nav-section">Main</div>
+          <button class="nav-item active" data-nav="qa" data-action="navigate" data-page="qa"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
+          ${isAdmin ? `<button class="nav-item" data-nav="categories" data-action="navigate" data-page="categories"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" data-action="navigate" data-page="users"><span class="nav-icon">👥</span> Users</button>` : ''}
+          <div class="nav-section">Workspace</div>
+          <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
+        </div>
+        <div class="sidebar-footer">
+          <div class="sidebar-footer-user">${esc(userName)} (${u.role}) &#x2022; IT Operations KB v${appVersion}</div>
+          <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
+          <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
+        </div>
+      </nav>
+      <div class="sidebar-overlay" id="sidebar-overlay" data-action="close-sidebar"></div>
+      <a href="#main-content" class="skip-link">Skip to content</a>
+      <main id="main-content" class="main" tabindex="-1">
       <header class="topbar">
         <div class="topbar-left">
           <button class="sidebar-toggle" data-action="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
@@ -823,7 +823,9 @@ function renderShell() {
         </div>
       </header>
       <div class="content" id="page-content"><div class="loading">Loading...</div></div>
-    </main>`;
+    </main>
+    </div>
+    <footer role="contentinfo" class="page-footer"><span class="footer-version">IT Operations KB v${appVersion}</span></footer>`;
 }
 
 function closeSidebar() {

@@ -56,6 +56,12 @@ body {
 }
 #app {
   display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.app-body {
+  display: flex;
   flex: 1;
   min-width: 0;
 }
@@ -137,6 +143,17 @@ body {
   border-radius: 10px;
   font-size: 11px;
   color: rgba(255, 255, 255, 0.7);
+}
+.sidebar-footer {
+  padding: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+.sidebar-footer-user {
+  padding: 4px 12px 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  line-height: 1.4;
 }
 .main {
   flex: 1;
@@ -1239,7 +1256,8 @@ tr.row-click {
 }
 
 /* Footer */
-.footer {
+.footer,
+.page-footer {
   flex-shrink: 0;
   padding: 8px 32px;
   border-top: 1px solid var(--border);
