@@ -1676,14 +1676,88 @@ function showResetUserPassword(id) {
 
 // ===== DASHBOARD =====
 async function renderDashboard(el) {
-  el.innerHTML = '<div class="loading">Loading...</div>';
-  try {
-    const s = await api('/api/stats');
-    el.innerHTML = `<h2 class="sr-only">Statistics</h2><div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">${s.qa.total}</div><div class="stat-label">QA Entries</div></div>
-      <div class="stat-card"><div class="stat-number">${s.categories}</div><div class="stat-label">Sub-Systems</div></div>
+  const canEdit = ['Admin', 'Editor'].includes(state.user && state.user.role);
+  el.innerHTML =
+    '<h2 class="sr-only">Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
+
+  // --- Stats cards ---
+  api('/api/stats')
+    .then((s) => {
+      const ds = document.getElementById('dash-stats');
+      if (!ds) return;
+      ds.className = '';
+      ds.innerHTML = `<div class="stats-grid">
+      <div class="stat-card"><div class="stat-number">${esc(String(s.qa.total ?? 0))}</div><div class="stat-label">Total QA Entries</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--success)">${esc(String(s.qa.published ?? 0))}</div><div class="stat-label">Published</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--warning)">${esc(String(s.qa.draft ?? 0))}</div><div class="stat-label">Draft</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--text-secondary)">${esc(String(s.qa.archived ?? 0))}</div><div class="stat-label">Archived</div></div>
+      <div class="stat-card"><div class="stat-number">${esc(String(s.categories ?? 0))}</div><div class="stat-label">Sub-Systems</div></div>
     </div>`;
-  } catch {
-    el.innerHTML = '<div class="error-msg">Failed to load dashboard</div>';
-  }
+    })
+    .catch(() => {
+      const el2 = document.getElementById('dash-stats');
+      if (el2) {
+        el2.innerHTML = '<div class="error-msg">Failed to load stats</div>';
+        el2.className = '';
+      }
+    });
+
+  // --- Quick actions toolbar ---
+  const toolbarDiv = document.createElement('div');
+  toolbarDiv.innerHTML = `<div class="table-toolbar" style="margin-top:0"><div></div><div class="filter-group">${canEdit ? '<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>' : ''}<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export All</button></div></div>`;
+  el.appendChild(toolbarDiv);
+
+  // --- Recent Entries ---
+  const recentSection = document.createElement('div');
+  recentSection.id = 'dash-recent';
+  recentSection.innerHTML =
+    '<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="loading">Loading...</div>';
+  el.appendChild(recentSection);
+
+  api('/api/qa?_per_page=5&sort=newest')
+    .then((data) => {
+      const entries = data.data || data.entries || data || [];
+      const rs = document.getElementById('dash-recent');
+      if (!rs) return;
+      if (!entries.length) {
+        rs.innerHTML =
+          '<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
+        return;
+      }
+      rs.innerHTML = `<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
+    })
+    .catch(() => {
+      const rs = document.getElementById('dash-recent');
+      if (rs) {
+        rs.innerHTML =
+          '<div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="error-msg">Failed to load recent entries</div>';
+      }
+    });
+
+  // --- Sub-System Coverage ---
+  const barSection = document.createElement('div');
+  barSection.id = 'dash-bars';
+  barSection.innerHTML =
+    '<div class="section-title">Sub-System Coverage</div><div class="loading">Loading...</div>';
+  el.appendChild(barSection);
+
+  api('/api/categories')
+    .then((cats) => {
+      const bs = document.getElementById('dash-bars');
+      if (!bs) return;
+      if (!cats || !cats.length) {
+        bs.innerHTML =
+          '<div class="section-title">Sub-System Coverage</div><div class="empty-state"><div class="empty-state-text">No sub-systems configured</div></div>';
+        return;
+      }
+      const max = Math.max(...cats.map((c) => c.qa_count || 0), 1);
+      bs.innerHTML = `<div class="section-title">Sub-System Coverage</div><div class="bar-chart">${cats.map((c) => `<div class="bar-row"><span class="bar-label">${esc(c.icon)} ${esc(c.name)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(((c.qa_count || 0) / max) * 100)}%;background:${safeColor(c.color)}"></div></div><span class="bar-count">${c.qa_count || 0}</span></div>`).join('')}</div>`;
+    })
+    .catch(() => {
+      const bs = document.getElementById('dash-bars');
+      if (bs) {
+        bs.innerHTML =
+          '<div class="section-title">Sub-System Coverage</div><div class="error-msg">Failed to load coverage data</div>';
+      }
+    });
 }

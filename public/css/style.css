@@ -7,7 +7,11 @@
   --border: #e8e8ec;
   --text: #1a1a2e;
   --text-secondary: #888;
+  --success: #16a34a;
+  --warning: #d97706;
+  --link: #4f46e5;
   --radius: 8px;
+  --radius-md: 8px;
   --radius-lg: 12px;
   --bg-muted: #f5f5f5;
   --bg-hover: #f8f8ff;
@@ -1457,4 +1461,112 @@ tr.row-click {
 }
 .session-warning-modal .modal-body {
   padding: 24px 32px;
+}
+
+/* Dashboard section titles */
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-title a {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Recent entries */
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.recent-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.recent-entry-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.recent-entry-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--link);
+  cursor: pointer;
+  text-decoration: none;
+}
+.recent-entry-question {
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+  padding-left: 2px;
+}
+.recent-entry-title:hover {
+  text-decoration: underline;
+}
+.recent-entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* Bar chart */
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bar-label {
+  width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.bar-count {
+  width: 32px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .bar-label {
+    width: 100px;
+  }
 }

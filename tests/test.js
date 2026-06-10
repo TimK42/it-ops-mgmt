@@ -676,23 +676,35 @@ async function run() {
 
     // Problem 2: QA Detail title overflow on mobile
     // Inside the @media query, .topbar-title must have white-space: normal + word-break
-    // Use lastIndexOf('max-width: 768px') to target the last (mobile) @media block, skipping any earlier one for the sidebar overlay
-    const mqStart = styleCss.lastIndexOf('(max-width: 768px)');
-    if (mqStart === -1) throw new Error('Could not find @media (max-width: 768px) block in CSS');
-    const mqOpen = styleCss.indexOf('{', mqStart);
-    if (mqOpen === -1) throw new Error('Could not find opening brace of mobile media query');
-    let depth = 1;
-    let mqClose = mqOpen + 1;
-    while (depth > 0 && mqClose < styleCss.length) {
-      if (styleCss[mqClose] === '{') depth++;
-      else if (styleCss[mqClose] === '}') depth--;
-      mqClose++;
+    // Search ALL @media (max-width: 768px) blocks for .topbar-title (not just the last one,
+    // since dashboard CSS may add additional mobile media query blocks)
+    var mqBlock = '';
+    var mqStart = styleCss.indexOf('(max-width: 768px)');
+    var searchPos = 0;
+    while (true) {
+      var mqIdx = styleCss.indexOf('(max-width: 768px)', searchPos);
+      if (mqIdx === -1) break;
+      var mqOpen = styleCss.indexOf('{', mqIdx);
+      if (mqOpen === -1) break;
+      var depth = 1;
+      var mqClose = mqOpen + 1;
+      while (depth > 0 && mqClose < styleCss.length) {
+        if (styleCss[mqClose] === '{') depth++;
+        else if (styleCss[mqClose] === '}') depth--;
+        mqClose++;
+      }
+      if (depth > 0) break;
+      var block = styleCss.slice(mqOpen + 1, mqClose - 1);
+      if (block.indexOf('.topbar-title') !== -1) {
+        mqBlock = block;
+        break;
+      }
+      searchPos = mqClose + 1;
     }
-    if (depth > 0) throw new Error('Could not find matching closing brace of mobile media query');
-    const mqBlock = styleCss.slice(mqOpen + 1, mqClose - 1);
+    if (!mqBlock)
+      throw new Error('Could not find .topbar-title in any @media (max-width: 768px) block');
     const ttStart = mqBlock.indexOf('.topbar-title');
-    if (ttStart === -1) throw new Error('Could not find .topbar-title in mobile CSS block');
-    const ttEnd = mqBlock.indexOf('}', ttStart);
+    var ttEnd = mqBlock.indexOf('}', ttStart);
     if (ttEnd === -1) throw new Error('Could not find end of .topbar-title block');
     const ttBlock = mqBlock.slice(ttStart, ttEnd);
     assert(
