@@ -1,8 +1,7 @@
 const express = require('express');
 const { getDb } = require('../db');
+const { VALID_STATUSES } = require('../shared/qa-status-constants');
 const router = express.Router();
-
-const VALID_STATUSES = ['Draft', 'Published', 'Archived'];
 
 function getTagsForEntry(db, entryId) {
   return db
@@ -103,6 +102,10 @@ router.get('/', (req, res) => {
   }
 
   res.json({ data, total, page, per_page: perPage });
+});
+
+router.get('/statuses', (req, res) => {
+  res.json({ statuses: VALID_STATUSES });
 });
 
 router.get('/:id', (req, res) => {
