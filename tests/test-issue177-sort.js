@@ -196,13 +196,13 @@ describe('Issue #177 — Frontend', function () {
       // Other test files (e.g. test-issue146-draft-publish.js) may have overridden
       // global functions with empty mocks. Restore references captured via the
       // patched vm.runInThisContext at the top of this file.
-      if (_orig.renderQA) renderQA = _orig.renderQA;
-      if (_orig.showQADetail) showQADetail = _orig.showQADetail;
-      if (_orig.loadQA) loadQA = _orig.loadQA;
-      if (_orig.loadQATotalCount) loadQATotalCount = _orig.loadQATotalCount;
-      if (_orig.navigate) navigate = _orig.navigate;
-      if (_orig.closeModal) closeModal = _orig.closeModal;
-      if (_orig.api) api = _orig.api;
+      if (_orig.renderQA) global.renderQA = _orig.renderQA;
+      if (_orig.showQADetail) global.showQADetail = _orig.showQADetail;
+      if (_orig.loadQA) global.loadQA = _orig.loadQA;
+      if (_orig.loadQATotalCount) global.loadQATotalCount = _orig.loadQATotalCount;
+      if (_orig.navigate) global.navigate = _orig.navigate;
+      if (_orig.closeModal) global.closeModal = _orig.closeModal;
+      if (_orig.api) global.api = _orig.api;
     }
   });
 
@@ -238,7 +238,7 @@ describe('Issue #177 — Frontend', function () {
       state.qaFilters = { status: 'Published', search: '' };
 
       let capturedUrl = null;
-      global.api = async (url, opts) => {
+      global.api = async (url) => {
         capturedUrl = url;
         return { data: [], total: 0 };
       };
@@ -258,7 +258,7 @@ describe('Issue #177 — Frontend', function () {
       state.qaFilters = { status: 'Published', search: '' };
 
       let capturedUrl = null;
-      global.api = async (url, opts) => {
+      global.api = async (url) => {
         capturedUrl = url;
         return { data: [], total: 0 };
       };
@@ -278,7 +278,7 @@ describe('Issue #177 — Frontend', function () {
       state.qaFilters = { status: 'Published', search: '' };
 
       let capturedUrl = null;
-      global.api = async (url, opts) => {
+      global.api = async (url) => {
         capturedUrl = url;
         return { data: [], total: 0 };
       };
@@ -469,7 +469,7 @@ describe('Issue #177 — Frontend', function () {
       state.categories = [];
 
       let capturedUrls = [];
-      global.api = async (url, opts) => {
+      global.api = async (url) => {
         capturedUrls.push(url);
         if (url.includes('categories')) return [];
         if (url.includes('qa')) return { data: mockQAEntries };
