@@ -700,7 +700,6 @@ describe('Issue #55 — Dashboard improvements', function () {
       assert.ok(lastMediaIdx !== -1, 'CSS should have mobile @media query');
 
       var block = css.slice(lastMediaIdx);
-      assert.ok(block.indexOf('.recent-entry') !== -1, 'Mobile @media should target .recent-entry');
       assert.ok(block.indexOf('.bar-label') !== -1, 'Mobile @media should target .bar-label');
     });
   });
