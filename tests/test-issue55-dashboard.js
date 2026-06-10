@@ -359,7 +359,7 @@ describe('Issue #55 — Dashboard improvements', function () {
     beforeEach(function () {
       resetDOM();
     });
-    it('Admin sees ＋ New Entry button in toolbar', async function () {
+    it('Admin does NOT see ＋ New Entry button in toolbar', async function () {
       setupDashboard('Admin', {
         '/api/stats': { qa: { total: 0, published: 0, draft: 0, archived: 0 }, categories: 0 },
         '/api/qa?_per_page=5&sort=newest': [],
@@ -369,11 +369,11 @@ describe('Issue #55 — Dashboard improvements', function () {
       await renderDashboard(el);
 
       var html = el.innerHTML;
-      assert.ok(html.indexOf('New Entry') !== -1, 'Admin should see New Entry button');
-      assert.ok(html.indexOf('Export All') !== -1, 'Admin should see Export All button');
+      assert.ok(html.indexOf('New Entry') === -1, 'Dashboard toolbar removed — Admin should NOT see New Entry button');
+      assert.ok(html.indexOf('Export All') === -1, 'Dashboard toolbar removed — Admin should NOT see Export All button');
     });
 
-    it('Editor sees ＋ New Entry button in toolbar', async function () {
+    it('Editor does NOT see ＋ New Entry button in toolbar', async function () {
       setupDashboard('Editor', {
         '/api/stats': { qa: { total: 0, published: 0, draft: 0, archived: 0 }, categories: 0 },
         '/api/qa?_per_page=5&sort=newest': [],
@@ -383,7 +383,7 @@ describe('Issue #55 — Dashboard improvements', function () {
       await renderDashboard(el);
 
       var html = el.innerHTML;
-      assert.ok(html.indexOf('New Entry') !== -1, 'Editor should see New Entry button');
+      assert.ok(html.indexOf('New Entry') === -1, 'Dashboard toolbar removed — Editor should NOT see New Entry button');
     });
 
     it('Viewer does NOT see ＋ New Entry button in toolbar', async function () {

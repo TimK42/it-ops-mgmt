@@ -1,6 +1,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const fs = require('fs');
+const { VALID_STATUSES } = require('./shared/qa-status-constants');
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'it-ops.db');
 let db;
@@ -38,7 +39,7 @@ function initSchema() {
       answer TEXT DEFAULT '',
       category_id INTEGER REFERENCES categories(id),
       tags TEXT DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN ('Published','Draft','Archived')),
+      status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN (${VALID_STATUSES.map(s => `'${s}'`).join(',')})),
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );

@@ -357,6 +357,17 @@ QF=$(curl -s "$BASE/api/qa?status=Published&search=VPN" -b /tmp/itops-ck.txt)
 echo "$QF" | grep -q '"data"' && pass "QA filter works" || fail "QA filter failed"
 
 echo ""
+echo ">>> QA Statuses (Issue #173)"
+# GET /api/qa/statuses returns 200 with statuses array
+QS=$(curl -s "$BASE/api/qa/statuses" -b /tmp/itops-ck.txt)
+echo "$QS" | grep -q '"statuses"' && pass "QA statuses: JSON has statuses key" || fail "QA statuses: missing statuses key: $QS"
+echo "$QS" | grep -q '"Draft"' && pass "QA statuses: includes Draft" || fail "QA statuses: missing Draft"
+echo "$QS" | grep -q '"Published"' && pass "QA statuses: includes Published" || fail "QA statuses: missing Published"
+echo "$QS" | grep -q '"Archived"' && pass "QA statuses: includes Archived" || fail "QA statuses: missing Archived"
+# Verify exact count matches shared module (no extra statuses)
+echo "$QS" | jq -e '.statuses | length == 3' >/dev/null && pass "QA statuses: exactly 3 statuses as expected" || fail "QA statuses: expected 3 statuses, got: $(echo "$QS" | jq '.statuses | length')"
+
+echo ""
 echo ">>> HTML / JS / CSS Accessibility"
 # Static HTML has skip-link + <main> (no-JS fallback a11y)
 grep -q 'skip-link' public/index.html && pass "Static HTML: skip-link present" || fail "Static HTML: skip-link missing"

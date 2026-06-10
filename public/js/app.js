@@ -6,6 +6,7 @@ let state = {
   qaTotalCount: null,
   qaPage: 1,
   qaFilters: { status: 'Published', search: '' },
+  qaStatuses: null,
   user: null,
   sessionExpired: false,
   users: [],
@@ -397,7 +398,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const u = await api('/api/auth/me');
     state.user = u;
-    await Promise.all([loadCategories(), loadQATotalCount()]);
+    await Promise.all([loadCategories(), loadQATotalCount(), loadQAStatuses()]);
     startActivityTracking();
     renderShell();
     const path = window.location.pathname;
@@ -551,6 +552,14 @@ async function loadQATotalCount() {
     state.qaTotalCount = s && s.qa && typeof s.qa.total === 'number' ? s.qa.total : 0;
   } catch {
     state.qaTotalCount = 0;
+  }
+}
+async function loadQAStatuses() {
+  try {
+    const data = await api('/api/qa/statuses');
+    state.qaStatuses = data.statuses;
+  } catch {
+    state.qaStatuses = ['Draft', 'Published', 'Archived'];
   }
 }
 async function loadUsers() {
@@ -890,7 +899,7 @@ async function renderQA(el) {
     return;
   }
   const canEdit = ['Admin', 'Editor'].includes(state.user.role);
-  const statuses = [null, 'Published', 'Draft', 'Archived'];
+  const statuses = state.qaStatuses ? [null, ...state.qaStatuses] : [null, 'Published', 'Draft', 'Archived'];
 
   if (isFirstRender) {
     // First render: build the full toolbar + empty list container once
@@ -1701,11 +1710,6 @@ async function renderDashboard(el) {
         el2.className = '';
       }
     });
-
-  // --- Quick actions toolbar ---
-  const toolbarDiv = document.createElement('div');
-  toolbarDiv.innerHTML = `<div class="table-toolbar" style="margin-top:0"><div></div><div class="filter-group">${canEdit ? '<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>' : ''}<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export All</button></div></div>`;
-  el.appendChild(toolbarDiv);
 
   // --- Recent Entries ---
   const recentSection = document.createElement('div');
