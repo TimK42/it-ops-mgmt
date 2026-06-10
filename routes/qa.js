@@ -40,7 +40,7 @@ router.get('/', (req, res) => {
     category_id,
     search,
     tag,
-    sort = 'newest',
+    sort = 'popular',
     _page = 1,
     _per_page = 20,
   } = req.query;
@@ -76,10 +76,29 @@ router.get('/', (req, res) => {
     )
     .get(...p);
 
-  const order = sort === 'oldest' ? 'ASC' : 'DESC';
   const offset = (page - 1) * perPage;
+  let orderClause;
+  if (sort === 'popular') {
+    const { max_usage } = db
+      .prepare('SELECT COALESCE(MAX(usage_count),0) as max_usage FROM qa_entries')
+      .get();
+    if (max_usage === 0) {
+      orderClause = 'ORDER BY q.created_at DESC';
+    } else {
+      const bucketSize = Math.max(1, Math.ceil(max_usage / 10.0));
+      orderClause = `ORDER BY
+        CASE
+          WHEN q.usage_count = 0 THEN 1
+          ELSE 1 + MIN(9, CAST((q.usage_count - 1) / ${bucketSize} AS INTEGER))
+        END DESC,
+        q.created_at DESC`;
+    }
+  } else {
+    const order = sort === 'oldest' ? 'ASC' : 'DESC';
+    orderClause = `ORDER BY q.created_at ${order}`;
+  }
   const sql = `SELECT q.*, c.name as category_name, c.color as category_color, c.icon as category_icon
-    FROM qa_entries q LEFT JOIN categories c ON q.category_id = c.id ${where} ORDER BY q.created_at ${order} LIMIT ? OFFSET ?`;
+    FROM qa_entries q LEFT JOIN categories c ON q.category_id = c.id ${where} ${orderClause} LIMIT ? OFFSET ?`;
   const data = db.prepare(sql).all(...p, perPage, offset);
 
   // Batch-load tags for all entries
@@ -110,6 +129,7 @@ router.get('/statuses', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const db = getDb();
+  db.prepare('UPDATE qa_entries SET usage_count = usage_count + 1 WHERE id = ?').run(req.params.id);
   const row = db
     .prepare(
       `SELECT q.*, c.name as category_name, c.color as category_color, c.icon as category_icon

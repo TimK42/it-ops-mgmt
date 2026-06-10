@@ -7,6 +7,7 @@ let state = {
   qaPage: 1,
   qaFilters: { status: 'Published', search: '' },
   qaStatuses: [],
+  qaSort: 'popular',
   user: null,
   sessionExpired: false,
   users: [],
@@ -14,6 +15,16 @@ let state = {
   usersPerPage: 20,
   usersSearch: '',
 };
+
+// Restore sort preference from localStorage
+(function restoreQASort() {
+  try {
+    const stored = localStorage.getItem('qaSort');
+    if (stored === 'popular' || stored === 'newest') state.qaSort = stored;
+  } catch {
+    /* ignore */
+  }
+})();
 
 function updateThemeColor(theme) {
   const color = theme === 'dark' ? '#0f0f1a' : '#4f46e5';
@@ -903,7 +914,7 @@ async function renderQA(el) {
 
   if (isFirstRender) {
     // First render: build the full toolbar + empty list container once
-    el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div>${canEdit ? '<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>' : ''}${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
+    el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><select id="qa-sort" class="sort-select" aria-label="Sort order"><option value="popular"${state.qaSort === 'popular' ? ' selected' : ''}>By Popularity</option><option value="newest"${state.qaSort === 'newest' ? ' selected' : ''}>By Newest</option></select></div><div class="filter-group">${canEdit ? '<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>' : ''}${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
 
     // Restore search input value after first render
     const s = document.getElementById('global-search');
@@ -945,6 +956,21 @@ async function renderQA(el) {
           renderQA(el);
         });
       }
+    }
+
+    // Bind sort selector (once)
+    const sortSelect = document.getElementById('qa-sort');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        state.qaSort = sortSelect.value;
+        state.qaPage = 1;
+        try {
+          localStorage.setItem('qaSort', state.qaSort);
+        } catch {
+          /* ignore */
+        }
+        renderQA(el);
+      });
     }
   } else {
     // Subsequent render: update filter tab active state without destroying the input
@@ -992,6 +1018,7 @@ async function loadQA(signal) {
   const p = new URLSearchParams();
   if (state.qaFilters.status) p.set('status', state.qaFilters.status);
   if (state.qaFilters.search) p.set('search', state.qaFilters.search);
+  if (state.qaSort) p.set('sort', state.qaSort);
   p.set('_page', state.qaPage);
   p.set('_per_page', '20');
   return api(`/api/qa?${p}`, { signal });
