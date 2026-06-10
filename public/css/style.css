@@ -1566,7 +1566,6 @@ tr.row-click {
 /* Mobile responsive */
 @media (max-width: 768px) {
   .recent-entry {
-    flex-wrap: wrap;
   }
   .bar-label {
     width: 100px;
