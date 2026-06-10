@@ -39,7 +39,7 @@ function initSchema() {
       answer TEXT DEFAULT '',
       category_id INTEGER REFERENCES categories(id),
       tags TEXT DEFAULT '',
-      status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN (${VALID_STATUSES.map((s) => `'${s}'`).join(',')})),
+      status TEXT NOT NULL DEFAULT 'Draft' CHECK(status IN (${VALID_STATUSES.map((s) => `'${s.replace(/'/g, "''")}'`).join(',')})),
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     );

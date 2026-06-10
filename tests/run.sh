@@ -366,9 +366,10 @@ echo "$QS" | grep -q '"Published"' && pass "QA statuses: includes Published" || 
 echo "$QS" | grep -q '"Archived"' && pass "QA statuses: includes Archived" || fail "QA statuses: missing Archived"
 # Verify exact count matches shared module (no extra statuses)
 echo "$QS" | node -e "
+  const v=require('./shared/qa-status-constants').VALID_STATUSES;
   const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-  process.exit(d.statuses&&d.statuses.length===3?0:1);
-" && pass "QA statuses: exactly 3 statuses as expected" || fail "QA statuses: expected 3 statuses, got: $(echo "$QS" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).statuses.length")"
+  process.exit(d.statuses&&d.statuses.length===v.length?0:1);
+" && pass "QA statuses: exactly $(node -pe "require('./shared/qa-status-constants').VALID_STATUSES.length") statuses as expected" || fail "QA statuses: expected $(node -pe "require('./shared/qa-status-constants').VALID_STATUSES.length") statuses, got: $(echo "$QS" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).statuses.length")"
 
 echo ""
 echo ">>> HTML / JS / CSS Accessibility"

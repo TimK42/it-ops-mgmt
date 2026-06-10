@@ -8,6 +8,7 @@ const { JSDOM } = require('jsdom');
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
+const { VALID_STATUSES } = require('../shared/qa-status-constants');
 
 // ============================================================
 // Mock data
@@ -127,7 +128,7 @@ function setupQA(opts) {
   state.qaTotal = state.qaEntries.length;
   state.qaPage = 1;
   state.categories = [];
-  state.qaStatuses = ['Draft', 'Published', 'Archived'];
+  state.qaStatuses = [...VALID_STATUSES];
   state.qaFilters = { status: opts.status || 'Published', search: opts.search || '' };
   state.sessionExpired = false;
   state.users = null;
