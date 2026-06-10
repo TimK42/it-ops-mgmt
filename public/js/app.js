@@ -1712,8 +1712,7 @@ function showResetUserPassword(id) {
 
 // ===== DASHBOARD =====
 async function renderDashboard(el) {
-  el.innerHTML =
-    '<h2>Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
+  el.innerHTML = '<h2>Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
 
   // --- Stats cards ---
   api('/api/stats')
