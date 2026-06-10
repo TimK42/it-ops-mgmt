@@ -409,6 +409,11 @@ CSS=$(curl -sf "$BASE/css/style.css")
 echo "$CSS" | grep -q '.skip-link' && pass "CSS: .skip-link" || fail "CSS: .skip-link"
 echo "$CSS" | grep -q ':focus-visible' && pass "CSS: :focus-visible" || fail "CSS: :focus-visible"
 echo "$CSS" | grep -qE 'background:\s*transparent' && pass "CSS: background:transparent" || fail "CSS: background:transparent"
+echo "$JS" | node -e 'var d=require("fs").readFileSync("/dev/stdin","utf8");var n=d.indexOf("</nav>");var f=d.indexOf("<footer");process.exit(n>=0&&f>=0&&n<f?0:1);' && pass "JS: </nav> before <footer> (issue #181)" || fail "JS: </nav> before <footer> (issue #181)"
+echo "$JS" | grep -q '<footer role="contentinfo"' && pass 'JS: footer role="contentinfo" (issue #181)' || fail 'JS: footer role="contentinfo" missing (issue #181)'
+echo "$JS" | grep -q '<div class="sidebar-footer-user">' && echo "$JS" | grep -q 'IT Operations KB v' && pass "JS: sidebar version div (issue #181)" || fail "JS: sidebar version div missing (issue #181)"
+echo "$CSS" | grep -q 'page-footer' && pass "CSS: .page-footer selector present (issue #181)" || fail "CSS: .page-footer selector missing (issue #181)"
+echo "$CSS" | grep -q 'sidebar-footer-user' && pass "CSS: .sidebar-footer-user styles (issue #181)" || fail "CSS: .sidebar-footer-user styles missing (issue #181)"
 
 echo ""
 echo ">>> QA Detail SPA Routes"
