@@ -151,7 +151,9 @@ describe('Issue #177 — Frontend', function () {
     createDOM();
     const appJsPath = path.resolve(__dirname, '../public/js/app.js');
     const code = fs.readFileSync(appJsPath, 'utf-8');
-    vm.runInThisContext(code, { filename: 'app.js' });
+    if (typeof state === 'undefined') {
+      vm.runInThisContext(code, { filename: 'app.js' });
+    }
   });
 
   beforeEach(function () {
@@ -171,6 +173,15 @@ describe('Issue #177 — Frontend', function () {
   // Test 2: sort param in API call
   // -------------------------------------------------------
   describe('loadQA() sort parameter', function () {
+    beforeEach(function () {
+      // Re-register loadQA matching app.js behavior (other test files may have overridden it)
+      global.loadQA = async (signal) => {
+        const p = new URLSearchParams();
+        if (state.qaSort) p.set('sort', state.qaSort);
+        return global.api(`/api/qa?${p}`, { signal });
+      };
+    });
+
     it('loadQA() passes sort=popular in the URL when state.qaSort is "popular"', async function () {
       state.qaSort = 'popular';
       state.qaPage = 1;
