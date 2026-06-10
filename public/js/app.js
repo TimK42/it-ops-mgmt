@@ -851,6 +851,7 @@ function render404(el) {
 
 // ===== QA =====
 let qaAbortController = null;
+let qaDetailFetchSeq = 0; // increments on each showQADetail call to detect stale fetches
 
 async function renderQA(el) {
   // Cancel stale in-flight fetch before starting a new one
@@ -989,6 +990,7 @@ async function showQADetail(id) {
   // Populate modal content BEFORE opening (prevents flash)
   document.getElementById('detail-modal').innerHTML =
     '<div class="modal"><div class="modal-header"><div class="detail-banner"><div class="modal-title">Loading…</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div><div class="modal-body"><div class="loading">Loading...</div></div></div>';
+  const fetchSeq = ++qaDetailFetchSeq;
   let q;
   try {
     q = await api(`/api/qa/${id}`);
@@ -1002,8 +1004,8 @@ async function showQADetail(id) {
     }
     return;
   }
-  // Guard: if user navigated away while fetch was in flight, skip update
-  if (!document.getElementById('detail-modal').classList.contains('open')) return;
+  // Guard: if another showQADetail call happened during fetch, skip update
+  if (fetchSeq !== qaDetailFetchSeq) return;
   // Ensure entry is in qaEntries so editQA works for deep links
   if (!state.qaEntries.find((e) => e.id === q.id)) {
     state.qaEntries.push(q);
