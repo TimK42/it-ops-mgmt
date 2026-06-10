@@ -126,7 +126,7 @@ app.get('/api/stats', (req, res) => {
   const statusCounts = db
     .prepare('SELECT status, COUNT(*) as c FROM qa_entries GROUP BY status')
     .all();
-  const byStatus = {};
+  const byStatus = Object.create(null);
   for (const row of statusCounts) byStatus[row.status] = row.c;
   res.json({
     qa: {

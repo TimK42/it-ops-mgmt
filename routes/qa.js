@@ -119,6 +119,15 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   const { title, question, answer, category_id, tags, status } = req.body;
   if (!title || !question) return res.status(400).json({ error: 'Title and question required' });
+
+  // Validate status value
+  const VALID_STATUSES = ['Draft', 'Published', 'Archived'];
+  if (status !== undefined && !VALID_STATUSES.includes(status)) {
+    return res
+      .status(400)
+      .json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+  }
+
   const db = getDb();
   const last = db.prepare('SELECT qa_number FROM qa_entries ORDER BY id DESC LIMIT 1').get();
   const num = last
