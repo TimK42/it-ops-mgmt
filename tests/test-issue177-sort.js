@@ -25,24 +25,31 @@ const PORT = 3199;
 // Real app.js function references (captured lazily)
 // ============================================================
 
-// Other test files (e.g. test-issue146-draft-publish.js) may mock global functions
-// like renderQA with empty stubs. We need the real implementations for our tests.
-// Since app.js is loaded lazily by other files via before hooks (not at module-load
-// time), we save references the FIRST time they become available using a top-level
-// mocha before hook that runs before any describe blocks.
+// Other test files (e.g. test-issue146-draft-publish.js) may override global
+// functions (renderQA, showQADetail, etc.) with empty stubs. We need the real
+// implementations from app.js for our tests. Since app.js is loaded by before
+// hooks in other files (before this file's module-level code runs), and those
+// hooks run before this file's before hooks, we intercept the VERY FIRST
+// vm.runInThisContext call to save real function references immediately after
+// app.js is loaded — before any test file can override them.
 const _orig = {};
-
-before(function () {
-  if (typeof state !== 'undefined' && Object.keys(_orig).length === 0) {
-    // app.js has been loaded by a previous test file — save original functions
-    const funcs = ['renderQA','showQADetail','loadQA','loadQATotalCount','navigate','closeModal'];
-    for (const fn of funcs) {
-      if (typeof global[fn] === 'function' && !(fn in _orig)) {
-        _orig[fn] = global[fn];
+(function patchVmRunInThisContext() {
+  const _origRun = vm.runInThisContext;
+  vm.runInThisContext = function patched(code, options) {
+    const result = _origRun.call(vm, code, options);
+    // After app.js is loaded for the first time, save references to all
+    // functions that other test files might override with empty mocks.
+    if (options && options.filename === 'app.js' && Object.keys(_orig).length === 0) {
+      const funcs = ['renderQA','showQADetail','loadQA','loadQATotalCount','navigate','closeModal'];
+      for (const fn of funcs) {
+        if (typeof global[fn] === 'function') {
+          _orig[fn] = global[fn];
+        }
       }
     }
-  }
-});
+    return result;
+  };
+})();
 
 // ============================================================
 // Fixtures
@@ -179,8 +186,8 @@ describe('Issue #177 — Frontend', function () {
     } else {
       // app.js already loaded by a previous test file.
       // Other test files (e.g. test-issue146-draft-publish.js) may have overridden
-      // global functions with empty mocks. Restore real references captured at
-      // root-level before hook (see top of file).
+      // global functions with empty mocks. Restore references captured via the
+      // patched vm.runInThisContext at the top of this file.
       if (_orig.renderQA) renderQA = _orig.renderQA;
       if (_orig.showQADetail) showQADetail = _orig.showQADetail;
       if (_orig.loadQA) loadQA = _orig.loadQA;
