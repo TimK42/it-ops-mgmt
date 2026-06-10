@@ -151,16 +151,20 @@ describe('Issue #163 — Screen flash on all component clicks', function () {
       );
     });
 
-    it('showQADetail uses classList.contains("open") guard (not isConnected) (#6)', function () {
+    it('showQADetail uses fetchSeq guard (not classList or isConnected) (#6)', function () {
       var funcBlock = extractJSBlock(js, 'showQADetail');
 
       assert.ok(
-        funcBlock.indexOf("classList.contains('open')") !== -1,
-        'showQADetail should use classList.contains("open") guard',
+        funcBlock.indexOf('fetchSeq !== qaDetailFetchSeq') !== -1,
+        'showQADetail should use fetchSeq !== qaDetailFetchSeq guard (stale fetch detection)',
       );
       assert.ok(
         funcBlock.indexOf('isConnected') === -1,
-        'showQADetail should NOT use .isConnected guard (closeModal only removes open class)',
+        'showQADetail should NOT use .isConnected guard (element stays connected)',
+      );
+      assert.ok(
+        funcBlock.indexOf("classList.contains('open')") === -1,
+        'showQADetail should NOT use classList.contains("open") guard (modal not open during fetch)',
       );
     });
   });
