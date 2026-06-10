@@ -804,7 +804,7 @@ function renderShell() {
           <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
         </div>
         <div class="sidebar-footer">
-          <div class="sidebar-footer-user">${esc(userName)} (${u.role}) &#x2022; IT Operations KB v${appVersion}</div>
+          <div class="sidebar-footer-user">${esc(userName)} (${esc(u.role)}) &#x2022; IT Operations KB v${appVersion}</div>
           <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
           <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
         </div>
