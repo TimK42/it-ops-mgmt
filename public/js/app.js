@@ -1683,12 +1683,14 @@ async function renderDashboard(el) {
   // --- Stats cards ---
   api('/api/stats')
     .then((s) => {
-      document.getElementById('dash-stats').innerHTML = `<div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">${esc(s.qa.total)}</div><div class="stat-label">Total QA Entries</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--success)">${esc(s.qa.published)}</div><div class="stat-label">Published</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--warning)">${esc(s.qa.draft)}</div><div class="stat-label">Draft</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--text-secondary)">${esc(s.qa.archived)}</div><div class="stat-label">Archived</div></div>
-      <div class="stat-card"><div class="stat-number">${esc(s.categories)}</div><div class="stat-label">Sub-Systems</div></div>
+      const ds = document.getElementById('dash-stats');
+      ds.className = '';
+      ds.innerHTML = `<div class="stats-grid">
+      <div class="stat-card"><div class="stat-number">${esc(String(s.qa.total ?? 0))}</div><div class="stat-label">Total QA Entries</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--success)">${esc(String(s.qa.published ?? 0))}</div><div class="stat-label">Published</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--warning)">${esc(String(s.qa.draft ?? 0))}</div><div class="stat-label">Draft</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--text-secondary)">${esc(String(s.qa.archived ?? 0))}</div><div class="stat-label">Archived</div></div>
+      <div class="stat-card"><div class="stat-number">${esc(String(s.categories ?? 0))}</div><div class="stat-label">Sub-Systems</div></div>
     </div>`;
     })
     .catch(() => {
@@ -1718,7 +1720,7 @@ async function renderDashboard(el) {
           '<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
         return;
       }
-      rs.innerHTML = `<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><span class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}">${esc(q.title || q.question || '')}</span><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>`).join('')}</div>`;
+      rs.innerHTML = `<div class="section-title">Recent Entries<a href="/qa" data-allow-nav>View All →</a></div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>`).join('')}</div>`;
     })
     .catch(() => {
       const rs = document.getElementById('dash-recent');
