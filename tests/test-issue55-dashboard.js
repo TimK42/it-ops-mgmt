@@ -369,8 +369,14 @@ describe('Issue #55 — Dashboard improvements', function () {
       await renderDashboard(el);
 
       var html = el.innerHTML;
-      assert.ok(html.indexOf('New Entry') === -1, 'Dashboard toolbar removed — Admin should NOT see New Entry button');
-      assert.ok(html.indexOf('Export All') === -1, 'Dashboard toolbar removed — Admin should NOT see Export All button');
+      assert.ok(
+        html.indexOf('New Entry') === -1,
+        'Dashboard toolbar removed — Admin should NOT see New Entry button',
+      );
+      assert.ok(
+        html.indexOf('Export All') === -1,
+        'Dashboard toolbar removed — Admin should NOT see Export All button',
+      );
     });
 
     it('Editor does NOT see ＋ New Entry button in toolbar', async function () {
@@ -383,7 +389,10 @@ describe('Issue #55 — Dashboard improvements', function () {
       await renderDashboard(el);
 
       var html = el.innerHTML;
-      assert.ok(html.indexOf('New Entry') === -1, 'Dashboard toolbar removed — Editor should NOT see New Entry button');
+      assert.ok(
+        html.indexOf('New Entry') === -1,
+        'Dashboard toolbar removed — Editor should NOT see New Entry button',
+      );
     });
 
     it('Viewer does NOT see ＋ New Entry button in toolbar', async function () {

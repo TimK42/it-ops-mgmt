@@ -127,6 +127,7 @@ function setupQA(opts) {
   state.qaTotal = state.qaEntries.length;
   state.qaPage = 1;
   state.categories = [];
+  state.qaStatuses = ['Draft', 'Published', 'Archived'];
   state.qaFilters = { status: opts.status || 'Published', search: opts.search || '' };
   state.sessionExpired = false;
   state.users = null;

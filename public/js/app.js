@@ -6,7 +6,7 @@ let state = {
   qaTotalCount: null,
   qaPage: 1,
   qaFilters: { status: 'Published', search: '' },
-  qaStatuses: null,
+  qaStatuses: [],
   user: null,
   sessionExpired: false,
   users: [],
@@ -899,7 +899,7 @@ async function renderQA(el) {
     return;
   }
   const canEdit = ['Admin', 'Editor'].includes(state.user.role);
-  const statuses = state.qaStatuses ? [null, ...state.qaStatuses] : [null, 'Published', 'Draft', 'Archived'];
+  const statuses = [null, ...state.qaStatuses];
 
   if (isFirstRender) {
     // First render: build the full toolbar + empty list container once
