@@ -73,14 +73,8 @@ describe('Issue #163 — Screen flash on all component clicks', function () {
       assert.ok(idx !== -1, 'body { block should exist');
 
       var block = extractBlock(css, idx);
-      assert.ok(
-        block.indexOf('0.1s') !== -1,
-        'body block should contain 0.1s transition',
-      );
-      assert.ok(
-        block.indexOf('0.3s') === -1,
-        'body block should NOT contain 0.3s transition',
-      );
+      assert.ok(block.indexOf('0.1s') !== -1, 'body block should contain 0.1s transition');
+      assert.ok(block.indexOf('0.3s') === -1, 'body block should NOT contain 0.3s transition');
     });
   });
 
@@ -122,7 +116,7 @@ describe('Issue #163 — Screen flash on all component clicks', function () {
       var funcBlock = extractJSBlock(js, 'updateThemeColor');
 
       assert.ok(
-        funcBlock.indexOf('getAttribute(\'content\')') !== -1,
+        funcBlock.indexOf("getAttribute('content')") !== -1,
         'updateThemeColor should check meta.getAttribute("content") before setting',
       );
     });
@@ -131,7 +125,7 @@ describe('Issue #163 — Screen flash on all component clicks', function () {
       var funcBlock = extractJSBlock(js, 'restoreTheme');
 
       assert.ok(
-        funcBlock.indexOf('getAttribute(\'data-theme\') !== theme') !== -1,
+        funcBlock.indexOf("getAttribute('data-theme') !== theme") !== -1,
         'restoreTheme should have guard checking data-theme !== theme before setting',
       );
     });
@@ -139,11 +133,8 @@ describe('Issue #163 — Screen flash on all component clicks', function () {
     it('showQADetail calls openModal AFTER building modal content (#6)', function () {
       var funcBlock = extractJSBlock(js, 'showQADetail');
 
-      var lastOpenModal = funcBlock.lastIndexOf('openModal(\'detail-modal\')');
-      assert.ok(
-        lastOpenModal !== -1,
-        'showQADetail should contain openModal(\'detail-modal\')',
-      );
+      var lastOpenModal = funcBlock.lastIndexOf("openModal('detail-modal')");
+      assert.ok(lastOpenModal !== -1, "showQADetail should contain openModal('detail-modal')");
 
       // The full modal content template includes "modal-footer".
       // The loading template does not. So modal-footer is a reliable marker
