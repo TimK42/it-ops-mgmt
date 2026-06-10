@@ -446,6 +446,8 @@ function openModal(id) {
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
+  // Track explicit modal close to prevent stale showQADetail from re-opening after navigate
+  if (id === 'detail-modal') closeDetailBtn = performance.now();
   // Clear tag chip state on form-modal close (Issue #111)
   if (id === 'form-modal') resetTags();
 }
@@ -852,6 +854,7 @@ function render404(el) {
 // ===== QA =====
 let qaAbortController = null;
 let qaDetailFetchSeq = 0; // increments on each showQADetail call to detect stale fetches
+var closeDetailBtn = 0; // timestamp of most recent closeModal('detail-modal')
 
 async function renderQA(el) {
   // Cancel stale in-flight fetch before starting a new one
@@ -991,6 +994,7 @@ async function showQADetail(id) {
   document.getElementById('detail-modal').innerHTML =
     '<div class="modal"><div class="modal-header"><div class="detail-banner"><div class="modal-title">Loading…</div></div><button class="modal-close" data-action="close-detail" aria-label="Close">✕</button></div><div class="modal-body"><div class="loading">Loading...</div></div></div>';
   const fetchSeq = ++qaDetailFetchSeq;
+  const beforeFetch = closeDetailBtn;
   let q;
   try {
     q = await api(`/api/qa/${id}`);
@@ -1004,8 +1008,10 @@ async function showQADetail(id) {
     }
     return;
   }
-  // Guard: if another showQADetail call happened during fetch, skip update
+  // Guard 1: if another showQADetail call happened during fetch, skip update
   if (fetchSeq !== qaDetailFetchSeq) return;
+  // Guard 2: if closeModal('detail-modal') was called during fetch, skip update
+  if (closeDetailBtn > beforeFetch) return;
   // Ensure entry is in qaEntries so editQA works for deep links
   if (!state.qaEntries.find((e) => e.id === q.id)) {
     state.qaEntries.push(q);
