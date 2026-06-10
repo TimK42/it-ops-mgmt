@@ -1003,7 +1003,7 @@ async function showQADetail(id) {
     return;
   }
   // Guard: if user navigated away while fetch was in flight, skip update
-  if (!document.getElementById('detail-modal').isConnected) return;
+  if (!document.getElementById('detail-modal').classList.contains('open')) return;
   // Ensure entry is in qaEntries so editQA works for deep links
   if (!state.qaEntries.find((e) => e.id === q.id)) {
     state.qaEntries.push(q);

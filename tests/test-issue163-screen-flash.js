@@ -151,16 +151,16 @@ describe('Issue #163 — Screen flash on all component clicks', function () {
       );
     });
 
-    it('showQADetail uses isConnected guard instead of classList.contains("open")', function () {
+    it('showQADetail uses classList.contains("open") guard (not isConnected) (#6)', function () {
       var funcBlock = extractJSBlock(js, 'showQADetail');
 
       assert.ok(
-        funcBlock.indexOf('isConnected') !== -1,
-        'showQADetail should use .isConnected guard',
+        funcBlock.indexOf("classList.contains('open')") !== -1,
+        'showQADetail should use classList.contains("open") guard',
       );
       assert.ok(
-        funcBlock.indexOf('classList.contains') === -1,
-        'showQADetail should NOT use classList.contains guard (changed to .isConnected)',
+        funcBlock.indexOf('isConnected') === -1,
+        'showQADetail should NOT use .isConnected guard (closeModal only removes open class)',
       );
     });
   });
