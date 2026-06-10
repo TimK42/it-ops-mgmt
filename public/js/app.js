@@ -1685,7 +1685,6 @@ function showResetUserPassword(id) {
 
 // ===== DASHBOARD =====
 async function renderDashboard(el) {
-  const canEdit = ['Admin', 'Editor'].includes(state.user && state.user.role);
   el.innerHTML =
     '<h2 class="sr-only">Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
 
