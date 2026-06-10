@@ -40,7 +40,7 @@ const _orig = {};
     // After app.js is loaded for the first time, save references to all
     // functions that other test files might override with empty mocks.
     if (options && options.filename === 'app.js' && Object.keys(_orig).length === 0) {
-      const funcs = ['renderQA','showQADetail','loadQA','loadQATotalCount','navigate','closeModal'];
+      const funcs = ['renderQA','showQADetail','loadQA','loadQATotalCount','navigate','closeModal','api'];
       for (const fn of funcs) {
         if (typeof global[fn] === 'function') {
           _orig[fn] = global[fn];
