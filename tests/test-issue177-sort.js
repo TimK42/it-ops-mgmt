@@ -560,13 +560,13 @@ describe('Issue #177 — Backend usage_count', function () {
       assert.ok(id, 'Created entry should have an id');
       createdIds.push(id);
 
-      // Fetch the entry (first view — UPDATE happens AFTER SELECT, so response shows 0)
+      // Fetch the entry (first view — UPDATE runs before SELECT, so response shows 1)
       const view1 = await request('GET', `/api/qa/${id}`, { cookie });
       assert.strictEqual(view1.status, 200, 'GET /api/qa/:id should return 200');
       assert.strictEqual(
         view1.json.usage_count,
-        0,
-        'First view returns initial usage_count (0) because UPDATE runs after SELECT',
+        1,
+        'First view returns usage_count=1 (UPDATE before SELECT)',
       );
 
       // Fetch again (second view — sees the incremented value from first fetch)
@@ -574,14 +574,14 @@ describe('Issue #177 — Backend usage_count', function () {
       assert.strictEqual(view2.status, 200, 'GET /api/qa/:id should return 200');
       assert.strictEqual(
         view2.json.usage_count,
-        1,
-        'Second view returns usage_count=1 (the previous view incremented it)',
+        2,
+        'Second view returns usage_count=2 (the previous view incremented it)',
       );
 
       // Fetch a third time
       const view3 = await request('GET', `/api/qa/${id}`, { cookie });
       assert.strictEqual(view3.status, 200, 'GET /api/qa/:id should return 200');
-      assert.strictEqual(view3.json.usage_count, 2, 'Third view returns usage_count=2');
+      assert.strictEqual(view3.json.usage_count, 3, 'Third view returns usage_count=3');
     });
   });
 });

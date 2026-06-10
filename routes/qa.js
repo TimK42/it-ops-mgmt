@@ -40,7 +40,7 @@ router.get('/', (req, res) => {
     category_id,
     search,
     tag,
-    sort = 'newest',
+    sort = 'popular',
     _page = 1,
     _per_page = 20,
   } = req.query;
@@ -129,6 +129,7 @@ router.get('/statuses', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const db = getDb();
+  db.prepare('UPDATE qa_entries SET usage_count = usage_count + 1 WHERE id = ?').run(req.params.id);
   const row = db
     .prepare(
       `SELECT q.*, c.name as category_name, c.color as category_color, c.icon as category_icon
@@ -137,7 +138,6 @@ router.get('/:id', (req, res) => {
     .get(req.params.id);
   if (!row) return res.status(404).json({ error: 'Not found' });
   row.tags = getTagsForEntry(db, row.id);
-  db.prepare('UPDATE qa_entries SET usage_count = usage_count + 1 WHERE id = ?').run(req.params.id);
   res.json(row);
 });
 
