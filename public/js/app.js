@@ -1,4 +1,6 @@
-let state = {
+// Guard pattern: supports test reloads via vm.runInThisContext
+// eslint-disable-next-line no-var
+var state = state || {
   page: 'qa',
   qaEntries: [],
   categories: [],
