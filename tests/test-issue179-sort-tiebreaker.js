@@ -173,7 +173,8 @@ describe('Issue #179 — Sort tiebreaker (id as secondary sort)', function () {
 
     for (const group of multiGroups) {
       const ids = group.map((e) => e.id);
-      const expected = direction === 'DESC' ? [...ids].sort((a, b) => b - a) : [...ids].sort((a, b) => a - b);
+      const expected =
+        direction === 'DESC' ? [...ids].sort((a, b) => b - a) : [...ids].sort((a, b) => a - b);
       assert.deepStrictEqual(
         ids,
         expected,
@@ -242,11 +243,11 @@ describe('Issue #179 — Sort tiebreaker (id as secondary sort)', function () {
   describe('sort=popular (with usage data, same bucket)', function () {
     it('uses id DESC tiebreaker within same popularity bucket', async function () {
       // Create 5 entries (rapidly → same created_at, auto-increment ids)
-      const eA = await createTbEntry('A');  // highest id (created last)
+      const eA = await createTbEntry('A'); // highest id (created last)
       const eB = await createTbEntry('B');
       const eC = await createTbEntry('C');
       const eD = await createTbEntry('D');
-      const eE = await createTbEntry('E');  // lowest id (created first)
+      const eE = await createTbEntry('E'); // lowest id (created first)
 
       // View eE 20 times → usage_count=20, bucketSize = ceil(20/10)=2, bucket = 1+floor(19/2)=10
       // View eD 20 times → same high bucket
