@@ -473,7 +473,7 @@ function resetTags() {
 }
 // ===== PASSWORD VALIDATION =====
 // Mirrors server lib/password.js validatePassword — must stay in sync
-const PASSWORD_SPECIAL = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
+var PASSWORD_SPECIAL = PASSWORD_SPECIAL || /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/;
 function validatePw(p) {
   if (typeof p !== 'string') return PASSWORD_MSG;
   if (p.length < 8) return PASSWORD_MSG;
@@ -484,10 +484,11 @@ function validatePw(p) {
   return null;
 }
 
-const PASSWORD_MSG =
+var PASSWORD_MSG =
+  PASSWORD_MSG ||
   'Password must be at least 8 characters, with uppercase, lowercase, digit, and special character';
 
-const PASSWORD_RULES = [
+var PASSWORD_RULES = PASSWORD_RULES || [
   { test: (p) => p.length >= 8, label: 'At least 8 characters' },
   { test: (p) => /[A-Z]/.test(p), label: 'One uppercase letter' },
   { test: (p) => /[a-z]/.test(p), label: 'One lowercase letter' },
@@ -587,14 +588,14 @@ async function loadUsers() {
 }
 
 // Session idle tracking
-const SESSION_MAX_AGE = 16 * 60 * 60 * 1000; // 16h
-const WARNING_BEFORE = 30 * 60 * 1000; // 30 min before
-let lastActivity = Date.now();
-let sessionMonitorId = null;
-let sessionWarned = false;
+var SESSION_MAX_AGE = SESSION_MAX_AGE || 16 * 60 * 60 * 1000; // 16h
+var WARNING_BEFORE = WARNING_BEFORE || 30 * 60 * 1000; // 30 min before
+var lastActivity = lastActivity || Date.now();
+var sessionMonitorId = sessionMonitorId || null;
+var sessionWarned = sessionWarned || false;
 
-const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-let activityHandler;
+var activityEvents = activityEvents || ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+var activityHandler = activityHandler || null;
 
 function startActivityTracking() {
   lastActivity = Date.now();
@@ -651,7 +652,7 @@ async function stayLoggedIn() {
 }
 
 // ===== CONFIRM MODAL =====
-let confirmCallback = null;
+var confirmCallback = confirmCallback || null;
 function showConfirm(title, message, onConfirm) {
   document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-message').textContent = message;
