@@ -65,7 +65,7 @@ const mockQAEntries = [
 
 function resetDOM() {
   var dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"></div><div id="page-content"></div></body></html>',
+    '<!DOCTYPE html><html><body><div id="app"><main class="main" id="main-content"><div id="page-content"></div></main></div></body></html>',
     {
       url: 'http://localhost:3199',
       pretendToBeVisual: true,
@@ -157,7 +157,9 @@ describe('Issue #117 - Hide export button for viewer role', function () {
 
     await renderQA(el);
 
-    var html = el.innerHTML;
+    var toolbar = document.querySelector('.main > .table-toolbar');
+    assert.ok(toolbar, 'Toolbar exists');
+    var html = toolbar.innerHTML;
     var hasExport = html.indexOf('data-action="export-csv"') !== -1;
     assert.ok(!hasExport, 'Export button should NOT be rendered for Viewer role');
   });

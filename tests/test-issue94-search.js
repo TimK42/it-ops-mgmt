@@ -100,7 +100,7 @@ const mockUsers = [
 // Fresh DOM for each test (reuses shared app.js globals)
 function resetDOM() {
   const dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"></div><div id="page-content"></div></body></html>',
+    '<!DOCTYPE html><html><body><div id="app"><main class="main" id="main-content"><div id="page-content"></div></main></div></body></html>',
     {
       url: 'http://localhost:3199',
       pretendToBeVisual: true,
