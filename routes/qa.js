@@ -83,7 +83,7 @@ router.get('/', (req, res) => {
       .prepare('SELECT COALESCE(MAX(usage_count),0) as max_usage FROM qa_entries')
       .get();
     if (max_usage === 0) {
-      orderClause = 'ORDER BY q.created_at DESC';
+      orderClause = 'ORDER BY q.created_at DESC, q.id DESC';
     } else {
       const bucketSize = Math.max(1, Math.ceil(max_usage / 10.0));
       orderClause = `ORDER BY
@@ -91,11 +91,11 @@ router.get('/', (req, res) => {
           WHEN q.usage_count = 0 THEN 1
           ELSE 1 + MIN(9, CAST((q.usage_count - 1) / ${bucketSize} AS INTEGER))
         END DESC,
-        q.created_at DESC`;
+        q.created_at DESC, q.id DESC`;
     }
   } else {
     const order = sort === 'oldest' ? 'ASC' : 'DESC';
-    orderClause = `ORDER BY q.created_at ${order}`;
+    orderClause = `ORDER BY q.created_at ${order}, q.id ${order}`;
   }
   const sql = `SELECT q.*, c.name as category_name, c.color as category_color, c.icon as category_icon
     FROM qa_entries q LEFT JOIN categories c ON q.category_id = c.id ${where} ${orderClause} LIMIT ? OFFSET ?`;
