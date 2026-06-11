@@ -113,7 +113,7 @@ const archivedQA = {
 
 function resetDOM() {
   var dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"></div><div id="page-content"></div><div id="detail-modal"></div><div id="page-title"></div><div id="form-modal"><div class="modal-title"></div><div class="modal-body"></div><div class="modal-footer"></div></div></body></html>',
+    '<!DOCTYPE html><html><body><main class="main" id="main-content"><div id="app"></div><div id="page-content"></div><div id="detail-modal"></div><div id="page-title"></div><div id="form-modal"><div class="modal-title"></div><div class="modal-body"></div><div class="modal-footer"></div></div></main></body></html>',
     {
       url: 'http://localhost:3199',
       pretendToBeVisual: true,

@@ -51,7 +51,7 @@ const draftQA = {
 
 function resetDOM() {
   var dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"></div><div id="page-content"></div><div id="detail-modal"></div><div id="page-title"></div></body></html>',
+    '<!DOCTYPE html><html><body><main class="main" id="main-content"><div id="app"></div><div id="page-content"></div><div id="detail-modal"></div><div id="page-title"></div></main></body></html>',
     {
       url: 'http://localhost:3199',
       pretendToBeVisual: true,

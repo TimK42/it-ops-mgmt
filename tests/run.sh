@@ -108,7 +108,7 @@ done
 
 echo ""
 echo ">>> Mocha Unit Tests (Issue #55, #94, #107, #117, #121-123, #134, #137, #138, #142, #143, #144, #163, #177)"
-MOCHA_OUTPUT=$(npx mocha tests/test-issue94-search.js tests/test-issue107-chips.js tests/test-issue117-export.js tests/test-issue121-123-archive-button.js tests/test-issue134-unarchive.js tests/test-issue137-pwa.js tests/test-issue138.js tests/test-issue142-darkmode.js tests/test-issue143.js tests/test-issue55-dashboard.js tests/test-issue163-screen-flash.js tests/test-issue177-sort.js --timeout 60000 2>&1)
+MOCHA_OUTPUT=$(npx mocha tests/test-issue94-search.js tests/test-issue107-chips.js tests/test-issue117-export.js tests/test-issue121-123-archive-button.js tests/test-issue134-unarchive.js tests/test-issue137-pwa.js tests/test-issue138.js tests/test-issue142-darkmode.js tests/test-issue143.js tests/test-issue55-dashboard.js tests/test-issue163-screen-flash.js tests/test-issue177-sort.js tests/test-issue184-sticky-toolbar.js --timeout 60000 2>&1)
 MOCHA_EXIT=$?
 echo "$MOCHA_OUTPUT"
 MOCHA_LINE=$(echo "$MOCHA_OUTPUT" | tail -3 | grep -E '[0-9]+ passing|[0-9]+ failing' | tail -1)
