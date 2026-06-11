@@ -1,11 +1,12 @@
 // Test: Issue #199 — Sidebar nav item aria-labels
 //
 // Coverage:
-//   1. Admin user sees all 6 buttons with correct aria-labels
-//   2. Non-admin user sees only 4 buttons (no Sub-Systems, no Users)
+//   1. Admin user: 5 of 6 sidebar .nav-item buttons have explicit aria-labels
+//      (QA Library excluded — uses visible text + dynamic badge count as accessible name)
+//   2. Non-admin user: 3 of 4 sidebar .nav-item buttons have explicit aria-labels
+//      (QA Library excluded for same reason)
 //   3. Each aria-label matches the button's visible text
-//   4. Non-admin buttons (QA Library, Dashboard, Change Password, Sign Out)
-//      have correct aria-labels for both admin and non-admin users
+//   4. QA Library button is validated to have no static aria-label (preserves badge count)
 //
 // Usage: npx mocha tests/test-issue199-aria-labels.js --timeout 15000
 
