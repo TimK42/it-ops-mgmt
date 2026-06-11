@@ -181,7 +181,9 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       await renderDashboard(el);
 
       // Wait for async microtasks to settle
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       // No toolbar anywhere in the document
       const toolbar = document.querySelector('.table-toolbar');
@@ -207,11 +209,17 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       await renderDashboard(el);
 
       // Wait for async microtasks to settle
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       // Toolbar should be gone
       toolbar = document.querySelector('.table-toolbar');
-      assert.strictEqual(toolbar, null, 'Dashboard should NOT have .table-toolbar after navigation from QA Library');
+      assert.strictEqual(
+        toolbar,
+        null,
+        'Dashboard should NOT have .table-toolbar after navigation from QA Library',
+      );
     });
 
     it('QA Library STILL has toolbar after returning from Dashboard', async function () {
@@ -230,14 +238,19 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
         '/api/categories': [],
       });
       await renderDashboard(el);
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       // Step 3: Return to QA Library — toolbar should be recreated
       setupQA();
       await renderQA(el);
 
       const toolbarAfter = document.querySelector('.main > .table-toolbar');
-      assert.ok(toolbarAfter, 'QA Library should STILL have toolbar after returning from Dashboard');
+      assert.ok(
+        toolbarAfter,
+        'QA Library should STILL have toolbar after returning from Dashboard',
+      );
       assert.strictEqual(
         toolbarAfter.parentElement.className,
         'main',
@@ -266,10 +279,16 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
           '/api/categories': [],
         });
         await renderDashboard(el);
-        await new Promise(function (r) { return setTimeout(r, 50); });
+        await new Promise(function (r) {
+          return setTimeout(r, 50);
+        });
 
         var toolbarDash = document.querySelectorAll('.table-toolbar').length;
-        assert.strictEqual(toolbarDash, 0, 'Dashboard should have 0 toolbars (iteration ' + i + ')');
+        assert.strictEqual(
+          toolbarDash,
+          0,
+          'Dashboard should have 0 toolbars (iteration ' + i + ')',
+        );
       }
     });
   });
@@ -289,7 +308,9 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       await renderDashboard(el);
 
       // Wait for async microtasks to settle
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       const statusDist = document.querySelector('.status-distribution');
       assert.ok(statusDist, 'Dashboard should have .status-distribution element');
@@ -304,7 +325,9 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       var dist = document.querySelector('.status-distribution');
       assert.ok(dist, 'Status distribution container exists');
@@ -325,17 +348,36 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       var bar = document.querySelector('.distribution-bar');
       var segments = bar.querySelectorAll('.dist-segment');
       assert.strictEqual(segments.length, 3, 'Distribution bar should have 3 segments');
 
       // Check segment CSS classes
-      var classNames = Array.from(segments).map(function (s) { return s.className; });
-      assert.ok(classNames.some(function (c) { return c.indexOf('dist-published') !== -1; }), 'Should have .dist-published segment');
-      assert.ok(classNames.some(function (c) { return c.indexOf('dist-draft') !== -1; }), 'Should have .dist-draft segment');
-      assert.ok(classNames.some(function (c) { return c.indexOf('dist-archived') !== -1; }), 'Should have .dist-archived segment');
+      var classNames = Array.from(segments).map(function (s) {
+        return s.className;
+      });
+      assert.ok(
+        classNames.some(function (c) {
+          return c.indexOf('dist-published') !== -1;
+        }),
+        'Should have .dist-published segment',
+      );
+      assert.ok(
+        classNames.some(function (c) {
+          return c.indexOf('dist-draft') !== -1;
+        }),
+        'Should have .dist-draft segment',
+      );
+      assert.ok(
+        classNames.some(function (c) {
+          return c.indexOf('dist-archived') !== -1;
+        }),
+        'Should have .dist-archived segment',
+      );
     });
 
     it('Distribution labels show Published, Draft, Archived with percentages', async function () {
@@ -347,7 +389,9 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       var labels = document.querySelector('.distribution-labels');
       var labelText = labels.textContent;
@@ -369,13 +413,15 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       var dist = document.querySelector('.status-distribution');
       var html = dist.innerHTML;
       assert.ok(
         html.indexOf('Status Distribution') !== -1,
-        'Status distribution should have "Status Distribution" heading'
+        'Status distribution should have "Status Distribution" heading',
       );
     });
   });
@@ -392,7 +438,10 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
     });
 
     it('CSS has .status-distribution class', function () {
-      assert.ok(css.indexOf('.status-distribution') !== -1, 'CSS should define .status-distribution');
+      assert.ok(
+        css.indexOf('.status-distribution') !== -1,
+        'CSS should define .status-distribution',
+      );
     });
 
     it('CSS has .distribution-bar class', function () {
@@ -404,7 +453,10 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
     });
 
     it('CSS has .distribution-labels class', function () {
-      assert.ok(css.indexOf('.distribution-labels') !== -1, 'CSS should define .distribution-labels');
+      assert.ok(
+        css.indexOf('.distribution-labels') !== -1,
+        'CSS should define .distribution-labels',
+      );
     });
 
     it('CSS .distribution-bar has border-radius: 6px', function () {
@@ -415,7 +467,10 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
         var blockStart = css.indexOf('{', idx);
         var blockEnd = css.indexOf('}', blockStart);
         var block = css.slice(blockStart, blockEnd + 1);
-        assert.ok(block.indexOf('border-radius') !== -1, '.distribution-bar should have border-radius');
+        assert.ok(
+          block.indexOf('border-radius') !== -1,
+          '.distribution-bar should have border-radius',
+        );
         assert.ok(block.indexOf('6px') !== -1, '.distribution-bar border-radius should be 6px');
       } else {
         assert.fail('.distribution-bar CSS rule not found');
@@ -437,7 +492,9 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       var grid = document.getElementById('dash-stats');
       assert(grid, 'dash-stats element should exist');
@@ -454,10 +511,14 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      await new Promise(function (r) { return setTimeout(r, 50); });
+      await new Promise(function (r) {
+        return setTimeout(r, 50);
+      });
 
       var numbers = document.querySelectorAll('.stat-number');
-      var numTexts = Array.from(numbers).map(function (n) { return n.textContent.trim(); });
+      var numTexts = Array.from(numbers).map(function (n) {
+        return n.textContent.trim();
+      });
 
       assert.ok(numTexts.indexOf('42') !== -1, 'Total should show 42');
       assert.ok(numTexts.indexOf('20') !== -1, 'Published should show 20');
