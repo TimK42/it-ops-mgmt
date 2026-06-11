@@ -484,7 +484,8 @@ function validatePw(p) {
   return null;
 }
 
-var PASSWORD_MSG = PASSWORD_MSG ||
+var PASSWORD_MSG =
+  PASSWORD_MSG ||
   'Password must be at least 8 characters, with uppercase, lowercase, digit, and special character';
 
 var PASSWORD_RULES = PASSWORD_RULES || [

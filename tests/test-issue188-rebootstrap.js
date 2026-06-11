@@ -243,14 +243,8 @@ describe('Issue #188 — Re-bootstrap guard pattern', function () {
           varRe.test(code),
           `${name} should be declared with var, got something else (or not found)`,
         );
-        assert.ok(
-          !letRe.test(code),
-          `${name} should NOT be declared with let`,
-        );
-        assert.ok(
-          !constRe.test(code),
-          `${name} should NOT be declared with const`,
-        );
+        assert.ok(!letRe.test(code), `${name} should NOT be declared with let`);
+        assert.ok(!constRe.test(code), `${name} should NOT be declared with const`);
       }
     });
 
@@ -258,9 +252,7 @@ describe('Issue #188 — Re-bootstrap guard pattern', function () {
       const code = fs.readFileSync(APP_JS_PATH, 'utf-8');
 
       for (const name of convertedNames) {
-        const guardRe = new RegExp(
-          `var\\s+${name}\\s*=\\s*${name}\\s*\\|\\|`,
-        );
+        const guardRe = new RegExp(`var\\s+${name}\\s*=\\s*${name}\\s*\\|\\|`);
         assert.ok(
           guardRe.test(code),
           `${name} should use guard pattern: var ${name} = ${name} || ...`,
