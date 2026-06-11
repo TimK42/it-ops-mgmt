@@ -28,6 +28,7 @@ export default [
         ...globals.browser,
         state: 'readonly',
         renderQA: 'readonly',
+        renderCategories: 'readonly',
         renderUsers: 'readonly',
         renderLogin: 'readonly',
         loadQA: 'readonly',
