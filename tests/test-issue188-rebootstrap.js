@@ -76,6 +76,23 @@ function loadAppJs() {
 // ============================================================
 
 describe('Issue #188 — Re-bootstrap guard pattern', function () {
+  // Clean up 11 global guard vars before each test to prevent
+  // cross-file pollution (other test files may have loaded app.js
+  // and set these globals before this test runs).
+  beforeEach(function () {
+    delete global.PASSWORD_SPECIAL;
+    delete global.PASSWORD_MSG;
+    delete global.PASSWORD_RULES;
+    delete global.SESSION_MAX_AGE;
+    delete global.WARNING_BEFORE;
+    delete global.lastActivity;
+    delete global.sessionMonitorId;
+    delete global.sessionWarned;
+    delete global.activityEvents;
+    delete global.activityHandler;
+    delete global.confirmCallback;
+  });
+
   // -------------------------------------------------------
   // Test 1: Re-bootstrap safety
   // -------------------------------------------------------
