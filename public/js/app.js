@@ -877,7 +877,7 @@ function render404(el) {
 
 // ===== QA =====
 var qaAbortController = qaAbortController || null;
-let qaDetailFetchSeq = 0; // increments on each showQADetail call to detect stale fetches
+var qaDetailFetchSeq = qaDetailFetchSeq || 0; // increments on each showQADetail call to detect stale fetches
 var closeDetailBtn = 0; // timestamp of most recent closeModal('detail-modal')
 
 async function renderQA(el) {
