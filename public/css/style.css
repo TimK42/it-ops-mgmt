@@ -580,10 +580,14 @@ tr.row-click {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
 }
 .modal-header {
+  position: sticky;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px 0;
+  background: var(--surface);
+  z-index: 1;
 }
 .modal-title {
   font-size: 18px;
@@ -607,11 +611,15 @@ tr.row-click {
   overflow-x: hidden;
 }
 .modal-footer {
+  position: sticky;
+  bottom: 0;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 24px;
   border-top: 1px solid var(--border);
+  background: var(--surface);
+  z-index: 1;
 }
 .form-group {
   margin-bottom: 16px;
