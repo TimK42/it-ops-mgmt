@@ -117,11 +117,7 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
     it('renders 6 nav-item buttons (5 with aria-labels) for admin user', function () {
       setupRenderShell('Admin');
       const allNavItems = document.querySelectorAll('.sidebar .nav-item');
-      assert.strictEqual(
-        allNavItems.length,
-        6,
-        'Admin should see 6 nav buttons total',
-      );
+      assert.strictEqual(allNavItems.length, 6, 'Admin should see 6 nav buttons total');
       const labeledButtons = getSidebarButtonsWithLabels();
       assert.strictEqual(
         labeledButtons.length,
@@ -134,7 +130,10 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
       setupRenderShell('Admin');
       const btn = document.querySelector('.nav-item[data-nav="qa"]');
       assert.ok(btn, 'QA Library button should exist');
-      assert.ok(btn.textContent.includes('QA Library'), 'QA Library button should contain visible text');
+      assert.ok(
+        btn.textContent.includes('QA Library'),
+        'QA Library button should contain visible text',
+      );
     });
 
     it('Sub-Systems button has aria-label="Sub-Systems"', function () {
@@ -176,10 +175,7 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
       setupRenderShell('Admin');
       const html = document.getElementById('app').innerHTML;
       for (const label of ADMIN_BUTTONS) {
-        assert.ok(
-          html.indexOf(label) !== -1,
-          `Admin HTML should contain text "${label}"`,
-        );
+        assert.ok(html.indexOf(label) !== -1, `Admin HTML should contain text "${label}"`);
       }
     });
   });
@@ -192,11 +188,7 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
     it('renders 4 nav-item buttons (3 with aria-labels) for non-admin user', function () {
       setupRenderShell('User');
       const allNavItems = document.querySelectorAll('.sidebar .nav-item');
-      assert.strictEqual(
-        allNavItems.length,
-        4,
-        'Non-admin should see 4 nav buttons total',
-      );
+      assert.strictEqual(allNavItems.length, 4, 'Non-admin should see 4 nav buttons total');
       const labeledButtons = getSidebarButtonsWithLabels();
       assert.strictEqual(
         labeledButtons.length,
@@ -221,7 +213,10 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
       setupRenderShell('User');
       const btn = document.querySelector('.nav-item[data-nav="qa"]');
       assert.ok(btn, 'QA Library button should exist for non-admin');
-      assert.ok(btn.textContent.includes('QA Library'), 'QA Library button should contain visible text');
+      assert.ok(
+        btn.textContent.includes('QA Library'),
+        'QA Library button should contain visible text',
+      );
     });
 
     it('Dashboard button rendered for non-admin with correct aria-label', function () {
@@ -282,7 +277,10 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
           const btn = document.querySelector(selector);
           assert.ok(btn, `${label} button should exist for ${role}`);
           if (label === 'QA Library') {
-            assert.ok(btn.textContent.includes(label), `${label} button should contain visible text`);
+            assert.ok(
+              btn.textContent.includes(label),
+              `${label} button should contain visible text`,
+            );
           } else {
             assert.strictEqual(btn.getAttribute('aria-label'), label);
           }
@@ -301,7 +299,6 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
       const toggle = document.querySelector('[data-action="sidebar-toggle"]');
       assert.ok(toggle, 'Sidebar toggle button should exist');
       // It has aria-label="Toggle sidebar" — that's fine, but it's not a nav-item
-      const navItemsWithLabels = getSidebarButtonsWithLabels();
       const toggleIsNavItem = toggle.classList.contains('nav-item');
       // The toggle has aria-label but is NOT a .nav-item — our test targets only
       // nav-item buttons which are the sidebar navigation buttons
@@ -322,7 +319,10 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
         const isQALibrary = item.dataset.nav === 'qa';
         if (isQALibrary) {
           // QA Library uses visible text content for accessible name
-          assert.ok(item.textContent.includes('QA Library'), 'QA Library should contain visible text');
+          assert.ok(
+            item.textContent.includes('QA Library'),
+            'QA Library should contain visible text',
+          );
         } else {
           assert.ok(
             item.hasAttribute('aria-label'),
@@ -342,7 +342,10 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
         const isQALibrary = item.dataset.nav === 'qa';
         if (isQALibrary) {
           // QA Library uses visible text content for accessible name
-          assert.ok(item.textContent.includes('QA Library'), 'QA Library should contain visible text');
+          assert.ok(
+            item.textContent.includes('QA Library'),
+            'QA Library should contain visible text',
+          );
         } else {
           assert.ok(
             item.hasAttribute('aria-label'),
