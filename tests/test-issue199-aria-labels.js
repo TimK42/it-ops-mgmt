@@ -119,7 +119,11 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
     it('renders 6 nav-item buttons with aria-labels for admin user', function () {
       setupRenderShell('Admin');
       const labeledButtons = getSidebarButtonsWithLabels();
-      assert.strictEqual(labeledButtons.length, 6, 'Admin should see 6 nav buttons with aria-labels');
+      assert.strictEqual(
+        labeledButtons.length,
+        6,
+        'Admin should see 6 nav buttons with aria-labels',
+      );
     });
 
     it('QA Library button has aria-label="QA Library"', function () {
@@ -184,7 +188,11 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
     it('renders 4 nav-item buttons with aria-labels for non-admin user', function () {
       setupRenderShell('User');
       const labeledButtons = getSidebarButtonsWithLabels();
-      assert.strictEqual(labeledButtons.length, 4, 'Non-admin should see 4 nav buttons with aria-labels');
+      assert.strictEqual(
+        labeledButtons.length,
+        4,
+        'Non-admin should see 4 nav buttons with aria-labels',
+      );
     });
 
     it('Sub-Systems button is NOT rendered for non-admin', function () {
@@ -257,7 +265,8 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
           let selector;
           if (label === 'QA Library') selector = '.nav-item[data-nav="qa"]';
           else if (label === 'Dashboard') selector = '.nav-item[data-nav="dashboard"]';
-          else if (label === 'Change Password') selector = '.nav-item[data-action="change-password"]';
+          else if (label === 'Change Password')
+            selector = '.nav-item[data-action="change-password"]';
           else if (label === 'Sign Out') selector = '.nav-item[data-action="logout"]';
 
           const btn = document.querySelector(selector);
