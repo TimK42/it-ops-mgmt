@@ -132,7 +132,7 @@ function restoreTheme() {
 initTheme();
 
 // ===== PWA INSTALL PROMPT =====
-let deferredInstallPrompt = null;
+var deferredInstallPrompt = deferredInstallPrompt || null;
 
 function isIOS() {
   const ua = navigator.userAgent;
@@ -876,8 +876,8 @@ function render404(el) {
 }
 
 // ===== QA =====
-let qaAbortController = null;
-let qaDetailFetchSeq = 0; // increments on each showQADetail call to detect stale fetches
+var qaAbortController = qaAbortController || null;
+var qaDetailFetchSeq = qaDetailFetchSeq || 0; // increments on each showQADetail call to detect stale fetches
 var closeDetailBtn = 0; // timestamp of most recent closeModal('detail-modal')
 
 async function renderQA(el) {

@@ -91,6 +91,7 @@ router.get('/', (req, res) => {
           WHEN q.usage_count = 0 THEN 1
           ELSE 1 + MIN(9, CAST((q.usage_count - 1) / ${bucketSize} AS INTEGER))
         END DESC,
+        q.usage_count DESC,
         q.created_at DESC, q.id DESC`;
     }
   } else {
