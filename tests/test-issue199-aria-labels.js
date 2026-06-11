@@ -100,8 +100,6 @@ const ADMIN_BUTTONS = [
   'Sign Out',
 ];
 
-const NON_ADMIN_BUTTONS = ['QA Library', 'Dashboard', 'Change Password', 'Sign Out'];
-
 // ============================================================
 // Tests
 // ============================================================
