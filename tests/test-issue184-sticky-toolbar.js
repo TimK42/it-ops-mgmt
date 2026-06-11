@@ -114,14 +114,17 @@ function resetDOM() {
 
 // Bootstrap app.js once before all tests
 before(function () {
-  resetDOM();
-  const appJsPath = path.resolve(__dirname, '../public/js/app.js');
-  const code = fs.readFileSync(appJsPath, 'utf-8');
-  vm.runInThisContext(code, { filename: 'app.js' });
-});
-
-beforeEach(function () {
-  resetDOM();
+  // Only bootstrap if not already loaded by a preceding test (same process)
+  if (typeof state === 'undefined') {
+    resetDOM();
+    var appJsPath = path.resolve(__dirname, '../public/js/app.js');
+    var code = fs.readFileSync(appJsPath, 'utf-8');
+    vm.runInThisContext(code, { filename: 'app.js' });
+    // Clean up the bootstrap DOM
+    delete global.window;
+    delete global.document;
+    delete global.navigator;
+  }
 });
 
 // ============================================================
@@ -184,6 +187,10 @@ function setupUsers(opts = {}) {
 // ============================================================
 
 describe('Issue #184 - Sticky toolbar DOM structure', function () {
+  beforeEach(function () {
+    resetDOM();
+  });
+
   // ---------- QA toolbar DOM structure ----------
 
   it('QA: .table-toolbar is child of .main (not .content) after renderQA()', async function () {
