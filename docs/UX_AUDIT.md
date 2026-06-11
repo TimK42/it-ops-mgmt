@@ -1,5 +1,6 @@
 # IT Ops Management — UI/UX Audit Report
 
+> **Round 8:** 2026-06-11 20:57 HKT · via CDP snapshot + JS evaluate + curl
 > **Round 7:** 2026-06-10 22:41 HKT · via CDP snapshot + JS evaluate + chrome
 > **Round 6:** 2026-06-08 16:59 HKT · via CDP snapshot + JS evaluate + curl
 > **Round 5:** 2026-06-04 11:10 HKT · via CDP snapshot + JS evaluate + curl  
@@ -9,23 +10,23 @@
 > **Round 1 baseline:** 19 issues (4C, 5H, 5M, 5L)  
 > **Pages audited:** QA Library, QA Detail, New QA Entry, Categories, Users, Dashboard, Change Password, 404, Login, Register  
 > **Auth:** admin / 0000 (5 QA entries, 4 categories)  
-> **Viewports:** 416×902 (mobile portrait), 462×1002, 781×1694
+> **Viewports:** 462×1002 (mobile), 868×1882 (tablet), 868×1882 (laptop)  
 > **Themes:** Light + Dark (toggled, verified)  
 > **DB:** Seeded — 5 QA entries, 4 categories  
-> **Focus:** Comprehensive mobile RWD audit of ALL pages + PWA verification
+> **Focus:** R8: Full regression audit — verify all 10 open issues + discover new ones
 
 ---
 
 ## Status Summary
 
-| Issue          | Round 1 | Round 2 | Round 3 | Round 4   | Round 5     | Round 6     | Round 7                |
-| -------------- | ------- | ------- | ------- | --------- | ----------- | ----------- | ---------------------- |
-| 🔴 Critical    | 4       | 0       | 0       | 0         | 0           | 0           | 0                      |
-| 🟧 High        | 5       | 0       | 3       | 2 (NEW)   | 1 (2 ↘)     | 1 (↘ R3-H1) | 1                      |
-| 🟨 Medium      | 5       | 2       | 4       | 4 (2 NEW) | 2 (2 ↘)     | 5 (2 NEW)   | 5                      |
-| 🟩 Low         | 5       | 1       | 3       | 1 (NEW)   | 2 (↗ R5-L1) | 4 (2 NEW)   | 4                      |
-| **Total Open** | **19**  | **3**   | **10**  | **7**     | **5**       | **10**      | **10** (no new issues) |
-| **Fixed**      | —       | 19      | 2       | 6 (R3)    | 3 (R4)      | 4 (R5+R6)   | 4                      |
+| Issue          | R1   | R2 | R3  | R4   | R5   | R6    | R7    | **R8**    |
+| -------------- | ---- | -- | --- | ---- | ---- | ----- | ----- | --------- |
+| 🔴 Critical    | 4    | 0  | 0   | 0    | 0    | 0     | 0     | **0**     |
+| 🟧 High        | 5    | 0  | 3   | 2    | 1    | 1     | 1     | **1**     |
+| 🟨 Medium      | 5    | 2  | 4   | 4    | 2    | 5     | 5     | **4**     |
+| 🟩 Low         | 5    | 1  | 3   | 1    | 2    | 4     | 4     | **2**     |
+| **Total Open** | **19** | **3** | **10** | **7** | **5** | **10** | **10**  | **7** |
+| **Fixed (cum)** | —   | 19 | 21  | 25   | 28   | 30    | 30    | **37**   |
 
 ---
 
@@ -624,20 +625,171 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ---
 
-## Open Issues — Priority Order
+##  Open Issues — Priority Order
 
-| #   | ID    | Sev | Description                           | Page            | Fix                                               |
-| --- | ----- | --- | ------------------------------------- | --------------- | ------------------------------------------------- |
-| 1   | R6-H1 | 🟧  | PWA install banner overlaps content   | All             | `padding-bottom` on `<main>` when visible         |
-| 2   | R6-H2 | 🟨  | SPA login missing `<main>` landmark   | Login, Register | Preserve/recreate `<main>` in renderLogin         |
-| 3   | R6-M1 | 🟨  | New Entry tags input too short (28px) | New Entry modal | Increase to min-height 44px                       |
-| 4   | R6-M2 | 🟨  | Login bg always dark (no theme)       | Login           | Use CSS custom property for gradient              |
-| 5   | R5-L1 | 🟩  | QA Detail title overflow at mobile    | QA Detail       | Remove `white-space: nowrap` or add break         |
-| 6   | R6-L1 | 🟩  | Login card padding + small fonts      | Login, Register | Reduce padding, increase fonts                    |
-| 7   | R6-H3 | 🟨  | Dark mode resets on SPA navigation    | All             | #142 — Persist data-theme across page transitions |
-| 8   | R6-H4 | 🟩  | Change Password input height 41px     | Change Password | #144 — Set min-height: 44px on modal inputs       |
-| 9   | R2-2  | 🟨  | Dashboard very sparse                 | Dashboard       | Add charts, recent entries, per-category          |
-| 10  | R4-L1 | 🟩  | No explicit `<footer>` element        | All             | Optional — sidebar serves same purpose            |
+| #   | ID    | Sev | Description                              | Page                  | Fix                                                     |
+| --- | ----- | --- | ---------------------------------------- | --------------------- | ------------------------------------------------------- |
+| 1   | R8-M1 | 🟨  | Filter tab heights 24px at desktop       | QA Library            | Set consistent min-height: 44px, OR responsive CSS      |
+| 2   | R8-M2 | 🟨  | QA toolbar visible on Dashboard page     | Dashboard             | Conditionally hide toolbar or show Dashboard toolbar    |
+| 3   | R6-M2 | 🟨  | Login bg always dark (no theme)          | Login                 | #139 — Use CSS custom property for gradient             |
+| 4   | R2-2  | 🟨  | Dashboard still sparse                   | Dashboard             | Add charts, per-category breakdown                      |
+| 5   | R6-H1 | 🟧  | PWA install banner overlaps content      | All                   | #137 — `padding-bottom` on `<main>` when visible        |
+| 6   | R8-L1 | 🟩  | Nav items missing aria-labels            | All (sidebar)         | Add `aria-label` to each nav-item button                |
+| 7   | R8-L2 | 🟩  | Remember me checkbox 13×13 (too small)   | Login                 | Increase touch target size                              |
+
+## 🆕 Round 8 Findings — Full Regression & Progress Audit (2026-06-11)
+
+> **Focus:** Verify all 10 open issues from R1-R7 + comprehensive regression check + new issue discovery  
+> **Method:** CDP snapshot + JS evaluate + curl  
+> **Viewports:** 462×1002 (mobile), 868×1882 (tablet)  
+> **Themes:** Light + Dark (toggled, verified)  
+> **Auth:** admin / 0000 (5 QA entries, 4 categories)  
+> **Server status:** Running at localhost:3000
+
+---
+
+### ✅ Previously Open Issues — FIXED (7 of 10)
+
+| Issue | Description | Status | Evidence |
+|-------|-------------|--------|----------|
+| R4-L1 | No `<footer>` element | ✅ FIXED | `<footer>IT Operations KB v1.1.0</footer>` present on all authenticated pages |
+| R6-H2 | SPA login missing `<main>` | ✅ FIXED | `<main id="main-content">` preserved in `renderLogin()`, skip-link with `href="#main-content"` |
+| R6-H3 | Dark mode resets on navigation | ✅ FIXED | Data-theme="dark" persists across QA → Dashboard → Users. `navigate()` calls `restoreTheme()` |
+| R6-M1 | Tags input 28px | ✅ FIXED | Tags input now 44px height (min-height: 44px, font-size: 16px) |
+| R6-H4 | Change Password 41px | ✅ FIXED | All 3 password inputs now 44px (was 41px per R6). Autocomplete attributes correct |
+| R5-L1 | QA Detail title overflow | ✅ FIXED | `white-space: normal` (was `nowrap`), wraps on narrow viewports |
+| R6-L1 | Login card padding + small fonts | ✅ MOSTLY FIXED | Card padding 24px (was 40px). `.login-sub` 14px (was 13px). `.login-link` 14px (was 12px). Login inputs 44px (was 41px). Sign In 44px |
+
+### ❌ Previously Open — STILL OPEN (2 remaining)
+
+**R6-M2: Login page background always dark** (Medium, #139)
+- Background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)` — hardcoded dark
+- No CSS custom property integration
+- Login page ignores `data-theme` attribute entirely
+- Register page confirmed same behavior
+
+**R2-2: Dashboard still somewhat sparse** (Medium)
+- Now has 5 stat cards + Recent Entries section + Most Viewed section
+- Still no charts, per-category breakdown, or user activity metrics
+- Basic data display sufficient for v1.1 but room for improvement
+
+### 🆕 R8-H1. PWA Install Banner Overlap (#137) — NOT RE-TESTED (fresh session needed)
+- R6-H1 could not be re-verified because the PWA `beforeinstallprompt` event had already fired in this session
+- Dismissing the banner and re-installing would require a fresh browser profile
+- Code inspection shows banner is a fixed-bottom element; overlap risk remains at narrow viewport
+
+---
+
+### 🆕 NEW Issues Found — Round 8
+
+#### R8-M1. 🟨 Filter Tab Buttons 24px Height at Desktop Viewport
+
+**Severity:** Medium · **Page:** QA Library  
+**Symptom:** Filter tabs (All/Draft/Published/Archived) have `height: 24px` at viewports ≥462px — well below WCAG 2.5.5 minimum touch target of 44px. Issue appears to be a regression: R6 audit measured these at 44×44.  
+
+| Viewport | Filter: All | Filter: Published | Filter: Draft | Filter: Archived |
+|----------|-------------|-------------------|---------------|------------------|
+| 462×1002 | 44×44   | 89×44         | 59×44     | 83×44        |
+| 868×1882 | 39×24   | 81×24         | 52×24     | 75×24        |
+
+**Computed CSS at 868×1882:** `padding: 5px 12px`, `font-size: 12px`, `line-height: normal` — total height ~24px  
+**Root cause:** Responsive CSS reduces height at wider viewports (intended for compact display) but drops below minimum.  
+**Suggested fix:** Set `min-height: 44px` on `.filter-tab` for all viewports, or use media query to restore 44px.
+
+#### R8-M2. 🟨 QA Toolbar Visible on Dashboard Page
+
+**Severity:** Medium · **Page:** Dashboard  
+**Symptom:** The complete QA Library toolbar (filter tabs, search, sort, export, new entry) is visible on the Dashboard page. Users/Categories pages correctly show page-specific toolbar content ("Search users", "Search categories").  
+
+**Evidence (Dashboard page):**
+- `.table-toolbar` display: `flex`, visibility: `visible`
+- Contains: H2 "Filters", filter-group with All/Draft/Published/Archived buttons, search, sort, export, new entry
+- Page title reads "Dashboard", active nav is "📊 Dashboard"
+
+**Users page (correct behavior):** toolbar shows "Search users" input only  
+**Suggested fix:** Conditionally render the toolbar HTML per page, or set `display: none` on `.table-toolbar` for dashboard route.
+
+#### R8-L1. 🟩 Navigation Items Missing Aria-labels
+
+**Severity:** Low · **Page:** All (sidebar navigation)  
+**Symptom:** None of the 6 sidebar navigation items have `aria-label` attributes. The `<nav>` container has `aria-label="Main navigation"`, but individual buttons are missing explicit labels.  
+
+**Items affected:** QA Library, Sub-Systems, Users, Dashboard, Change Password, Sign Out  
+**Impact:** Screen readers announce button text via child content (emoji + text), but explicit aria-labels would improve clarity for users who navigate by landmark items.  
+
+#### R8-L2. 🟩 Remember Me Checkbox 13×13
+
+**Severity:** Low · **Page:** Login  
+**Symptom:** The "Remember me" checkbox measures 13×13 pixels — well below WCAG 2.5.5 minimum touch target of 44×44. The label text is clickable, mitigating the issue, but the native checkbox itself is very small.
+
+---
+
+### ✅ Round 8 — Positive Findings
+
+- **No horizontal overflow** at any tested viewport — body scrollWidth == clientWidth at 462×1002 and 868×1882 ✅
+- **All form inputs have proper labels** — 0 label issues found across all pages ✅
+- **All images have alt text** — 0 missing alt attributes ✅
+- **Heading hierarchy correct** — H1 → H2 → H2 on all authenticated pages ✅
+- **Security headers intact** — CSP, HSTS, COOP, COEP, XFO, XCTO all present ✅
+- **PWA manifest valid** — All required fields + icons ✅
+- **Service worker well configured** — Network-first for nav, cache-first for static, network-only for API, offline app shell fallback ✅
+- **Skip-to-content link present** — First focusable on all authenticated pages ✅
+- **No stale loading indicators** — All pages render cleanly ✅
+- **Login inputs 44px with 16px font** — Was 41px in R6, now corrected ✅
+- **QA Detail modal sticky header/footer** — Issue #194 fix verified working (position: sticky, z-index: 1) ✅
+- **Dark mode persists across SPA navigation** — Confirmed via QA→Dashboard→Users navigation ✅
+- **Register page has `<main>` landmark, autocomplete, labels** — All correct ✅
+- **New QA Entry form inputs all ≥44px** — Title, Question, Answer, tags, select, buttons ✅
+
+---
+
+### Round 8 — Updated Status Summary
+
+| Issue          | R1   | R2 | R3  | R4   | R5   | R6    | R7    | **R8**    |
+| -------------- | ---- | -- | --- | ---- | ---- | ----- | ----- | --------- |
+| 🔴 Critical    | 4    | 0  | 0   | 0    | 0    | 0     | 0     | **0**     |
+| 🟧 High        | 5    | 0  | 3   | 2    | 1    | 1     | 1     | **1**     |
+| 🟨 Medium      | 5    | 2  | 4   | 4    | 2    | 5     | 5     | **4**     |
+| 🟩 Low         | 5    | 1  | 3   | 1    | 2    | 4     | 4     | **2**     |
+| **Total Open** | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** |
+| **Fixed (cumulative)** | — | 19 | 21 | 25 | 28 | 30 | 30 | **37** |
+
+**New issues found (R8):** 4 (2 Medium, 2 Low)  
+**Issues fixed since R7:** 5 (R6-H3, R6-H2, R4-L1, R6-M1, R6-H4, R5-L1, R6-L1 partially)  
+**Longest-standing open issue:** R2-2 (Dashboard sparse) — open since Round 2
+
+---
+
+## Previously Fixed (all rounds)
+
+| Issue | Fix PR/Commit | Note |
+|-------|---------------|------|
+| R6-H3 (dark mode resets) | — | `restoreTheme()` in `navigate()` confirmed working |
+| R6-H2 (SPA login main) | — | Server-rendered `<main>` preserved in SPA |
+| R6-M1 (tags 28px) | — | Now 44px |
+| R6-H4 (password 41px) | — | Now 44px |
+| R5-L1 (title overflow) | — | `white-space: normal` |
+| R6-L1 (login fonts) | — | Fonts 14px |
+| R4-L1 (footer) | — | Footer element present |
+| R3-H1 (PWA missing) | R6 Verified | manifest.json, SW, icons, meta all present |
+| R4-M2 (theme-color / Apple PWA) | R6 Verified | All meta tags verified in HTML source |
+| R4-H1 (QA Detail below list) | PR #61 | Detail renders as overlay, list hidden |
+| R4-H2 (QA Detail persists) | PR #61 (#56) | `navigate()` calls `closeModal('detail-modal')` |
+| R4-M1 (Login SPA `<form>`) | PR #57 (#53) | `renderLogin()` wraps in `<form>` |
+| All 10 mobile touch targets | PR #64 | All ≥44×44, input font 16px |
+| Sidebar scrim + auto-close | PR #62 (#54) | Scrim overlay on mobile |
+| Sub-system Remove confirm dialog | PR #62 (#54) | Custom modal with Cancel/Confirm |
+| Search clear button | PR #72 (#63) | ✕ button aligns properly |
+| QA Card semantic `<a>` links | PR #61 | Replaced `<div onclick>` with `<a href>` |
+| R3-H2 (Login labels) | — | Labels added to no-JS HTML |
+| R3-H3 (Controls leak) | — | Search/Export conditioned per page |
+| R3-M1 (QA Detail heading) | — | H1 updated to entry title |
+| R3-M2 (Users pagination) | PR #43 (#33) | 20/page pagination |
+| R3-M4 (Secondary headings) | #31 | H2 sections on all pages |
+| R3-L1 (Search label) | — | `<label for="global-search">` |
+| R3-L2 (Search type) | — | Changed to `type="search"` |
+| R2-1 (Sidebar QA count) | PR #42 (#35) | `loadQATotalCount()` |
+| All 19 Round 1 issues | Various | Full semantic + a11y + security |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 

@@ -331,6 +331,7 @@ body {
   background: none;
   font-size: 12px;
   font-family: 'Inter', sans-serif;
+  min-height: 44px;
   cursor: pointer;
   color: var(--text-secondary);
   font-weight: 500;
