@@ -41,6 +41,7 @@ export default [
         navigate: 'readonly',
         restoreTheme: 'readonly',
         renderDashboard: 'readonly',
+        renderShell: 'readonly',
         closeModal: 'writable',
         closeSidebar: 'writable',
         showCreateQA: 'readonly',

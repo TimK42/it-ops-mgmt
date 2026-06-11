@@ -802,14 +802,14 @@ function renderShell() {
         <div class="sidebar-nav">
           <div class="nav-section">Main</div>
           <button class="nav-item active" data-nav="qa" data-action="navigate" data-page="qa"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
-          ${isAdmin ? `<button class="nav-item" data-nav="categories" data-action="navigate" data-page="categories"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" data-action="navigate" data-page="users"><span class="nav-icon">👥</span> Users</button>` : ''}
+          ${isAdmin ? `<button class="nav-item" data-nav="categories" data-action="navigate" data-page="categories" aria-label="Sub-Systems"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" data-action="navigate" data-page="users" aria-label="Users"><span class="nav-icon">👥</span> Users</button>` : ''}
           <div class="nav-section">Workspace</div>
-          <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
+          <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard" aria-label="Dashboard"><span class="nav-icon">📊</span> Dashboard</button>
         </div>
         <div class="sidebar-footer">
           <div class="sidebar-footer-user">${esc(userName)} (${esc(u.role)}) &#x2022; IT Operations KB v${appVersion}</div>
-          <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
-          <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
+          <button class="nav-item" data-action="change-password" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer" aria-label="Change Password"><span class="nav-icon" style="font-size:12px">🔑</span> Change Password</button>
+          <button class="nav-item" data-action="logout" style="color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer" aria-label="Sign Out"><span class="nav-icon" style="font-size:12px">🚪</span> Sign Out</button>
         </div>
       </nav>
       <div class="sidebar-overlay" id="sidebar-overlay" data-action="close-sidebar"></div>
