@@ -1750,6 +1750,11 @@ function showResetUserPassword(id) {
 
 // ===== DASHBOARD =====
 async function renderDashboard(el) {
+  // Remove any existing table-toolbar (from QA Library page)
+  const main = el.parentNode;
+  const oldToolbar = main.querySelector('.table-toolbar');
+  if (oldToolbar) oldToolbar.remove();
+
   el.innerHTML =
     '<h2 class="sr-only">Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
 
@@ -1759,13 +1764,21 @@ async function renderDashboard(el) {
       const ds = document.getElementById('dash-stats');
       if (!ds) return;
       ds.className = '';
+      const total = s.qa.total || 0;
+      const published = s.qa.published || 0;
+      const draft = s.qa.draft || 0;
+      const archived = s.qa.archived || 0;
+      const publishedPct = total > 0 ? Math.round((published / total) * 100) : 0;
+      const draftPct = total > 0 ? Math.round((draft / total) * 100) : 0;
+      const archivedPct = total > 0 ? Math.round((archived / total) * 100) : 0;
+      ds.className = '';
       ds.innerHTML = `<div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">${esc(String(s.qa.total ?? 0))}</div><div class="stat-label">Total QA Entries</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--success)">${esc(String(s.qa.published ?? 0))}</div><div class="stat-label">Published</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--warning)">${esc(String(s.qa.draft ?? 0))}</div><div class="stat-label">Draft</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--text-secondary)">${esc(String(s.qa.archived ?? 0))}</div><div class="stat-label">Archived</div></div>
+      <div class="stat-card"><div class="stat-number">${esc(String(total))}</div><div class="stat-label">Total QA Entries</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--success)">${esc(String(published))}</div><div class="stat-label">Published</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--warning)">${esc(String(draft))}</div><div class="stat-label">Draft</div></div>
+      <div class="stat-card"><div class="stat-number" style="color:var(--text-secondary)">${esc(String(archived))}</div><div class="stat-label">Archived</div></div>
       <div class="stat-card"><div class="stat-number">${esc(String(s.categories ?? 0))}</div><div class="stat-label">Sub-Systems</div></div>
-    </div>`;
+    </div><div class="status-distribution"><div class="section-title" style="margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Status Distribution</div><div class="distribution-bar"><div class="dist-segment dist-published" style="flex:${publishedPct};background:var(--success)" title="Published: ${publishedPct}%"></div><div class="dist-segment dist-draft" style="flex:${draftPct};background:var(--warning)" title="Draft: ${draftPct}%"></div><div class="dist-segment dist-archived" style="flex:${archivedPct};background:var(--text-secondary)" title="Archived: ${archivedPct}%"></div></div><div class="distribution-labels"><span>● Published ${publishedPct}%</span><span>● Draft ${draftPct}%</span><span>● Archived ${archivedPct}%</span></div></div>`;
     })
     .catch(() => {
       const el2 = document.getElementById('dash-stats');
