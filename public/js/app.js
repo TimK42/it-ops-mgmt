@@ -883,6 +883,7 @@ async function renderQA(el) {
   if (qaAbortController) qaAbortController.abort();
   qaAbortController = new AbortController();
   const signal = qaAbortController.signal;
+  const main = el.parentNode;
 
   const isFirstRender = !el.querySelector('#qa-list');
 
@@ -916,14 +917,25 @@ async function renderQA(el) {
 
   if (isFirstRender) {
     // First render: build the full toolbar + empty list container once
-    el.innerHTML = `<div class="table-toolbar"><h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><select id="qa-sort" class="sort-select" aria-label="Sort order"><option value="popular"${state.qaSort === 'popular' ? ' selected' : ''}>By Popularity</option><option value="newest"${state.qaSort === 'newest' ? ' selected' : ''}>By Newest</option></select></div><div class="filter-group">${canEdit ? '<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>' : ''}${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
+    // Remove any existing table-toolbar (from previous page) before inserting new one
+    const oldToolbar = main.querySelector('.table-toolbar');
+    if (oldToolbar) oldToolbar.remove();
+
+    // Insert toolbar as sibling BEFORE .content
+    const toolbar = document.createElement('div');
+    toolbar.className = 'table-toolbar';
+    toolbar.innerHTML = `<h2 class="sr-only">Filters</h2><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><select id="qa-sort" class="sort-select" aria-label="Sort order"><option value="popular"${state.qaSort === 'popular' ? ' selected' : ''}>By Popularity</option><option value="newest"${state.qaSort === 'newest' ? ' selected' : ''}>By Newest</option></select></div><div class="filter-group">${canEdit ? '<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>' : ''}${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div>`;
+    main.insertBefore(toolbar, el);
+
+    // Only list content inside .content
+    el.innerHTML = `<h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
 
     // Restore search input value after first render
     const s = document.getElementById('global-search');
     if (s && state.qaFilters.search) s.value = state.qaFilters.search;
 
     // Bind filter tabs (once)
-    el.querySelectorAll('[data-qf]').forEach((b) => {
+    main.querySelectorAll('[data-qf]').forEach((b) => {
       b.onclick = () => {
         state.qaFilters.status = b.dataset.qf || null;
         state.qaPage = 1;
@@ -976,7 +988,7 @@ async function renderQA(el) {
     }
   } else {
     // Subsequent render: update filter tab active state without destroying the input
-    el.querySelectorAll('[data-qf]').forEach((b) => {
+    main.querySelectorAll('[data-qf]').forEach((b) => {
       b.classList.toggle('active', (b.dataset.qf || null) === state.qaFilters.status);
     });
     const search = document.getElementById('global-search');
@@ -1386,8 +1398,18 @@ function exportCSV() {
 // ===== CATEGORIES =====
 async function renderCategories(el) {
   await loadCategories();
-  el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" data-action="create-category">＋ Add Sub-System</button></div>
-    <h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px">${esc(c.icon)}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${safeColor(c.color)};vertical-align:middle"></span><span class="color-hex-label"> ${esc(c.color)}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+  const main = el.parentNode;
+  const oldToolbar = main.querySelector('.table-toolbar');
+  if (oldToolbar) oldToolbar.remove();
+
+  // Insert toolbar as sibling BEFORE .content
+  const toolbar = document.createElement('div');
+  toolbar.className = 'table-toolbar';
+  toolbar.innerHTML = `<div style="font-size:13px;color:#888">${state.categories.length} sub-systems</div><button class="btn btn-primary btn-sm" data-action="create-category">＋ Add Sub-System</button>`;
+  main.insertBefore(toolbar, el);
+
+  // Only table inside .content
+  el.innerHTML = `<h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px">${esc(c.icon)}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${safeColor(c.color)};vertical-align:middle"></span><span class="color-hex-label"> ${esc(c.color)}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');
@@ -1422,7 +1444,8 @@ async function deleteCat(id) {
 
 // ===== USERS =====
 async function renderUsers(el) {
-  const isFirstRender = !el.querySelector('#users-search');
+  const main = el.parentNode;
+  const isFirstRender = !document.querySelector('#users-search');
 
   if (!state.users || state.users.length === 0) {
     if (isFirstRender) {
@@ -1463,8 +1486,18 @@ async function renderUsers(el) {
 
   if (isFirstRender) {
     // First render: build the full toolbar + table structure + pagination once
-    el.innerHTML = `<div class="table-toolbar"><div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button></div>
-    <div id="users-results-container">
+    // Remove any existing table-toolbar (from previous page)
+    const oldToolbar = main.querySelector('.table-toolbar');
+    if (oldToolbar) oldToolbar.remove();
+
+    // Insert toolbar as sibling BEFORE .content
+    const toolbar = document.createElement('div');
+    toolbar.className = 'table-toolbar';
+    toolbar.innerHTML = `<div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button>`;
+    main.insertBefore(toolbar, el);
+
+    // Only results container inside .content
+    el.innerHTML = `<div id="users-results-container">
       <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody></tbody></table></div>
       ${
         totalPages > 1
@@ -1492,7 +1525,7 @@ async function renderUsers(el) {
     }
   } else {
     // Subsequent render: update toolbar info text without destroying the search input
-    const infoEl = el.querySelector('.table-toolbar > div:first-child');
+    const infoEl = main.querySelector('.table-toolbar > div:first-child');
     if (infoEl) {
       infoEl.textContent = `${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}`;
     }

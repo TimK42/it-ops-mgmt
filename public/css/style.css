@@ -272,7 +272,7 @@ body {
 .content {
   flex: 1;
   background: var(--bg);
-  padding: 24px 32px;
+  padding: 0 32px 24px;
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
@@ -282,6 +282,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
+  margin-top: 24px;
   margin-bottom: 24px;
   width: 100%;
   max-width: 100%;
@@ -306,9 +307,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 8px;
+}
+.main > .table-toolbar {
+  padding: 24px 32px 16px;
+  flex-shrink: 0;
+  background: var(--bg);
 }
 .filter-group {
   display: flex;
@@ -862,6 +867,9 @@ tr.row-click {
   .content {
     padding: 16px;
     overflow: visible;
+  }
+  .main > .table-toolbar {
+    padding: 16px;
   }
   .search-box {
     width: 100%;

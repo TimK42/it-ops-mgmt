@@ -170,7 +170,9 @@ describe('Issue #117 - Hide export button for viewer role', function () {
 
     await renderQA(el);
 
-    var html = el.innerHTML;
+    var toolbar = document.querySelector('.main > .table-toolbar');
+    assert.ok(toolbar, 'Toolbar exists');
+    var html = toolbar.innerHTML;
     var hasExport = html.indexOf('data-action="export-csv"') !== -1;
     assert.ok(hasExport, 'Export button should be rendered for Admin role');
   });
@@ -183,7 +185,9 @@ describe('Issue #117 - Hide export button for viewer role', function () {
 
     await renderQA(el);
 
-    var html = el.innerHTML;
+    var toolbar = document.querySelector('.main > .table-toolbar');
+    assert.ok(toolbar, 'Toolbar exists');
+    var html = toolbar.innerHTML;
     var hasExport = html.indexOf('data-action="export-csv"') !== -1;
     assert.ok(hasExport, 'Export button should be rendered for Editor role');
   });
@@ -197,7 +201,9 @@ describe('Issue #117 - Hide export button for viewer role', function () {
 
     await renderQA(el);
 
-    var html = el.innerHTML;
+    var toolbar = document.querySelector('.main > .table-toolbar');
+    assert.ok(toolbar, 'Toolbar exists');
+    var html = toolbar.innerHTML;
     var hasExport = html.indexOf('data-action="export-csv"') !== -1;
     var hasCreate = html.indexOf('data-action="create-qa"') !== -1;
     assert.ok(!hasExport, 'Export button hidden for Viewer');

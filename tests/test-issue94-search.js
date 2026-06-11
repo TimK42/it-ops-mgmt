@@ -258,7 +258,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
     const searchBefore = document.getElementById('global-search');
     assert.ok(searchBefore, 'Search input after first render');
 
-    const toolbarBefore = el.querySelector('.table-toolbar');
+    const toolbarBefore = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbarBefore, 'Toolbar after first render');
 
     await renderQA(el);
@@ -267,7 +267,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
     assert.ok(searchAfter, 'Search input after second render');
     assert.strictEqual(searchAfter, searchBefore, 'Same DOM node for search input');
 
-    const toolbarAfter = el.querySelector('.table-toolbar');
+    const toolbarAfter = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbarAfter, 'Toolbar after second render');
   });
 
@@ -277,7 +277,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
 
     await renderQA(el);
 
-    const pubBtn = el.querySelector('[data-qf="Published"]');
+    const pubBtn = document.querySelector('[data-qf="Published"]');
     assert.ok(pubBtn, 'Published tab exists');
     assert.ok(pubBtn.classList.contains('active'), 'Published active initially');
 
@@ -290,7 +290,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
     assert.ok(searchInput, 'Search input still exists after filter change');
 
     assert.ok(pubBtn.classList.contains('active') === false, 'Published tab no longer active');
-    const allBtn = el.querySelector('[data-qf=""]');
+    const allBtn = document.querySelector('[data-qf=""]');
     assert.ok(allBtn, 'All tab exists');
     assert.ok(allBtn.classList.contains('active'), 'All tab is active');
   });
@@ -368,7 +368,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
     assert.strictEqual(tbody2.children.length, 1, '1 matching user (viewer1)');
 
     // Verify filter count in toolbar
-    const infoEl = el.querySelector('.table-toolbar > div:first-child');
+    const infoEl = document.querySelector('.table-toolbar > div:first-child');
     assert.ok(infoEl, 'Toolbar info exists');
     assert.ok(infoEl.textContent.includes('filtered'), 'Should show filtered count');
   });
@@ -426,7 +426,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
 
     await renderUsers(el);
 
-    const infoEl = el.querySelector('.table-toolbar > div:first-child');
+    const infoEl = document.querySelector('.table-toolbar > div:first-child');
     assert.ok(infoEl, 'Toolbar info exists');
     assert.ok(infoEl.textContent.includes('5 users'), 'Shows 5 users');
 
@@ -439,7 +439,7 @@ describe('Issue #94 - Mobile search keyboard dismiss fix', function () {
     const searchInput = document.getElementById('users-search');
     assert.ok(searchInput, 'Search input still exists');
 
-    const infoEl2 = el.querySelector('.table-toolbar > div:first-child');
+    const infoEl2 = document.querySelector('.table-toolbar > div:first-child');
     assert.ok(infoEl2, 'Toolbar info after update');
     assert.ok(
       infoEl2.textContent.includes('2 users'),
