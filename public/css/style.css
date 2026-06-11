@@ -1631,6 +1631,52 @@ tr.row-click {
   color: var(--text-secondary);
 }
 
+/* ── Custom Checkbox (Login) ── */
+.form-checkbox {
+  margin-bottom: 14px;
+}
+.form-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  min-height: 44px;
+  font-size: 12px;
+  color: #888;
+  user-select: none;
+}
+.form-checkbox input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.form-checkbox input[type="checkbox"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.form-checkbox input[type="checkbox"]:checked::after {
+  content: '✓';
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+}
+.form-checkbox input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .bar-label {
