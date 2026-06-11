@@ -16,8 +16,34 @@ const { VALID_STATUSES } = require('../shared/qa-status-constants');
 // ============================================================
 
 const mockQAEntries = [
-  { id: 1, qa_number: 'QA-001', title: 'Entry 1', question: 'Q1?', answer: 'A1', status: 'Published', category_name: 'Network', category_color: '#6366f1', category_icon: '🌐', tags: ['t1'], created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-02T00:00:00.000Z' },
-  { id: 2, qa_number: 'QA-002', title: 'Entry 2', question: 'Q2?', answer: 'A2', status: 'Draft', category_name: 'Server', category_color: '#ef4444', category_icon: '🖥', tags: [], created_at: '2026-01-03T00:00:00.000Z', updated_at: '2026-01-04T00:00:00.000Z' },
+  {
+    id: 1,
+    qa_number: 'QA-001',
+    title: 'Entry 1',
+    question: 'Q1?',
+    answer: 'A1',
+    status: 'Published',
+    category_name: 'Network',
+    category_color: '#6366f1',
+    category_icon: '🌐',
+    tags: ['t1'],
+    created_at: '2026-01-01T00:00:00.000Z',
+    updated_at: '2026-01-02T00:00:00.000Z',
+  },
+  {
+    id: 2,
+    qa_number: 'QA-002',
+    title: 'Entry 2',
+    question: 'Q2?',
+    answer: 'A2',
+    status: 'Draft',
+    category_name: 'Server',
+    category_color: '#ef4444',
+    category_icon: '🖥',
+    tags: [],
+    created_at: '2026-01-03T00:00:00.000Z',
+    updated_at: '2026-01-04T00:00:00.000Z',
+  },
 ];
 
 const mockCategories = [
@@ -27,9 +53,27 @@ const mockCategories = [
 ];
 
 const mockUsers = [
-  { id: 'u1', username: 'admin', role: 'Admin', status: 'active', created_at: '2026-01-01T00:00:00.000Z' },
-  { id: 'u2', username: 'viewer1', role: 'Viewer', status: 'active', created_at: '2026-01-05T00:00:00.000Z' },
-  { id: 'u3', username: 'contrib1', role: 'Editor', status: 'active', created_at: '2026-01-10T00:00:00.000Z' },
+  {
+    id: 'u1',
+    username: 'admin',
+    role: 'Admin',
+    status: 'active',
+    created_at: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'u2',
+    username: 'viewer1',
+    role: 'Viewer',
+    status: 'active',
+    created_at: '2026-01-05T00:00:00.000Z',
+  },
+  {
+    id: 'u3',
+    username: 'contrib1',
+    role: 'Editor',
+    status: 'active',
+    created_at: '2026-01-10T00:00:00.000Z',
+  },
 ];
 
 // ============================================================
@@ -140,7 +184,6 @@ function setupUsers(opts = {}) {
 // ============================================================
 
 describe('Issue #184 - Sticky toolbar DOM structure', function () {
-
   // ---------- QA toolbar DOM structure ----------
 
   it('QA: .table-toolbar is child of .main (not .content) after renderQA()', async function () {
@@ -188,7 +231,10 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
 
     // Toolbar should show category count
     const infoText = toolbar.textContent;
-    assert.ok(infoText.includes('3 sub-systems'), `Toolbar should show "3 sub-systems", got "${infoText}"`);
+    assert.ok(
+      infoText.includes('3 sub-systems'),
+      `Toolbar should show "3 sub-systems", got "${infoText}"`,
+    );
   });
 
   // ---------- Users toolbar DOM structure ----------
@@ -243,7 +289,11 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
 
     // Still exactly 1 toolbar (not duplicated)
     const toolbarCount2 = document.querySelectorAll('.main > .table-toolbar').length;
-    assert.strictEqual(toolbarCount2, 1, 'Exactly 1 toolbar in .main after re-render (no duplicates)');
+    assert.strictEqual(
+      toolbarCount2,
+      1,
+      'Exactly 1 toolbar in .main after re-render (no duplicates)',
+    );
 
     const toolbar2 = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbar2, 'Toolbar still exists after re-render');
@@ -281,7 +331,10 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     assert.strictEqual(toolbar2.parentElement.className, 'main', 'Toolbar parent still .main');
 
     // Toolbar info updated
-    assert.ok(toolbar2.textContent.includes('1 user'), `Toolbar should show "1 user", got "${toolbar2.textContent}"`);
+    assert.ok(
+      toolbar2.textContent.includes('1 user'),
+      `Toolbar should show "1 user", got "${toolbar2.textContent}"`,
+    );
 
     // Still exactly 1 toolbar (no duplicates)
     const count = document.querySelectorAll('.main > .table-toolbar').length;
@@ -306,7 +359,10 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     assert.strictEqual(toolbar.parentElement.className, 'main', 'Toolbar parent is .main');
 
     // Toolbar shows 0
-    assert.ok(toolbar.textContent.includes('0 sub-systems'), `Toolbar should show "0 sub-systems", got "${toolbar.textContent}"`);
+    assert.ok(
+      toolbar.textContent.includes('0 sub-systems'),
+      `Toolbar should show "0 sub-systems", got "${toolbar.textContent}"`,
+    );
 
     // Toolbar should still have the create button
     const createBtn = toolbar.querySelector('[data-action="create-category"]');
@@ -347,5 +403,4 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     const createInContent = el.querySelector('[data-action="create-qa"]');
     assert.strictEqual(createInContent, null, 'Create button should NOT be inside .content');
   });
-
 });
