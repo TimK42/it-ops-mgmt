@@ -22,14 +22,11 @@ const assert = require('assert');
 // ============================================================
 
 function resetDOM() {
-  const dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"></div></body></html>',
-    {
-      url: 'http://localhost:3199',
-      pretendToBeVisual: true,
-      runScripts: 'dangerously',
-    },
-  );
+  const dom = new JSDOM('<!DOCTYPE html><html><body><div id="app"></div></body></html>', {
+    url: 'http://localhost:3199',
+    pretendToBeVisual: true,
+    runScripts: 'dangerously',
+  });
 
   Object.defineProperty(dom.window, 'matchMedia', {
     writable: true,
@@ -171,7 +168,11 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
       assert.strictEqual(input.checked, true, 'Checkbox should be checked after direct click');
 
       input.click();
-      assert.strictEqual(input.checked, false, 'Checkbox should be unchecked after second direct click');
+      assert.strictEqual(
+        input.checked,
+        false,
+        'Checkbox should be unchecked after second direct click',
+      );
     });
   });
 
@@ -204,7 +205,10 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
 
     it('renderLogin("register") shows register-specific elements', function () {
       setupLogin('register');
-      assert.ok(document.querySelector('.register-mode'), 'Register mode should have .register-mode');
+      assert.ok(
+        document.querySelector('.register-mode'),
+        'Register mode should have .register-mode',
+      );
       assert.ok(
         document.getElementById('auth-pass-confirm'),
         'Confirm password input should exist',
@@ -316,10 +320,7 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
       assert.ok(checkedIdx !== -1, 'CSS should define :checked state for checkbox');
 
       var pseudoIdx = css.indexOf('.form-checkbox input[type="checkbox"]:checked::after');
-      assert.ok(
-        pseudoIdx !== -1,
-        'CSS should define :checked::after for checkmark pseudo-element',
-      );
+      assert.ok(pseudoIdx !== -1, 'CSS should define :checked::after for checkmark pseudo-element');
     });
 
     it('CSS checkmark uses white color on primary background', function () {

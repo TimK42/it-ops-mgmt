@@ -1645,7 +1645,7 @@ tr.row-click {
   color: #888;
   user-select: none;
 }
-.form-checkbox input[type="checkbox"] {
+.form-checkbox input[type='checkbox'] {
   appearance: none;
   -webkit-appearance: none;
   width: 44px;
@@ -1661,18 +1661,18 @@ tr.row-click {
   justify-content: center;
   transition: all 0.15s ease;
 }
-.form-checkbox input[type="checkbox"]:checked {
+.form-checkbox input[type='checkbox']:checked {
   background: var(--primary);
   border-color: var(--primary);
 }
-.form-checkbox input[type="checkbox"]:checked::after {
+.form-checkbox input[type='checkbox']:checked::after {
   content: '✓';
   color: #fff;
   font-size: 24px;
   font-weight: bold;
   line-height: 1;
 }
-.form-checkbox input[type="checkbox"]:focus-visible {
+.form-checkbox input[type='checkbox']:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
