@@ -76,6 +76,26 @@ function loadAppJs() {
 // ============================================================
 
 describe('Issue #188 — Re-bootstrap guard pattern', function () {
+  // Clean up 11 global guard vars before each test to prevent
+  // cross-file pollution (other test files may have loaded app.js
+  // and set these globals before this test runs).
+  // Use explicit assignment (not delete) because global `var` bindings
+  // are typically non-configurable and delete returns false silently.
+  // Setting to undefined lets the var X = X || default guard reinitialize.
+  beforeEach(function () {
+    global.PASSWORD_SPECIAL = undefined;
+    global.PASSWORD_MSG = undefined;
+    global.PASSWORD_RULES = undefined;
+    global.SESSION_MAX_AGE = undefined;
+    global.WARNING_BEFORE = undefined;
+    global.lastActivity = undefined;
+    global.sessionMonitorId = undefined;
+    global.sessionWarned = undefined;
+    global.activityEvents = undefined;
+    global.activityHandler = undefined;
+    global.confirmCallback = undefined;
+  });
+
   // -------------------------------------------------------
   // Test 1: Re-bootstrap safety
   // -------------------------------------------------------
