@@ -88,10 +88,7 @@ after(function () {
 
 describe('Issue #196 — Filter tab min-height:44px', function () {
   it('should have min-height:44px in the base .filter-tab rule (outside media queries)', function () {
-    const css = fs.readFileSync(
-      path.join(__dirname, '..', 'public', 'css', 'style.css'),
-      'utf8',
-    );
+    const css = fs.readFileSync(path.join(__dirname, '..', 'public', 'css', 'style.css'), 'utf8');
 
     // Extract the base .filter-tab rule. The CSS has multiple .filter-tab blocks:
     //   1. Lines ~327-338: base rule (outside any @media)
@@ -146,9 +143,7 @@ describe('Issue #196 — Filter tab min-height:44px', function () {
     const baseBlock = lines.slice(baseBlockStart, baseBlockEnd + 1).join('\n');
     assert.ok(
       baseBlock.includes('min-height: 44px'),
-      'Expected .filter-tab base rule to include min-height: 44px\n' +
-        'Found block:\n' +
-        baseBlock,
+      'Expected .filter-tab base rule to include min-height: 44px\n' + 'Found block:\n' + baseBlock,
     );
   });
 
