@@ -258,8 +258,8 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
     });
 
     it('CSS checkbox input has 44×44px dimensions', function () {
-      var idx = css.indexOf('.form-checkbox input[type="checkbox"]');
-      assert.ok(idx !== -1, 'CSS should define .form-checkbox input[type="checkbox"]');
+      var idx = css.indexOf(".form-checkbox input[type='checkbox']");
+      assert.ok(idx !== -1, "CSS should define .form-checkbox input[type='checkbox']");
 
       var blockStart = css.indexOf('{', idx);
       var blockEnd = css.indexOf('}', blockStart);
@@ -271,7 +271,7 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
     });
 
     it('CSS checkbox has appearance:none and border-radius: 6px', function () {
-      var idx = css.indexOf('.form-checkbox input[type="checkbox"]');
+      var idx = css.indexOf(".form-checkbox input[type='checkbox']");
       var blockStart = css.indexOf('{', idx);
       var blockEnd = css.indexOf('}', blockStart);
       var block = css.slice(blockStart, blockEnd + 1);
@@ -289,7 +289,7 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
 
     it('CSS uses CSS custom properties for dark mode compatibility', function () {
       // Check base checkbox input styles
-      var idx = css.indexOf('.form-checkbox input[type="checkbox"]');
+      var idx = css.indexOf(".form-checkbox input[type='checkbox']");
       var blockStart = css.indexOf('{', idx);
       var blockEnd = css.indexOf('}', blockStart);
       var block = css.slice(blockStart, blockEnd + 1);
@@ -304,7 +304,7 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
       );
 
       // Check :checked state for var(--primary) in the :checked block
-      var checkedIdx = css.indexOf('.form-checkbox input[type="checkbox"]:checked');
+      var checkedIdx = css.indexOf(".form-checkbox input[type='checkbox']:checked");
       var checkedStart = css.indexOf('{', checkedIdx);
       var checkedEnd = css.indexOf('}', checkedStart);
       var checkedBlock = css.slice(checkedStart, checkedEnd + 1);
@@ -316,15 +316,15 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
     });
 
     it('CSS checkbox has checkmark pseudo-element on :checked', function () {
-      var checkedIdx = css.indexOf('.form-checkbox input[type="checkbox"]:checked');
+      var checkedIdx = css.indexOf(".form-checkbox input[type='checkbox']:checked");
       assert.ok(checkedIdx !== -1, 'CSS should define :checked state for checkbox');
 
-      var pseudoIdx = css.indexOf('.form-checkbox input[type="checkbox"]:checked::after');
+      var pseudoIdx = css.indexOf(".form-checkbox input[type='checkbox']:checked::after");
       assert.ok(pseudoIdx !== -1, 'CSS should define :checked::after for checkmark pseudo-element');
     });
 
     it('CSS checkmark uses white color on primary background', function () {
-      var idx = css.indexOf('.form-checkbox input[type="checkbox"]:checked');
+      var idx = css.indexOf(".form-checkbox input[type='checkbox']:checked");
       var blockStart = css.indexOf('{', idx);
       var blockEnd = css.indexOf('}', blockStart);
       var block = css.slice(blockStart, blockEnd + 1);
@@ -333,7 +333,7 @@ describe('Issue #198 — Login Remember Me checkbox', function () {
     });
 
     it('CSS checkbox has focus-visible outline for accessibility', function () {
-      var idx = css.indexOf('.form-checkbox input[type="checkbox"]:focus-visible');
+      var idx = css.indexOf(".form-checkbox input[type='checkbox']:focus-visible");
       assert.ok(idx !== -1, 'CSS should define :focus-visible state for keyboard accessibility');
     });
 
