@@ -98,24 +98,28 @@ describe('Issue #196 — Filter tab min-height:44px', function () {
     // Strategy: find the FIRST .filter-tab block that is NOT inside a media query.
     // We do this by finding the first occurrence that starts before any @media line.
 
+    // Use brace-depth tracking to correctly identify media-query boundaries.
+    // A line matching /@media\s/ opens a level; matching '}' closes it.
     const lines = css.split('\n');
-    let inMediaQuery = false;
+    let braceDepth = 0;
     let baseBlockStart = -1;
     let baseBlockEnd = -1;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Track media query boundaries
+      // Track brace depth to correctly identify media query boundaries
       if (/@media\s/.test(line) && /\{/.test(line)) {
-        inMediaQuery = true;
+        braceDepth++;
       }
-      if (inMediaQuery && line.trim() === '}') {
-        inMediaQuery = false;
+      if (line.trim() === '}') {
+        if (braceDepth > 0) {
+          braceDepth--;
+        }
       }
 
       // Look for .filter-tab { (opening brace on same or next line)
-      if (line.includes('.filter-tab') && !inMediaQuery && baseBlockStart === -1) {
+      if (line.includes('.filter-tab') && braceDepth === 0 && baseBlockStart === -1) {
         // Check if brace is on this line
         if (line.includes('{')) {
           baseBlockStart = i;
@@ -128,7 +132,7 @@ describe('Issue #196 — Filter tab min-height:44px', function () {
 
       // If we found the start, look for the closing brace
       if (baseBlockStart !== -1 && baseBlockEnd === -1) {
-        if (line.trim() === '}' && i > baseBlockStart) {
+        if (line.trim() === '}' && i > baseBlockStart && braceDepth === 0) {
           baseBlockEnd = i;
           break;
         }
@@ -158,25 +162,27 @@ describe('Issue #196 — Filter tab min-height:44px', function () {
     assert.strictEqual(r.status, 200, 'GET /css/style.css must return 200');
 
     // Verify the base .filter-tab block contains min-height:44px
-    // Use same media-query-aware parsing on the served content
+    // Use brace-depth tracking (same logic as local-file test) on the served content
     const lines = r.body.split('\n');
-    let inMediaQuery = false;
+    let braceDepth = 0;
     let baseBlockStart = -1;
     let baseBlockEnd = -1;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       if (/@media\s/.test(line) && /\{/.test(line)) {
-        inMediaQuery = true;
+        braceDepth++;
       }
-      if (inMediaQuery && line.trim() === '}') {
-        inMediaQuery = false;
+      if (line.trim() === '}') {
+        if (braceDepth > 0) {
+          braceDepth--;
+        }
       }
-      if (line.includes('.filter-tab') && !inMediaQuery && baseBlockStart === -1) {
+      if (line.includes('.filter-tab') && braceDepth === 0 && baseBlockStart === -1) {
         baseBlockStart = i;
       }
       if (baseBlockStart !== -1 && baseBlockEnd === -1) {
-        if (line.trim() === '}' && i > baseBlockStart) {
+        if (line.trim() === '}' && i > baseBlockStart && braceDepth === 0) {
           baseBlockEnd = i;
           break;
         }
