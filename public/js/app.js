@@ -1914,21 +1914,31 @@ async function renderDashboard(el) {
   var ptrEl = null;
   var startY = 0;
   var pulling = false;
+  var lastDelta = 0;
+  var PTR_MIN_PULL = 10;
+  var PTR_REFRESH_THRESHOLD = 80;
 
   document.addEventListener('touchstart', function (e) {
     if (state.page !== 'qa') return;
-    var el = document.getElementById('page-content');
-    if (!el || el.scrollTop > 0) return;
+    // On mobile, the page scrolls on body (not #page-content which is overflow: visible)
+    if (window.scrollY > 0) return;
     ptrEl = document.getElementById('ptr-indicator');
     if (!ptrEl) return;
     startY = e.touches[0].clientY;
     pulling = false;
+    lastDelta = 0;
   }, { passive: true });
 
   document.addEventListener('touchmove', function (e) {
     if (state.page !== 'qa' || !ptrEl) return;
-    var delta = e.touches[0].clientY - startY;
-    if (delta <= 0) {
+    lastDelta = e.touches[0].clientY - startY;
+    if (lastDelta <= 0) {
+      ptrEl.classList.remove('active');
+      pulling = false;
+      return;
+    }
+    // Require a minimum pull distance before showing indicator
+    if (lastDelta < PTR_MIN_PULL) {
       ptrEl.classList.remove('active');
       pulling = false;
       return;
@@ -1936,30 +1946,29 @@ async function renderDashboard(el) {
     pulling = true;
     ptrEl.classList.add('active');
     var textEl = document.getElementById('ptr-text');
-    if (delta > 80) {
-      if (textEl) textEl.textContent = 'Release to refresh';
-    } else {
-      if (textEl) textEl.textContent = 'Pull to refresh';
+    if (textEl) {
+      textEl.textContent = lastDelta > PTR_REFRESH_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
     }
   }, { passive: true });
 
   document.addEventListener('touchend', function () {
-    if (state.page !== 'qa' || !ptrEl || !pulling) {
+    if (state.page !== 'qa' || !ptrEl) {
       ptrEl = null;
       pulling = false;
       return;
     }
-    var textEl = document.getElementById('ptr-text');
-    if (textEl) textEl.textContent = 'Refreshing...';
-    var el = document.getElementById('page-content');
-    if (el) {
-      renderQA(el);
+    if (pulling && lastDelta >= PTR_REFRESH_THRESHOLD) {
+      var textEl = document.getElementById('ptr-text');
+      if (textEl) textEl.textContent = 'Refreshing...';
+      var el = document.getElementById('page-content');
+      if (el) renderQA(el);
     }
     // Reset after brief delay so user sees the refresh feedback
     setTimeout(function () {
       if (ptrEl) ptrEl.classList.remove('active');
       ptrEl = null;
       pulling = false;
+      lastDelta = 0;
     }, 500);
   }, { passive: true });
 })();
