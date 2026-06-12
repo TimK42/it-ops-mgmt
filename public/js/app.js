@@ -1918,6 +1918,7 @@ async function renderDashboard(el) {
   var startY = 0;
   var pulling = false;
   var lastDelta = 0;
+  var resetTimer = null;
   var PTR_MIN_PULL = 10;
   var PTR_REFRESH_THRESHOLD = 80;
 
@@ -1925,6 +1926,8 @@ async function renderDashboard(el) {
     if (state.page !== 'qa') return;
     // On mobile, the page scrolls on body (not #page-content which is overflow: visible)
     if (window.scrollY > 0) return;
+    // Cancel any pending reset from previous gesture
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
     ptrEl = document.getElementById('ptr-indicator');
     if (!ptrEl) return;
     startY = e.touches[0].clientY;
@@ -1969,7 +1972,8 @@ async function renderDashboard(el) {
       if (el) renderQA(el);
     }
     // Reset after brief delay so user sees the refresh feedback
-    setTimeout(function () {
+    resetTimer = setTimeout(function () {
+      resetTimer = null;
       if (ptrEl) ptrEl.classList.remove('active');
       ptrEl = null;
       pulling = false;
@@ -1978,6 +1982,7 @@ async function renderDashboard(el) {
   }, { passive: true });
 
   document.addEventListener('touchcancel', function () {
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
     pulling = false;
     if (ptrEl) ptrEl.classList.remove('active');
     ptrEl = null;
