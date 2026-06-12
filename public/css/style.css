@@ -1203,6 +1203,21 @@ body.has-pwa-banner .content {
   display: block;
 }
 
+/* Theme toggle on login/register pages */
+.login-theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  font-size: 18px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
 /* ── Loading Screen (no-JS fallback) ── */
 .loading-screen {
   height: 100vh;
@@ -1525,6 +1540,10 @@ body.has-pwa-banner .content {
 .section-title a {
   font-size: 12px;
   font-weight: 400;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
 }
 
 /* Recent entries */
@@ -1556,6 +1575,9 @@ body.has-pwa-banner .content {
   color: var(--link);
   cursor: pointer;
   text-decoration: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .recent-entry-question {
   font-size: 12px;
