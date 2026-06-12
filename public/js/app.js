@@ -155,6 +155,20 @@ function isStandalone() {
   return false;
 }
 
+function setPWABannerVisible(visible) {
+  document.body.classList.toggle('has-pwa-banner', visible);
+  if (visible) {
+    requestAnimationFrame(() => {
+      var banner = document.querySelector('.pwa-ios-banner, .pwa-android-banner');
+      if (banner) {
+        document.body.style.setProperty('--pwa-banner-height', banner.offsetHeight + 'px');
+      }
+    });
+  } else {
+    document.body.style.removeProperty('--pwa-banner-height');
+  }
+}
+
 function initPWA() {
   // Already running as a PWA — hide all prompts
   if (typeof document === 'undefined') return;
@@ -185,6 +199,7 @@ function initPWA() {
     if (dismissBtn) {
       dismissBtn.addEventListener('click', function () {
         banner.innerHTML = '';
+        setPWABannerVisible(false);
         try {
           localStorage.setItem('pwa-ios-dismissed', '1');
         } catch {
@@ -192,6 +207,7 @@ function initPWA() {
         }
       });
     }
+    setPWABannerVisible(true);
     return;
   }
 
@@ -207,6 +223,7 @@ function initPWA() {
     e.preventDefault();
     deferredInstallPrompt = e;
     showAndroidInstallButton(banner);
+    setPWABannerVisible(true);
   });
 }
 
@@ -234,6 +251,7 @@ function showAndroidInstallButton(banner) {
       // Hide banner after prompt is shown, regardless of outcome
       // The prompt event can only be used once
       banner.innerHTML = '';
+      setPWABannerVisible(false);
     });
   }
 
@@ -241,6 +259,7 @@ function showAndroidInstallButton(banner) {
   if (dismissBtn) {
     dismissBtn.addEventListener('click', function () {
       banner.innerHTML = '';
+      setPWABannerVisible(false);
       try {
         localStorage.setItem('pwa-android-dismissed', '1');
       } catch {
@@ -253,7 +272,10 @@ function showAndroidInstallButton(banner) {
 window.addEventListener('appinstalled', function () {
   deferredInstallPrompt = null;
   const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.innerHTML = '';
+  if (banner) {
+    banner.innerHTML = '';
+    setPWABannerVisible(false);
+  }
 });
 
 if (document.readyState === 'loading') {
@@ -1093,10 +1115,10 @@ async function showCreateQA(data) {
   const modal = document.getElementById('form-modal');
   modal.querySelector('.modal-title').textContent = isEdit ? 'Edit QA Entry' : 'New QA Entry';
   modal.querySelector('.modal-body').innerHTML = `
-    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"><div class="form-error" id="f-q-title-error"></div></div>
-    <div class="form-group"><label class="form-label">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea><div class="form-error" id="f-q-question-error"></div></div>
-    <div class="form-group"><label class="form-label">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
-    <div class="form-row"><div class="form-group"><label class="form-label">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div></div>
+    <div class="form-group"><label class="form-label" for="f-q-title">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"><div class="form-error" id="f-q-title-error"></div></div>
+    <div class="form-group"><label class="form-label" for="f-question">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea><div class="form-error" id="f-q-question-error"></div></div>
+    <div class="form-group"><label class="form-label" for="f-answer">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label" for="f-q-cat">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div></div>
     <div class="form-group"><label class="form-label" for="f-tags-input">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" aria-label="Add tags" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
