@@ -116,7 +116,12 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      // Assert the first child is #dash-stats (more precise than checking innerHTML)
+      // Assert the first child exists, then check its id
+      // (more precise and safer than the earlier innerHTML approach)
+      assert.ok(
+        el.firstElementChild,
+        'page-content should have a first child',
+      );
       assert.strictEqual(
         el.firstElementChild.id,
         'dash-stats',
