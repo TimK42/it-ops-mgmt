@@ -1778,7 +1778,7 @@ async function renderDashboard(el) {
   if (oldToolbar) oldToolbar.remove();
 
   el.innerHTML =
-    '<h2 class="sr-only">Dashboard</h2><div id="dash-stats" class="loading">Loading...</div>';
+    '<div id="dash-stats" class="loading">Loading...</div>';
 
   // --- Stats cards ---
   api('/api/stats')

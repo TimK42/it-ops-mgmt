@@ -1525,6 +1525,10 @@ body.has-pwa-banner .content {
 .section-title a {
   font-size: 12px;
   font-weight: 400;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
 }
 
 /* Recent entries */
@@ -1556,6 +1560,9 @@ body.has-pwa-banner .content {
   color: var(--link);
   cursor: pointer;
   text-decoration: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .recent-entry-question {
   font-size: 12px;
