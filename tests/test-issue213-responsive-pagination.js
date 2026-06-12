@@ -7,7 +7,7 @@
 //   4. renderQA() pagination display uses dynamic perPage for mobile and desktop
 //
 // Usage: npx mocha tests/test-issue213-responsive-pagination.js --timeout 15000
-/* global getPerPage, loadQA, renderQA */
+/* global getPerPage */
 
 const vm = require('vm');
 const { JSDOM } = require('jsdom');
