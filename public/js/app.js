@@ -692,6 +692,7 @@ function closeConfirm() {
 
 // ===== AUTH =====
 function renderLogin(mode) {
+  restoreTheme();
   const isRegister = mode === 'register';
   const targetPath = isRegister ? '/register' : '/';
   if (window.location.pathname !== targetPath) {
@@ -712,9 +713,11 @@ function renderLogin(mode) {
     ? '<div class="login-session-expired"><span class="sess-icon">⏰</span> Your session has expired. Please sign in again.</div>'
     : '';
   state.sessionExpired = false;
+  const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark';
   document.getElementById('app').innerHTML = `
     <a href="#main-content" class="skip-link">Skip to content</a>
     <main id="main-content" class="main" tabindex="-1">
+    <button class="btn btn-ghost login-theme-toggle" id="theme-toggle" data-action="theme-toggle" aria-label="Toggle theme" aria-pressed="${currentTheme}">${currentTheme ? '☀️' : '🌙'}</button>
     <form class="login-page${isRegister ? ' register-mode' : ''}" id="login-form">
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
