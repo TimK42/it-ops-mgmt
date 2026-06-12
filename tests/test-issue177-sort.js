@@ -726,14 +726,17 @@ describe('Issue #177 — Backend usage_count', function () {
     });
 
     it('sort=oldest returns results by created_at ASC', async function () {
-      const res = await request('GET', '/api/qa?sort=oldest', { cookie });
+      const res = await request('GET', '/api/qa?sort=oldest&_per_page=100', { cookie });
       assert.strictEqual(res.status, 200, 'GET /api/qa?sort=oldest should return 200');
       const entries = res.json.data;
 
-      const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
+      // Use sortIds to find the EXACT entries we created, avoiding stale rows from previous test runs
+      const ids = sortIds.slice(); // copy: [A.id, B.id, C.id]
+      assert.strictEqual(ids.length, 3, 'sortIds should have 3 entries');
+      const aIdx = entries.findIndex((e) => e.id === ids[0]);
+      const bIdx = entries.findIndex((e) => e.id === ids[1]);
+      const cIdx = entries.findIndex((e) => e.id === ids[2]);
+      assert(aIdx >= 0 && bIdx >= 0 && cIdx >= 0, 'All 3 test entries should be in the results (found by id)');
       assert(aIdx < bIdx, 'sort=oldest: A (oldest) before B');
       assert(bIdx < cIdx, 'sort=oldest: B before C (newest)');
     });
