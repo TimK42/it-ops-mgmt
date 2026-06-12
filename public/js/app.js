@@ -1943,13 +1943,15 @@ async function renderDashboard(el) {
       pulling = false;
       return;
     }
+    // Prevent browser's native overscroll/refresh from interfering with our PTR
+    e.preventDefault();
     pulling = true;
     ptrEl.classList.add('active');
     var textEl = document.getElementById('ptr-text');
     if (textEl) {
       textEl.textContent = lastDelta > PTR_REFRESH_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
     }
-  }, { passive: true });
+  }, { passive: false });
 
   document.addEventListener('touchend', function () {
     if (state.page !== 'qa' || !ptrEl) {

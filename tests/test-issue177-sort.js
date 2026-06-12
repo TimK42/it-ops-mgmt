@@ -726,7 +726,8 @@ describe('Issue #177 — Backend usage_count', function () {
     });
 
     it('sort=oldest returns results by created_at ASC', async function () {
-      const res = await request('GET', '/api/qa?sort=oldest&_per_page=100', { cookie });
+      // Filter by search to scope results to only our test entries, avoiding stale DB rows
+      const res = await request('GET', '/api/qa?sort=oldest&search=Pop+Sort&_per_page=100', { cookie });
       assert.strictEqual(res.status, 200, 'GET /api/qa?sort=oldest should return 200');
       const entries = res.json.data;
 
