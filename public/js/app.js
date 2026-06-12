@@ -1922,80 +1922,102 @@ async function renderDashboard(el) {
   var PTR_MIN_PULL = 10;
   var PTR_REFRESH_THRESHOLD = 80;
 
-  document.addEventListener('touchstart', function (e) {
-    if (state.page !== 'qa') return;
-    // Don't trigger PTR when a modal is open (the modal uses document-scoped listeners too)
-    if (document.querySelector('.modal-overlay.open')) return;
-    // On mobile, the page scrolls on body (not #page-content which is overflow: visible)
-    if (window.scrollY > 0) return;
-    // Cancel any pending reset from previous gesture
-    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
-    ptrEl = document.getElementById('ptr-indicator');
-    if (!ptrEl) return;
-    startY = e.touches[0].clientY;
-    pulling = false;
-    lastDelta = 0;
-  }, { passive: true });
-
-  document.addEventListener('touchmove', function (e) {
-    if (state.page !== 'qa' || !ptrEl) return;
-    lastDelta = e.touches[0].clientY - startY;
-    if (lastDelta <= 0) {
-      ptrEl.classList.remove('active');
-      pulling = false;
-      return;
-    }
-    // Require a minimum pull distance before showing indicator
-    if (lastDelta < PTR_MIN_PULL) {
-      ptrEl.classList.remove('active');
-      pulling = false;
-      return;
-    }
-    // Prevent browser's native overscroll/refresh from interfering with our PTR
-    if (e.cancelable) e.preventDefault();
-    pulling = true;
-    ptrEl.classList.add('active');
-    var textEl = document.getElementById('ptr-text');
-    if (textEl) {
-      textEl.textContent = lastDelta > PTR_REFRESH_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
-    }
-  }, { passive: false });
-
-  document.addEventListener('touchend', function () {
-    if (state.page !== 'qa' || !ptrEl) {
-      ptrEl = null;
-      pulling = false;
-      return;
-    }
-    if (pulling && lastDelta >= PTR_REFRESH_THRESHOLD) {
-      var textEl = document.getElementById('ptr-text');
-      if (textEl) textEl.textContent = 'Refreshing...';
-      var el = document.getElementById('page-content');
-      if (el) renderQA(el);
-      // Delay reset so user sees the refresh feedback
-      resetTimer = setTimeout(function () {
+  document.addEventListener(
+    'touchstart',
+    function (e) {
+      if (state.page !== 'qa') return;
+      // Don't trigger PTR when a modal is open (the modal uses document-scoped listeners too)
+      if (document.querySelector('.modal-overlay.open')) return;
+      // On mobile, the page scrolls on body (not #page-content which is overflow: visible)
+      if (window.scrollY > 0) return;
+      // Cancel any pending reset from previous gesture
+      if (resetTimer) {
+        clearTimeout(resetTimer);
         resetTimer = null;
+      }
+      ptrEl = document.getElementById('ptr-indicator');
+      if (!ptrEl) return;
+      startY = e.touches[0].clientY;
+      pulling = false;
+      lastDelta = 0;
+    },
+    { passive: true },
+  );
+
+  document.addEventListener(
+    'touchmove',
+    function (e) {
+      if (state.page !== 'qa' || !ptrEl) return;
+      lastDelta = e.touches[0].clientY - startY;
+      if (lastDelta <= 0) {
+        ptrEl.classList.remove('active');
+        pulling = false;
+        return;
+      }
+      // Require a minimum pull distance before showing indicator
+      if (lastDelta < PTR_MIN_PULL) {
+        ptrEl.classList.remove('active');
+        pulling = false;
+        return;
+      }
+      // Prevent browser's native overscroll/refresh from interfering with our PTR
+      if (e.cancelable) e.preventDefault();
+      pulling = true;
+      ptrEl.classList.add('active');
+      var textEl = document.getElementById('ptr-text');
+      if (textEl) {
+        textEl.textContent =
+          lastDelta > PTR_REFRESH_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
+      }
+    },
+    { passive: false },
+  );
+
+  document.addEventListener(
+    'touchend',
+    function () {
+      if (state.page !== 'qa' || !ptrEl) {
+        ptrEl = null;
+        pulling = false;
+        return;
+      }
+      if (pulling && lastDelta >= PTR_REFRESH_THRESHOLD) {
+        var textEl = document.getElementById('ptr-text');
+        if (textEl) textEl.textContent = 'Refreshing...';
+        var el = document.getElementById('page-content');
+        if (el) renderQA(el);
+        // Delay reset so user sees the refresh feedback
+        resetTimer = setTimeout(function () {
+          resetTimer = null;
+          if (ptrEl) ptrEl.classList.remove('active');
+          ptrEl = null;
+          pulling = false;
+          lastDelta = 0;
+        }, 500);
+      } else {
+        // Clear immediately on non-refresh gesture
         if (ptrEl) ptrEl.classList.remove('active');
         ptrEl = null;
         pulling = false;
         lastDelta = 0;
-      }, 500);
-    } else {
-      // Clear immediately on non-refresh gesture
+      }
+    },
+    { passive: true },
+  );
+
+  document.addEventListener(
+    'touchcancel',
+    function () {
+      if (resetTimer) {
+        clearTimeout(resetTimer);
+        resetTimer = null;
+      }
+      pulling = false;
       if (ptrEl) ptrEl.classList.remove('active');
       ptrEl = null;
-      pulling = false;
       lastDelta = 0;
-    }
-  }, { passive: true });
-
-  document.addEventListener('touchcancel', function () {
-    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
-    pulling = false;
-    if (ptrEl) ptrEl.classList.remove('active');
-    ptrEl = null;
-    lastDelta = 0;
-    startY = 0;
-  }, { passive: true });
+      startY = 0;
+    },
+    { passive: true },
+  );
 })();
-
