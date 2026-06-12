@@ -1780,8 +1780,7 @@ async function renderDashboard(el) {
   const oldToolbar = main.querySelector('.table-toolbar');
   if (oldToolbar) oldToolbar.remove();
 
-  el.innerHTML =
-    '<div id="dash-stats" class="loading">Loading...</div>';
+  el.innerHTML = '<div id="dash-stats" class="loading">Loading...</div>';
 
   // --- Stats cards ---
   api('/api/stats')

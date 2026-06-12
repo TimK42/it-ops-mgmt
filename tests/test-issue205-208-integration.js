@@ -388,7 +388,11 @@ describe('Issue #208 — Login/Register theme persistence', function () {
         toggle.textContent.includes('\u{1F319}') || toggle.textContent.includes('🌙'),
         'theme toggle should show moon emoji in light mode',
       );
-      assert.strictEqual(toggle.getAttribute('aria-pressed'), 'false', 'aria-pressed should be false in light mode');
+      assert.strictEqual(
+        toggle.getAttribute('aria-pressed'),
+        'false',
+        'aria-pressed should be false in light mode',
+      );
     });
 
     it('theme toggle button shows sun emoji when theme is dark', function () {
@@ -403,7 +407,11 @@ describe('Issue #208 — Login/Register theme persistence', function () {
         toggle.textContent.includes('\u{2600}') || toggle.textContent.includes('☀'),
         'theme toggle should show sun emoji in dark mode',
       );
-      assert.strictEqual(toggle.getAttribute('aria-pressed'), 'true', 'aria-pressed should be true in dark mode');
+      assert.strictEqual(
+        toggle.getAttribute('aria-pressed'),
+        'true',
+        'aria-pressed should be true in dark mode',
+      );
     });
   });
 

@@ -12,19 +12,31 @@ const assert = require('assert');
 
 const mockQAEntries = [
   {
-    id: 1, qa_number: 'QA-001', title: 'Network Issue',
-    question: 'Network down?', answer: 'Restart router',
-    status: 'Published', category_name: 'Network',
-    category_color: '#6366f1', category_icon: '🌐',
-    tags: ['tag1'], created_at: '2026-01-01T00:00:00.000Z',
+    id: 1,
+    qa_number: 'QA-001',
+    title: 'Network Issue',
+    question: 'Network down?',
+    answer: 'Restart router',
+    status: 'Published',
+    category_name: 'Network',
+    category_color: '#6366f1',
+    category_icon: '🌐',
+    tags: ['tag1'],
+    created_at: '2026-01-01T00:00:00.000Z',
     updated_at: '2026-01-02T00:00:00.000Z',
   },
   {
-    id: 2, qa_number: 'QA-002', title: 'Server Issue',
-    question: 'Server slow?', answer: 'Reboot',
-    status: 'Published', category_name: 'Server',
-    category_color: '#ef4444', category_icon: '🖥',
-    tags: [], created_at: '2026-01-03T00:00:00.000Z',
+    id: 2,
+    qa_number: 'QA-002',
+    title: 'Server Issue',
+    question: 'Server slow?',
+    answer: 'Reboot',
+    status: 'Published',
+    category_name: 'Server',
+    category_color: '#ef4444',
+    category_icon: '🖥',
+    tags: [],
+    created_at: '2026-01-03T00:00:00.000Z',
     updated_at: '2026-01-04T00:00:00.000Z',
   },
 ];
@@ -35,9 +47,13 @@ function resetDOM() {
     { url: 'http://localhost:3200', pretendToBeVisual: true, runScripts: 'dangerously' },
   );
   Object.defineProperty(dom.window, 'matchMedia', {
-    writable: true, value: () => ({
-      matches: false, addListener: () => {}, removeListener: () => {},
-      addEventListener: () => {}, removeEventListener: () => {},
+    writable: true,
+    value: () => ({
+      matches: false,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
     }),
   });
   global.window = dom.window;
@@ -73,12 +89,13 @@ function setupQA(searchValue = '') {
   state.users = null;
   document.getElementById('page-content').innerHTML = '';
   global.loadQA = async () => ({ data: state.qaEntries, total: state.qaTotal, page: 1 });
-  global.loadQATotalCount = async () => { state.qaTotalCount = null; };
+  global.loadQATotalCount = async () => {
+    state.qaTotalCount = null;
+  };
   global.toast = () => {};
 }
 
 describe('Issue #207 - QA Library search clear button', function () {
-
   it('QA: search-clear button exists in the toolbar after render', async function () {
     setupQA();
     const el = document.getElementById('page-content');
@@ -86,7 +103,10 @@ describe('Issue #207 - QA Library search clear button', function () {
     const clearBtn = document.getElementById('search-clear');
     assert.ok(clearBtn, 'search-clear button should exist');
     assert.strictEqual(clearBtn.tagName, 'BUTTON');
-    assert.ok(clearBtn.textContent.includes('×') || clearBtn.textContent.includes('✕'), 'Button should show ×');
+    assert.ok(
+      clearBtn.textContent.includes('×') || clearBtn.textContent.includes('✕'),
+      'Button should show ×',
+    );
   });
 
   it('QA: search-clear button is hidden when input is empty', async function () {
@@ -95,7 +115,11 @@ describe('Issue #207 - QA Library search clear button', function () {
     await renderQA(el);
     const clearBtn = document.getElementById('search-clear');
     assert.ok(clearBtn, 'search-clear button exists');
-    assert.strictEqual(clearBtn.style.display, 'none', 'Clear button should be hidden when input is empty');
+    assert.strictEqual(
+      clearBtn.style.display,
+      'none',
+      'Clear button should be hidden when input is empty',
+    );
   });
 
   it('QA: search-clear button is visible when input has text', async function () {
@@ -104,7 +128,11 @@ describe('Issue #207 - QA Library search clear button', function () {
     await renderQA(el);
     const clearBtn = document.getElementById('search-clear');
     assert.ok(clearBtn, 'search-clear button exists');
-    assert.notStrictEqual(clearBtn.style.display, 'none', 'Clear button should be visible when input has text');
+    assert.notStrictEqual(
+      clearBtn.style.display,
+      'none',
+      'Clear button should be visible when input has text',
+    );
   });
 
   it('QA: clicking search-clear button clears search and re-renders', async function () {
@@ -126,7 +154,11 @@ describe('Issue #207 - QA Library search clear button', function () {
     assert.strictEqual(state.qaPage, 1, 'Page should reset to 1');
 
     // Clear button should be hidden after clearing
-    assert.strictEqual(clearBtn.style.display, 'none', 'Clear button should be hidden after clearing');
+    assert.strictEqual(
+      clearBtn.style.display,
+      'none',
+      'Clear button should be hidden after clearing',
+    );
   });
 
   it('QA: input event listener shows/hides clear button', async function () {
@@ -148,10 +180,14 @@ describe('Issue #207 - QA Library search clear button', function () {
     searchInput.dispatchEvent(inputEvent);
 
     // Wait for debounce
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 400));
 
     assert.strictEqual(state.qaFilters.search, 'test', 'State updated with search value');
-    assert.notStrictEqual(clearBtn.style.display, 'none', 'Clear button should be visible after typing');
+    assert.notStrictEqual(
+      clearBtn.style.display,
+      'none',
+      'Clear button should be visible after typing',
+    );
   });
 
   it('QA: subsequent render preserves clear button visibility state', async function () {
@@ -160,14 +196,21 @@ describe('Issue #207 - QA Library search clear button', function () {
     await renderQA(el);
 
     const clearBtn = document.getElementById('search-clear');
-    assert.notStrictEqual(clearBtn.style.display, 'none', 'Clear button visible after first render');
+    assert.notStrictEqual(
+      clearBtn.style.display,
+      'none',
+      'Clear button visible after first render',
+    );
 
     // Re-render
     await renderQA(el);
 
     const clearBtn2 = document.getElementById('search-clear');
     assert.strictEqual(clearBtn2, clearBtn, 'Same DOM node preserved');
-    assert.notStrictEqual(clearBtn2.style.display, 'none', 'Clear button still visible after re-render');
+    assert.notStrictEqual(
+      clearBtn2.style.display,
+      'none',
+      'Clear button still visible after re-render',
+    );
   });
-
 });
