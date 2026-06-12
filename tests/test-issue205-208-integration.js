@@ -112,7 +112,7 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
       );
     });
 
-    it('renderDashboard() starts with dash-stats div', async function () {
+    it('renderDashboard() starts with dash-stats element', async function () {
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
