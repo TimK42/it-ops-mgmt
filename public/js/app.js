@@ -956,7 +956,7 @@ async function renderQA(el) {
     main.insertBefore(toolbar, el);
 
     // Only list content inside .content
-    el.innerHTML = `<h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
+    el.innerHTML = `<div class="ptr-indicator" id="ptr-indicator"><div class="ptr-spinner"></div><span id="ptr-text">Pull to refresh</span></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
 
     // Restore search input value after first render
     const s = document.getElementById('global-search');
@@ -1893,3 +1893,74 @@ async function renderDashboard(el) {
       }
     });
 }
+
+// ===== PTR CSS INJECTION =====
+(function injectPTRStyles() {
+  // Only inject once
+  if (document.getElementById('ptr-styles')) return;
+  var style = document.createElement('style');
+  style.id = 'ptr-styles';
+  style.textContent =
+    '.ptr-indicator { display: none; text-align: center; padding: 12px 0; color: var(--text-secondary, #888); font-size: 13px; transition: opacity 0.2s; }' +
+    '.ptr-indicator.active { display: block; }' +
+    '.ptr-spinner { display: inline-block; width: 22px; height: 22px; border: 2.5px solid var(--border, #ddd); border-top-color: var(--primary, #4a90d9); border-radius: 50%; animation: ptr-spin 0.6s linear infinite; }' +
+    '@keyframes ptr-spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+})();
+
+// ===== PULL-TO-REFRESH (Mobile QA list) =====
+(function initPtr() {
+  if (!('ontouchstart' in window)) return;
+  var ptrEl = null;
+  var startY = 0;
+  var pulling = false;
+
+  document.addEventListener('touchstart', function (e) {
+    if (state.page !== 'qa') return;
+    var el = document.getElementById('page-content');
+    if (!el || el.scrollTop > 0) return;
+    ptrEl = document.getElementById('ptr-indicator');
+    if (!ptrEl) return;
+    startY = e.touches[0].clientY;
+    pulling = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (state.page !== 'qa' || !ptrEl) return;
+    var delta = e.touches[0].clientY - startY;
+    if (delta <= 0) {
+      ptrEl.classList.remove('active');
+      pulling = false;
+      return;
+    }
+    pulling = true;
+    ptrEl.classList.add('active');
+    var textEl = document.getElementById('ptr-text');
+    if (delta > 80) {
+      if (textEl) textEl.textContent = 'Release to refresh';
+    } else {
+      if (textEl) textEl.textContent = 'Pull to refresh';
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function () {
+    if (state.page !== 'qa' || !ptrEl || !pulling) {
+      ptrEl = null;
+      pulling = false;
+      return;
+    }
+    var textEl = document.getElementById('ptr-text');
+    if (textEl) textEl.textContent = 'Refreshing...';
+    var el = document.getElementById('page-content');
+    if (el) {
+      renderQA(el);
+    }
+    // Reset after brief delay so user sees the refresh feedback
+    setTimeout(function () {
+      if (ptrEl) ptrEl.classList.remove('active');
+      ptrEl = null;
+      pulling = false;
+    }, 500);
+  }, { passive: true });
+})();
+
