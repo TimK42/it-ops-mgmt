@@ -929,6 +929,13 @@ async function renderQA(el) {
     state.qaEntries = res.data;
     state.qaTotal = res.total;
     state.qaPage = res.page;
+    // Clamp page if viewport changed (e.g., resize caused perPage to increase)
+    const perPage = getPerPage();
+    const maxPage = Math.ceil(state.qaTotal / perPage);
+    if (state.qaTotal > 0 && !state.qaEntries.length && maxPage >= 1 && state.qaPage > maxPage) {
+      state.qaPage = maxPage;
+      return renderQA(el);
+    }
   } catch (e) {
     if (e.name === 'AbortError' || state.page !== 'qa') return;
     if (isFirstRender) {

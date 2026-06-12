@@ -116,7 +116,11 @@ describe('Issue #213 — Responsive QA pagination', function () {
         configurable: true,
         value: 767,
       });
-      assert.strictEqual(getPerPage(), 10, 'getPerPage() should be 10 at 767px (below 768 breakpoint)');
+      assert.strictEqual(
+        getPerPage(),
+        10,
+        'getPerPage() should be 10 at 767px (below 768 breakpoint)',
+      );
     });
 
     it('returns 20 when window.innerWidth is exactly 768 (at breakpoint, not below)', function () {
@@ -358,10 +362,7 @@ describe('Issue #213 — Responsive QA pagination', function () {
       );
 
       // Page indicator: 2 / 5
-      assert.ok(
-        paginationText.indexOf('2 / 5') !== -1,
-        'Mobile page 2 should show "2 / 5"',
-      );
+      assert.ok(paginationText.indexOf('2 / 5') !== -1, 'Mobile page 2 should show "2 / 5"');
     });
 
     it('renderQA() on last page for mobile shows correct remainder (10 per page, 45 total, page 5 = 5–10)', async function () {
@@ -398,10 +399,7 @@ describe('Issue #213 — Responsive QA pagination', function () {
       );
 
       // Page indicator: 5 / 5
-      assert.ok(
-        paginationText.indexOf('5 / 5') !== -1,
-        'Mobile page 5 should show "5 / 5"',
-      );
+      assert.ok(paginationText.indexOf('5 / 5') !== -1, 'Mobile page 5 should show "5 / 5"');
     });
   });
 });
