@@ -929,6 +929,13 @@ async function renderQA(el) {
     state.qaEntries = res.data;
     state.qaTotal = res.total;
     state.qaPage = res.page;
+    // Clamp page if viewport changed (e.g., resize caused perPage to increase)
+    const perPage = getPerPage();
+    const maxPage = Math.ceil(state.qaTotal / perPage);
+    if (state.qaTotal > 0 && !state.qaEntries.length && maxPage >= 1 && state.qaPage > maxPage) {
+      state.qaPage = maxPage;
+      return renderQA(el);
+    }
   } catch (e) {
     if (e.name === 'AbortError' || state.page !== 'qa') return;
     if (isFirstRender) {
@@ -1040,8 +1047,9 @@ async function renderQA(el) {
         }</div></a>`,
     )
     .join('');
-  const totalPages = Math.ceil(state.qaTotal / 20);
-  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * 20 + 1}–${Math.min(state.qaPage * 20, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
+  const perPage = getPerPage();
+  const totalPages = Math.ceil(state.qaTotal / perPage);
+  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * perPage + 1}–${Math.min(state.qaPage * perPage, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
 
   const prev = document.getElementById('qa-prev');
   if (prev && !prev.disabled)
@@ -1056,13 +1064,16 @@ async function renderQA(el) {
       renderQA(el);
     };
 }
+function getPerPage() {
+  return window.innerWidth < 768 ? 10 : 20;
+}
 async function loadQA(signal) {
   const p = new URLSearchParams();
   if (state.qaFilters.status) p.set('status', state.qaFilters.status);
   if (state.qaFilters.search) p.set('search', state.qaFilters.search);
   if (state.qaSort) p.set('sort', state.qaSort);
   p.set('_page', state.qaPage);
-  p.set('_per_page', '20');
+  p.set('_per_page', String(getPerPage()));
   return api(`/api/qa?${p}`, { signal });
 }
 
