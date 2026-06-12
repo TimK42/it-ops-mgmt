@@ -652,6 +652,7 @@ describe('Issue #177 — Backend usage_count', function () {
     const tk = (label) => 'PopSort-' + popSortToken + '-' + label;
     const searchToken = 'PopSort-' + popSortToken;
     // Scope all sort-test requests to the run-specific token so stale rows never interfere
+    const scopeQADefault = () => '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100';
     const scopeQA = (sort, extra) => '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100&sort=' + sort + (extra || '');
 
     after(function () {
@@ -704,8 +705,8 @@ describe('Issue #177 — Backend usage_count', function () {
     }
 
     it('default sort (no param) returns results in popularity order (usage_count DESC)', async function () {
-      const res = await request('GET', scopeQA('popular'), { cookie });
-      assert.strictEqual(res.status, 200, 'GET /api/qa?search=...&sort=popular should return 200');
+      const res = await request('GET', scopeQADefault(), { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?search=... (no sort param) should return 200');
       assertTitles(res.json.data, function (a, b, c) {
         assert(a < b, 'PopSort-A (usage=3) before PopSort-B (usage=2)');
         assert(b < c, 'PopSort-B (usage=2) before PopSort-C (usage=1)');

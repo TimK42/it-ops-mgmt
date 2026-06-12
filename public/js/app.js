@@ -1911,9 +1911,9 @@ async function renderDashboard(el) {
 // ===== PULL-TO-REFRESH (Mobile QA list) =====
 (function initPtr() {
   if (!('ontouchstart' in window)) return;
-  // Guard: prevent duplicate listeners if app.js is re-evaluated
-  if (initPtr.done) return;
-  initPtr.done = true;
+  // Guard: prevent duplicate listeners if app.js is re-evaluated (use window to survive IIFE recreation)
+  if (window.__ptrInitDone) return;
+  window.__ptrInitDone = true;
   var ptrEl = null;
   var startY = 0;
   var pulling = false;
