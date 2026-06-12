@@ -61,8 +61,9 @@ function resetDOM(width) {
 }
 
 // Bootstrap app.js once before all tests
+var appJsLoaded = false;
 before(function () {
-  if (typeof state === 'undefined') {
+  if (!appJsLoaded) {
     resetDOM(1024);
     var appJsPath = path.resolve(__dirname, '../public/js/app.js');
     var code = fs.readFileSync(appJsPath, 'utf-8');
@@ -70,6 +71,7 @@ before(function () {
     delete global.window;
     delete global.document;
     delete global.navigator;
+    appJsLoaded = true;
   }
 });
 
