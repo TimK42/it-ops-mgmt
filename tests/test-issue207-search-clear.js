@@ -42,9 +42,11 @@ const mockQAEntries = [
 ];
 
 function resetDOM() {
+  // Match the DOM structure used by all other test files:
+  // #app and #page-content are siblings inside <main>
   const dom = new JSDOM(
-    '<!DOCTYPE html><html><body><div id="app"><main class="main" id="main-content"><div id="page-content"></div></main></div></body></html>',
-    { url: 'http://localhost:3200', pretendToBeVisual: true, runScripts: 'dangerously' },
+    '<!DOCTYPE html><html><body><main class="main" id="main-content"><div id="app"></div><div id="page-content"></div><div id="detail-modal"></div><div id="page-title"></div></main></body></html>',
+    { url: 'http://localhost:3199', pretendToBeVisual: true, runScripts: 'dangerously' },
   );
   Object.defineProperty(dom.window, 'matchMedia', {
     writable: true,
@@ -66,11 +68,20 @@ function resetDOM() {
   return dom;
 }
 
+// Match the bootstrap pattern used by all other test files.
+// Only load app.js once (when state is undefined), then clean up globals
+// so stale async handlers from the DOMContentLoaded listener don't
+// fire during later test files and corrupt their DOM.
 before(function () {
-  resetDOM();
-  const appJsPath = path.resolve(__dirname, '../public/js/app.js');
-  const code = fs.readFileSync(appJsPath, 'utf-8');
-  vm.runInThisContext(code, { filename: 'app.js' });
+  if (typeof state === 'undefined') {
+    resetDOM();
+    const appJsPath = path.resolve(__dirname, '../public/js/app.js');
+    const code = fs.readFileSync(appJsPath, 'utf-8');
+    vm.runInThisContext(code, { filename: 'app.js' });
+    delete global.window;
+    delete global.document;
+    delete global.navigator;
+  }
 });
 
 beforeEach(function () {
