@@ -922,6 +922,10 @@ tr.row-click {
     min-height: 44px;
     padding: 10px 14px;
   }
+  .sort-select {
+    min-height: 44px;
+    font-size: 16px;
+  }
   .login-link a {
     min-height: 44px;
     display: inline-flex;
@@ -1020,6 +1024,13 @@ tr.row-click {
   left: 0;
   right: 0;
   z-index: 999;
+}
+/* Prevent banner from overlapping main content */
+body.has-pwa-banner #page-content {
+  padding-bottom: 80px;
+}
+body.has-pwa-banner .content {
+  padding-bottom: 80px;
 }
 .pwa-ios-banner,
 .pwa-android-banner {
