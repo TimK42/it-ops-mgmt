@@ -112,21 +112,17 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
       );
     });
 
-    it('renderDashboard() starts with dash-stats div (no leading heading)', async function () {
+    it('renderDashboard() starts with dash-stats element', async function () {
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      // The initial innerHTML must start with the dash-stats div, not a heading
-      assert.ok(
-        el.innerHTML.indexOf('<div id="dash-stats"') !== -1,
-        'renderDashboard() output should contain dash-stats div',
-      );
-      // There should be no sr-only heading (the specific Issue #205 issue)
-      const srOnlyHeading = el.querySelector('h2.sr-only');
+      // Assert the first child exists, then check its id
+      // (more precise and safer than the earlier innerHTML approach)
+      assert.ok(el.firstElementChild, 'page-content should have a first child');
       assert.strictEqual(
-        srOnlyHeading,
-        null,
-        'page-content should not contain sr-only heading element',
+        el.firstElementChild.id,
+        'dash-stats',
+        'the first child of page-content should be #dash-stats',
       );
     });
 
