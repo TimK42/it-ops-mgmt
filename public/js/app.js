@@ -956,7 +956,7 @@ async function renderQA(el) {
     main.insertBefore(toolbar, el);
 
     // Only list content inside .content
-    el.innerHTML = `<h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
+    el.innerHTML = `<div class="ptr-indicator" id="ptr-indicator"><div class="ptr-spinner"></div><span id="ptr-text">Pull to refresh</span></div><h2 class="sr-only">QA Entries</h2><div class="qa-list" id="qa-list"></div>`;
 
     // Restore search input value after first render
     const s = document.getElementById('global-search');
@@ -1893,3 +1893,109 @@ async function renderDashboard(el) {
       }
     });
 }
+
+// ===== PTR CSS INJECTION =====
+(function injectPTRStyles() {
+  // Only inject once
+  if (document.getElementById('ptr-styles')) return;
+  var style = document.createElement('style');
+  style.id = 'ptr-styles';
+  style.textContent =
+    '.ptr-indicator { display: none; text-align: center; padding: 12px 0; color: var(--text-secondary, #888); font-size: 13px; transition: opacity 0.2s; }' +
+    '.ptr-indicator.active { display: block; }' +
+    '.ptr-spinner { display: inline-block; width: 22px; height: 22px; border: 2.5px solid var(--border, #ddd); border-top-color: var(--primary, #4a90d9); border-radius: 50%; animation: ptr-spin 0.6s linear infinite; }' +
+    '@keyframes ptr-spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+})();
+
+// ===== PULL-TO-REFRESH (Mobile QA list) =====
+(function initPtr() {
+  if (!('ontouchstart' in window)) return;
+  // Guard: prevent duplicate listeners if app.js is re-evaluated (use window to survive IIFE recreation)
+  if (window.__ptrInitDone) return;
+  window.__ptrInitDone = true;
+  var ptrEl = null;
+  var startY = 0;
+  var pulling = false;
+  var lastDelta = 0;
+  var resetTimer = null;
+  var PTR_MIN_PULL = 10;
+  var PTR_REFRESH_THRESHOLD = 80;
+
+  document.addEventListener('touchstart', function (e) {
+    if (state.page !== 'qa') return;
+    // Don't trigger PTR when a modal is open (the modal uses document-scoped listeners too)
+    if (document.querySelector('.modal-overlay.open')) return;
+    // On mobile, the page scrolls on body (not #page-content which is overflow: visible)
+    if (window.scrollY > 0) return;
+    // Cancel any pending reset from previous gesture
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+    ptrEl = document.getElementById('ptr-indicator');
+    if (!ptrEl) return;
+    startY = e.touches[0].clientY;
+    pulling = false;
+    lastDelta = 0;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (state.page !== 'qa' || !ptrEl) return;
+    lastDelta = e.touches[0].clientY - startY;
+    if (lastDelta <= 0) {
+      ptrEl.classList.remove('active');
+      pulling = false;
+      return;
+    }
+    // Require a minimum pull distance before showing indicator
+    if (lastDelta < PTR_MIN_PULL) {
+      ptrEl.classList.remove('active');
+      pulling = false;
+      return;
+    }
+    // Prevent browser's native overscroll/refresh from interfering with our PTR
+    if (e.cancelable) e.preventDefault();
+    pulling = true;
+    ptrEl.classList.add('active');
+    var textEl = document.getElementById('ptr-text');
+    if (textEl) {
+      textEl.textContent = lastDelta > PTR_REFRESH_THRESHOLD ? 'Release to refresh' : 'Pull to refresh';
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', function () {
+    if (state.page !== 'qa' || !ptrEl) {
+      ptrEl = null;
+      pulling = false;
+      return;
+    }
+    if (pulling && lastDelta >= PTR_REFRESH_THRESHOLD) {
+      var textEl = document.getElementById('ptr-text');
+      if (textEl) textEl.textContent = 'Refreshing...';
+      var el = document.getElementById('page-content');
+      if (el) renderQA(el);
+      // Delay reset so user sees the refresh feedback
+      resetTimer = setTimeout(function () {
+        resetTimer = null;
+        if (ptrEl) ptrEl.classList.remove('active');
+        ptrEl = null;
+        pulling = false;
+        lastDelta = 0;
+      }, 500);
+    } else {
+      // Clear immediately on non-refresh gesture
+      if (ptrEl) ptrEl.classList.remove('active');
+      ptrEl = null;
+      pulling = false;
+      lastDelta = 0;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', function () {
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+    pulling = false;
+    if (ptrEl) ptrEl.classList.remove('active');
+    ptrEl = null;
+    lastDelta = 0;
+    startY = 0;
+  }, { passive: true });
+})();
+

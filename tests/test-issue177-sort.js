@@ -648,6 +648,12 @@ describe('Issue #177 — Backend usage_count', function () {
 
   describe('GET /api/qa sort behavior', function () {
     const sortIds = [];
+    const popSortToken = Date.now();
+    const tk = (label) => 'PopSort-' + popSortToken + '-' + label;
+    const searchToken = 'PopSort-' + popSortToken;
+    // Scope all sort-test requests to the run-specific token so stale rows never interfere
+    const scopeQADefault = () => '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100';
+    const scopeQA = (sort, extra) => '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100&sort=' + sort + (extra || '');
 
     after(function () {
       return Promise.all(
@@ -661,17 +667,17 @@ describe('Issue #177 — Backend usage_count', function () {
       // Create 3 test entries with different usage counts (adding delays for distinct created_at timestamps)
       const e1 = await request('POST', '/api/qa', {
         cookie,
-        body: { title: 'Pop Sort A', question: 'Highest usage?', answer: 'A' },
+        body: { title: tk('A'), question: 'Highest usage?', answer: 'A' },
       });
       await sleep(1100); // wait >1s for distinct created_at
       const e2 = await request('POST', '/api/qa', {
         cookie,
-        body: { title: 'Pop Sort B', question: 'Medium usage?', answer: 'B' },
+        body: { title: tk('B'), question: 'Medium usage?', answer: 'B' },
       });
       await sleep(1100);
       const e3 = await request('POST', '/api/qa', {
         cookie,
-        body: { title: 'Pop Sort C', question: 'Lowest usage?', answer: 'C' },
+        body: { title: tk('C'), question: 'Lowest usage?', answer: 'C' },
       });
       sortIds.push(e1.json.id, e2.json.id, e3.json.id);
 
@@ -684,58 +690,54 @@ describe('Issue #177 — Backend usage_count', function () {
       await request('GET', `/api/qa/${e3.json.id}`, { cookie });
     });
 
-    it('default sort (no param) returns results in popularity order (usage_count DESC)', async function () {
-      const res = await request('GET', '/api/qa', { cookie });
-      assert.strictEqual(res.status, 200, 'GET /api/qa should return 200');
-      const entries = res.json.data;
-      assert.ok(entries.length >= 3, 'Should return at least 3 entries');
+    /** Filter entries to only our 3 test rows, then assert placement + order */
+    function assertTitles(entries, orderFn) {
+      var found = entries.filter(function (e) { return sortIds.indexOf(e.id) >= 0; });
+      assert.strictEqual(found.length, 3, '3 test entries should all be in results (found by id)');
+      var titles = found.map(function (e) { return e.title; });
+      var aIdx = titles.indexOf(tk('A'));
+      var bIdx = titles.indexOf(tk('B'));
+      var cIdx = titles.indexOf(tk('C'));
+      assert(aIdx >= 0, 'PopSort-A present');
+      assert(bIdx >= 0, 'PopSort-B present');
+      assert(cIdx >= 0, 'PopSort-C present');
+      orderFn(aIdx, bIdx, cIdx);
+    }
 
-      const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
-      assert(aIdx >= 0 && bIdx >= 0 && cIdx >= 0, 'All 3 test entries should be in the results');
-      assert(aIdx < bIdx, 'Pop Sort A (usage=3) should appear before Pop Sort B (usage=2)');
-      assert(bIdx < cIdx, 'Pop Sort B (usage=2) should appear before Pop Sort C (usage=1)');
+    it('default sort (no param) returns results in popularity order (usage_count DESC)', async function () {
+      const res = await request('GET', scopeQADefault(), { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?search=... (no sort param) should return 200');
+      assertTitles(res.json.data, function (a, b, c) {
+        assert(a < b, 'PopSort-A (usage=3) before PopSort-B (usage=2)');
+        assert(b < c, 'PopSort-B (usage=2) before PopSort-C (usage=1)');
+      });
     });
 
     it('sort=popular returns results in popularity order', async function () {
-      const res = await request('GET', '/api/qa?sort=popular', { cookie });
-      assert.strictEqual(res.status, 200, 'GET /api/qa?sort=popular should return 200');
-      const entries = res.json.data;
-
-      const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
-      assert(aIdx < bIdx, 'sort=popular: A before B');
-      assert(bIdx < cIdx, 'sort=popular: B before C');
+      const res = await request('GET', scopeQA('popular'), { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?search=...&sort=popular should return 200');
+      assertTitles(res.json.data, function (a, b, c) {
+        assert(a < b, 'sort=popular: A before B');
+        assert(b < c, 'sort=popular: B before C');
+      });
     });
 
     it('sort=newest returns results by created_at DESC', async function () {
-      const res = await request('GET', '/api/qa?sort=newest', { cookie });
-      assert.strictEqual(res.status, 200, 'GET /api/qa?sort=newest should return 200');
-      const entries = res.json.data;
-
-      const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
-      assert(cIdx < bIdx, 'sort=newest: C (latest) before B');
-      assert(bIdx < aIdx, 'sort=newest: B before A (oldest)');
+      const res = await request('GET', scopeQA('newest'), { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?search=...&sort=newest should return 200');
+      assertTitles(res.json.data, function (a, b, c) {
+        assert(c < b, 'sort=newest: C (latest) before B');
+        assert(b < a, 'sort=newest: B before A (oldest)');
+      });
     });
 
     it('sort=oldest returns results by created_at ASC', async function () {
-      const res = await request('GET', '/api/qa?sort=oldest', { cookie });
-      assert.strictEqual(res.status, 200, 'GET /api/qa?sort=oldest should return 200');
-      const entries = res.json.data;
-
-      const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
-      assert(aIdx < bIdx, 'sort=oldest: A (oldest) before B');
-      assert(bIdx < cIdx, 'sort=oldest: B before C (newest)');
+      const res = await request('GET', scopeQA('oldest'), { cookie });
+      assert.strictEqual(res.status, 200, 'GET /api/qa?search=...&sort=oldest should return 200');
+      assertTitles(res.json.data, function (a, b, c) {
+        assert(a < b, 'sort=oldest: A (oldest) before B');
+        assert(b < c, 'sort=oldest: B before C (newest)');
+      });
     });
   });
 });
