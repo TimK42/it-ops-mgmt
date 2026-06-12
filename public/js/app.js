@@ -1970,15 +1970,21 @@ async function renderDashboard(el) {
       if (textEl) textEl.textContent = 'Refreshing...';
       var el = document.getElementById('page-content');
       if (el) renderQA(el);
-    }
-    // Reset after brief delay so user sees the refresh feedback
-    resetTimer = setTimeout(function () {
-      resetTimer = null;
+      // Delay reset so user sees the refresh feedback
+      resetTimer = setTimeout(function () {
+        resetTimer = null;
+        if (ptrEl) ptrEl.classList.remove('active');
+        ptrEl = null;
+        pulling = false;
+        lastDelta = 0;
+      }, 500);
+    } else {
+      // Clear immediately on non-refresh gesture
       if (ptrEl) ptrEl.classList.remove('active');
       ptrEl = null;
       pulling = false;
       lastDelta = 0;
-    }, 500);
+    }
   }, { passive: true });
 
   document.addEventListener('touchcancel', function () {
