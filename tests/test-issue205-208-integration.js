@@ -6,6 +6,7 @@
 //   #208: renderLogin() calls restoreTheme(), renders theme toggle, toggle click persists to localStorage
 //
 // Usage: npx mocha tests/test-issue205-208-integration.js --timeout 15000
+/* global toggleTheme */
 
 const vm = require('vm');
 const { JSDOM } = require('jsdom');
@@ -104,7 +105,11 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
 
       // Target only the specific element from the bug: duplicate sr-only Dashboard heading
       const srOnlyHeading = el.querySelector('h2.sr-only');
-      assert.strictEqual(srOnlyHeading, null, 'renderDashboard() output should not contain sr-only Dashboard heading');
+      assert.strictEqual(
+        srOnlyHeading,
+        null,
+        'renderDashboard() output should not contain sr-only Dashboard heading',
+      );
     });
 
     it('renderDashboard() starts with dash-stats div (no leading heading)', async function () {
