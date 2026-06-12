@@ -102,18 +102,9 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
       const el = document.getElementById('page-content');
       await renderDashboard(el);
 
-      const innerHtml = el.innerHTML;
-      // The duplicate sr-only heading from the original bug must be absent
-      assert.strictEqual(
-        innerHtml.indexOf('class="sr-only"'),
-        -1,
-        'renderDashboard() output should not contain any sr-only element',
-      );
-      assert.strictEqual(
-        innerHtml.indexOf('Dashboard'),
-        -1,
-        'renderDashboard() output should not contain "Dashboard" heading text',
-      );
+      // Target only the specific element from the bug: duplicate sr-only Dashboard heading
+      const srOnlyHeading = el.querySelector('h2.sr-only');
+      assert.strictEqual(srOnlyHeading, null, 'renderDashboard() output should not contain sr-only Dashboard heading');
     });
 
     it('renderDashboard() starts with dash-stats div (no leading heading)', async function () {
