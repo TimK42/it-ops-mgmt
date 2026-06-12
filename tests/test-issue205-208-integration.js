@@ -123,7 +123,11 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
       );
       // There should be no sr-only heading (the specific Issue #205 issue)
       const srOnlyHeading = el.querySelector('h2.sr-only');
-      assert.strictEqual(srOnlyHeading, null, 'page-content should not contain sr-only heading element');
+      assert.strictEqual(
+        srOnlyHeading,
+        null,
+        'page-content should not contain sr-only heading element',
+      );
     });
 
     it('renderDashboard() still works — dash-stats and recent section are present', async function () {
