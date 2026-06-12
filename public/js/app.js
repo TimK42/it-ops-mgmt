@@ -1924,6 +1924,8 @@ async function renderDashboard(el) {
 
   document.addEventListener('touchstart', function (e) {
     if (state.page !== 'qa') return;
+    // Don't trigger PTR when a modal is open (the modal uses document-scoped listeners too)
+    if (document.querySelector('.modal-overlay.open')) return;
     // On mobile, the page scrolls on body (not #page-content which is overflow: visible)
     if (window.scrollY > 0) return;
     // Cancel any pending reset from previous gesture
