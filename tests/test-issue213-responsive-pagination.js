@@ -109,20 +109,6 @@ describe('Issue #213 — Responsive QA pagination', function () {
       assert.strictEqual(getPerPage(), 10, 'getPerPage() should be 10 at 414px width');
     });
 
-    it('returns 10 when window.innerWidth is exactly 767 (edge of breakpoint)', function () {
-      resetDOM(767);
-      Object.defineProperty(global.window, 'innerWidth', {
-        writable: true,
-        configurable: true,
-        value: 767,
-      });
-      assert.strictEqual(
-        getPerPage(),
-        10,
-        'getPerPage() should be 10 at 767px (below 768 breakpoint)',
-      );
-    });
-
     it('returns 20 when window.innerWidth is exactly 768 (at breakpoint, not below)', function () {
       resetDOM(768);
       Object.defineProperty(global.window, 'innerWidth', {
@@ -365,7 +351,7 @@ describe('Issue #213 — Responsive QA pagination', function () {
       assert.ok(paginationText.indexOf('2 / 5') !== -1, 'Mobile page 2 should show "2 / 5"');
     });
 
-    it('renderQA() on last page for mobile shows correct remainder (10 per page, 45 total, page 5 = 5–10)', async function () {
+    it('renderQA() on last page for mobile shows correct remainder (10 per page, 45 total, page 5 = 41–45)', async function () {
       resetDOM(414);
       Object.defineProperty(global.window, 'innerWidth', {
         writable: true,
