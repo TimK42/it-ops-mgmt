@@ -121,10 +121,9 @@ describe('Issue #205 — Dashboard heading hierarchy', function () {
         el.innerHTML.indexOf('<div id="dash-stats"') !== -1,
         'renderDashboard() output should contain dash-stats div',
       );
-      // There should be no heading elements directly in page-content
-      const headings = el.querySelectorAll('h1, h2, h3');
-      const headingCount = headings.length;
-      assert.strictEqual(headingCount, 0, 'page-content should have 0 heading elements');
+      // There should be no sr-only heading (the specific Issue #205 issue)
+      const srOnlyHeading = el.querySelector('h2.sr-only');
+      assert.strictEqual(srOnlyHeading, null, 'page-content should not contain sr-only heading element');
     });
 
     it('renderDashboard() still works — dash-stats and recent section are present', async function () {

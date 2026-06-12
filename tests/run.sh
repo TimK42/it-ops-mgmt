@@ -107,11 +107,11 @@ else console.log('FAIL bcrypt accepted wrong password');
 done
 
 echo ""
-echo ">>> Mocha Unit Tests (Issue #55, #94, #107, #117, #121-123, #134, #137, #138, #142, #143, #144, #163, #177, #184, #188, #198)"
+echo ">>> Mocha Unit Tests"
 MOCHA_OUTPUT=$(npm run test:mocha 2>&1)
 MOCHA_EXIT=$?
 echo "$MOCHA_OUTPUT"
-MOCHA_LINE=$(echo "$MOCHA_OUTPUT" | tail -3 | grep -E '[0-9]+ passing|[0-9]+ failing' | tail -1)
+MOCHA_LINE=$(echo "$MOCHA_OUTPUT" | grep -E '[0-9]+ passing|[0-9]+ failing' | tail -1)
 if [ -n "$MOCHA_LINE" ]; then
   MOCHA_PASS=$(echo "$MOCHA_LINE" | grep -oE '[0-9]+ passing' | grep -oE '[0-9]+')
   MOCHA_FAIL=$(echo "$MOCHA_LINE" | grep -oE '[0-9]+ failing' | grep -oE '[0-9]+')
