@@ -157,6 +157,16 @@ function isStandalone() {
 
 function setPWABannerVisible(visible) {
   document.body.classList.toggle('has-pwa-banner', visible);
+  if (visible) {
+    requestAnimationFrame(() => {
+      var banner = document.querySelector('.pwa-ios-banner, .pwa-android-banner');
+      if (banner) {
+        document.body.style.setProperty('--pwa-banner-height', banner.offsetHeight + 'px');
+      }
+    });
+  } else {
+    document.body.style.removeProperty('--pwa-banner-height');
+  }
 }
 
 function initPWA() {

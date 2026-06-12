@@ -344,6 +344,53 @@ describe('Create QA form — no Status dropdown', function () {
   });
 });
 
+describe('Create QA form — label for attributes', function () {
+  it('showCreateQA() has label for="f-q-title"', async function () {
+    setupCreateForm();
+    await showCreateQA();
+    assert.ok(
+      document.querySelector('label[for="f-q-title"]'),
+      'Title label should have for="f-q-title"',
+    );
+  });
+
+  it('showCreateQA() has label for="f-question"', async function () {
+    setupCreateForm();
+    await showCreateQA();
+    assert.ok(
+      document.querySelector('label[for="f-question"]'),
+      'Question label should have for="f-question"',
+    );
+  });
+
+  it('showCreateQA() has label for="f-answer"', async function () {
+    setupCreateForm();
+    await showCreateQA();
+    assert.ok(
+      document.querySelector('label[for="f-answer"]'),
+      'Answer label should have for="f-answer"',
+    );
+  });
+
+  it('showCreateQA() has label for="f-q-cat"', async function () {
+    setupCreateForm();
+    await showCreateQA();
+    assert.ok(
+      document.querySelector('label[for="f-q-cat"]'),
+      'Sub-System label should have for="f-q-cat"',
+    );
+  });
+
+  it('showCreateQA() has label for="f-tags-input"', async function () {
+    setupCreateForm();
+    await showCreateQA();
+    assert.ok(
+      document.querySelector('label[for="f-tags-input"]'),
+      'Tags label should have for="f-tags-input"',
+    );
+  });
+});
+
 describe('Publish button visibility', function () {
   it('Draft QA detail shows Publish button for Admin', async function () {
     setupDetail('Admin', draftQA);
