@@ -652,8 +652,14 @@ describe('Issue #177 — Backend usage_count', function () {
     const tk = (label) => 'PopSort-' + popSortToken + '-' + label;
     const searchToken = 'PopSort-' + popSortToken;
     // Scope all sort-test requests to the run-specific token so stale rows never interfere
-    const scopeQADefault = () => '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100';
-    const scopeQA = (sort, extra) => '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100&sort=' + sort + (extra || '');
+    const scopeQADefault = () =>
+      '/api/qa?search=' + encodeURIComponent(searchToken) + '&_per_page=100';
+    const scopeQA = (sort, extra) =>
+      '/api/qa?search=' +
+      encodeURIComponent(searchToken) +
+      '&_per_page=100&sort=' +
+      sort +
+      (extra || '');
 
     after(function () {
       return Promise.all(
@@ -692,9 +698,13 @@ describe('Issue #177 — Backend usage_count', function () {
 
     /** Filter entries to only our 3 test rows, then assert placement + order */
     function assertTitles(entries, orderFn) {
-      var found = entries.filter(function (e) { return sortIds.indexOf(e.id) >= 0; });
+      var found = entries.filter(function (e) {
+        return sortIds.indexOf(e.id) >= 0;
+      });
       assert.strictEqual(found.length, 3, '3 test entries should all be in results (found by id)');
-      var titles = found.map(function (e) { return e.title; });
+      var titles = found.map(function (e) {
+        return e.title;
+      });
       var aIdx = titles.indexOf(tk('A'));
       var bIdx = titles.indexOf(tk('B'));
       var cIdx = titles.indexOf(tk('C'));
@@ -706,7 +716,11 @@ describe('Issue #177 — Backend usage_count', function () {
 
     it('default sort (no param) returns results in popularity order (usage_count DESC)', async function () {
       const res = await request('GET', scopeQADefault(), { cookie });
-      assert.strictEqual(res.status, 200, 'GET /api/qa?search=... (no sort param) should return 200');
+      assert.strictEqual(
+        res.status,
+        200,
+        'GET /api/qa?search=... (no sort param) should return 200',
+      );
       assertTitles(res.json.data, function (a, b, c) {
         assert(a < b, 'PopSort-A (usage=3) before PopSort-B (usage=2)');
         assert(b < c, 'PopSort-B (usage=2) before PopSort-C (usage=1)');
