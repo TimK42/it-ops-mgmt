@@ -648,6 +648,8 @@ describe('Issue #177 — Backend usage_count', function () {
 
   describe('GET /api/qa sort behavior', function () {
     const sortIds = [];
+    const popSortToken = Date.now();
+    const tk = (label) => 'PopSort-' + popSortToken + '-' + label;
 
     after(function () {
       return Promise.all(
@@ -661,17 +663,17 @@ describe('Issue #177 — Backend usage_count', function () {
       // Create 3 test entries with different usage counts (adding delays for distinct created_at timestamps)
       const e1 = await request('POST', '/api/qa', {
         cookie,
-        body: { title: 'Pop Sort A', question: 'Highest usage?', answer: 'A' },
+        body: { title: tk('A'), question: 'Highest usage?', answer: 'A' },
       });
       await sleep(1100); // wait >1s for distinct created_at
       const e2 = await request('POST', '/api/qa', {
         cookie,
-        body: { title: 'Pop Sort B', question: 'Medium usage?', answer: 'B' },
+        body: { title: tk('B'), question: 'Medium usage?', answer: 'B' },
       });
       await sleep(1100);
       const e3 = await request('POST', '/api/qa', {
         cookie,
-        body: { title: 'Pop Sort C', question: 'Lowest usage?', answer: 'C' },
+        body: { title: tk('C'), question: 'Lowest usage?', answer: 'C' },
       });
       sortIds.push(e1.json.id, e2.json.id, e3.json.id);
 
@@ -691,12 +693,12 @@ describe('Issue #177 — Backend usage_count', function () {
       assert.ok(entries.length >= 3, 'Should return at least 3 entries');
 
       const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
+      const aIdx = titles.indexOf(tk('A'));
+      const bIdx = titles.indexOf(tk('B'));
+      const cIdx = titles.indexOf(tk('C'));
       assert(aIdx >= 0 && bIdx >= 0 && cIdx >= 0, 'All 3 test entries should be in the results');
-      assert(aIdx < bIdx, 'Pop Sort A (usage=3) should appear before Pop Sort B (usage=2)');
-      assert(bIdx < cIdx, 'Pop Sort B (usage=2) should appear before Pop Sort C (usage=1)');
+      assert(aIdx < bIdx, tk('A') + ' (usage=3) should appear before ' + tk('B') + ' (usage=2)');
+      assert(bIdx < cIdx, tk('B') + ' (usage=2) should appear before ' + tk('C') + ' (usage=1)');
     });
 
     it('sort=popular returns results in popularity order', async function () {
@@ -705,9 +707,9 @@ describe('Issue #177 — Backend usage_count', function () {
       const entries = res.json.data;
 
       const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
+      const aIdx = titles.indexOf(tk('A'));
+      const bIdx = titles.indexOf(tk('B'));
+      const cIdx = titles.indexOf(tk('C'));
       assert(aIdx < bIdx, 'sort=popular: A before B');
       assert(bIdx < cIdx, 'sort=popular: B before C');
     });
@@ -718,21 +720,22 @@ describe('Issue #177 — Backend usage_count', function () {
       const entries = res.json.data;
 
       const titles = entries.map((e) => e.title);
-      const aIdx = titles.indexOf('Pop Sort A');
-      const bIdx = titles.indexOf('Pop Sort B');
-      const cIdx = titles.indexOf('Pop Sort C');
+      const aIdx = titles.indexOf(tk('A'));
+      const bIdx = titles.indexOf(tk('B'));
+      const cIdx = titles.indexOf(tk('C'));
       assert(cIdx < bIdx, 'sort=newest: C (latest) before B');
       assert(bIdx < aIdx, 'sort=newest: B before A (oldest)');
     });
 
     it('sort=oldest returns results by created_at ASC', async function () {
-      // Filter by search to scope results to only our test entries, avoiding stale DB rows
-      const res = await request('GET', '/api/qa?sort=oldest&search=Pop+Sort&_per_page=100', { cookie });
+      // Use run-specific token to scope search, ensuring no stale rows from prior runs interfere
+      const searchToken = 'PopSort-' + popSortToken;
+      const res = await request('GET', '/api/qa?sort=oldest&search=' + encodeURIComponent(searchToken) + '&_per_page=100', { cookie });
       assert.strictEqual(res.status, 200, 'GET /api/qa?sort=oldest should return 200');
       const entries = res.json.data;
 
-      // Use sortIds to find the EXACT entries we created, avoiding stale rows from previous test runs
-      const ids = sortIds.slice(); // copy: [A.id, B.id, C.id]
+      // Verify by id as well — belt-and-suspenders against any possible DB state
+      const ids = sortIds.slice();
       assert.strictEqual(ids.length, 3, 'sortIds should have 3 entries');
       const aIdx = entries.findIndex((e) => e.id === ids[0]);
       const bIdx = entries.findIndex((e) => e.id === ids[1]);
