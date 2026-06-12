@@ -1947,7 +1947,7 @@ async function renderDashboard(el) {
       return;
     }
     // Prevent browser's native overscroll/refresh from interfering with our PTR
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     pulling = true;
     ptrEl.classList.add('active');
     var textEl = document.getElementById('ptr-text');
@@ -1975,6 +1975,14 @@ async function renderDashboard(el) {
       pulling = false;
       lastDelta = 0;
     }, 500);
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', function () {
+    pulling = false;
+    if (ptrEl) ptrEl.classList.remove('active');
+    ptrEl = null;
+    lastDelta = 0;
+    startY = 0;
   }, { passive: true });
 })();
 
