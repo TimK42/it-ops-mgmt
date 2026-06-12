@@ -50,11 +50,8 @@ function resetDOM() {
   return dom;
 }
 
-let appExports;
-
 before(function () {
   resetDOM();
-  appExports = {};
   const appJsPath = path.resolve(__dirname, '../public/js/app.js');
   const code = fs.readFileSync(appJsPath, 'utf-8');
   vm.runInThisContext(code, { filename: 'app.js' });
