@@ -2,3 +2,4 @@ node_modules
 coverage
 .git
 .pytest_cache
+test-results
