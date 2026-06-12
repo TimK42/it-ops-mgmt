@@ -1027,10 +1027,10 @@ tr.row-click {
 }
 /* Prevent banner from overlapping main content */
 body.has-pwa-banner #page-content {
-  padding-bottom: 80px;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
 }
 body.has-pwa-banner .content {
-  padding-bottom: 80px;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
 }
 .pwa-ios-banner,
 .pwa-android-banner {
