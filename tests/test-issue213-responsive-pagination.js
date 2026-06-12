@@ -60,19 +60,29 @@ function resetDOM(width) {
   return dom;
 }
 
-// Bootstrap app.js once before all tests
-var appJsLoaded = false;
+// Bootstrap: load app.js fresh (always reload to ensure latest functions)
+var _realLoadQA, _realRenderQA, _realGetPerPage, _realApi;
 before(function () {
-  if (!appJsLoaded) {
-    resetDOM(1024);
-    var appJsPath = path.resolve(__dirname, '../public/js/app.js');
-    var code = fs.readFileSync(appJsPath, 'utf-8');
-    vm.runInThisContext(code, { filename: 'app.js' });
-    delete global.window;
-    delete global.document;
-    delete global.navigator;
-    appJsLoaded = true;
-  }
+  resetDOM(1024);
+  var appJsPath = path.resolve(__dirname, '../public/js/app.js');
+  var code = fs.readFileSync(appJsPath, 'utf-8');
+  vm.runInThisContext(code, { filename: 'app.js' });
+  // Save real functions for restoration in beforeEach
+  _realLoadQA = loadQA;
+  _realRenderQA = renderQA;
+  _realGetPerPage = getPerPage;
+  _realApi = api;
+  delete global.window;
+  delete global.document;
+  delete global.navigator;
+});
+
+// Restore real functions before each test (other files' hooks may have overwritten them)
+beforeEach(function () {
+  global.loadQA = _realLoadQA;
+  global.renderQA = _realRenderQA;
+  global.getPerPage = _realGetPerPage;
+  global.api = _realApi;
 });
 
 // ============================================================
@@ -131,8 +141,6 @@ describe('Issue #213 — Responsive QA pagination', function () {
 
     beforeEach(function () {
       capturedUrls = [];
-
-      // Reset state before each test
       state.page = 'qa';
       state.user = { id: 'u1', username: 'admin', role: 'Admin' };
       state.qaEntries = [];
@@ -223,14 +231,9 @@ describe('Issue #213 — Responsive QA pagination', function () {
     beforeEach(function () {
       state.page = 'qa';
       state.user = { id: 'u1', username: 'admin', role: 'Admin' };
-      state.qaEntries = [];
       state.qaStatuses = ['Published', 'Draft', 'Archived'];
-      state.qaCategories = [];
       state.qaFilters = { status: null, search: '' };
       state.qaSort = 'newest';
-      state.qaPage = 1;
-      state.qaTotal = 45;
-      state.sessionExpired = false;
 
       global.toast = function () {};
 
@@ -250,7 +253,11 @@ describe('Issue #213 — Responsive QA pagination', function () {
       // Re-bootstrap api mock after resetDOM clears it
       // Uses beforeEach mock returning entries
       var el = document.getElementById('page-content');
-      await renderQA(el);
+      try {
+        await renderQA(el);
+      } catch (e) {
+        assert.fail('renderQA threw: ' + e.message + '\n' + e.stack);
+      }
 
       // Wait for async rendering to complete
       await new Promise(function (r) {
@@ -291,7 +298,11 @@ describe('Issue #213 — Responsive QA pagination', function () {
 
       // Uses beforeEach mock returning entries
       var el = document.getElementById('page-content');
-      await renderQA(el);
+      try {
+        await renderQA(el);
+      } catch (e) {
+        assert.fail('renderQA threw: ' + e.message + '\n' + e.stack);
+      }
 
       // Wait for async rendering to complete
       await new Promise(function (r) {
@@ -332,7 +343,11 @@ describe('Issue #213 — Responsive QA pagination', function () {
       global.toast = function () {};
 
       var el = document.getElementById('page-content');
-      await renderQA(el);
+      try {
+        await renderQA(el);
+      } catch (e) {
+        assert.fail('renderQA threw: ' + e.message + '\n' + e.stack);
+      }
 
       await new Promise(function (r) {
         return setTimeout(r, 50);
@@ -369,7 +384,11 @@ describe('Issue #213 — Responsive QA pagination', function () {
       global.toast = function () {};
 
       var el = document.getElementById('page-content');
-      await renderQA(el);
+      try {
+        await renderQA(el);
+      } catch (e) {
+        assert.fail('renderQA threw: ' + e.message + '\n' + e.stack);
+      }
 
       await new Promise(function (r) {
         return setTimeout(r, 50);
