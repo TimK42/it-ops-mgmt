@@ -278,7 +278,11 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
           assert.ok(btn, `${label} button should exist for ${role}`);
           if (label === 'QA Library') {
             // QA Library uses visible text as accessible name (no aria-label)
-            assert.strictEqual(btn.getAttribute('aria-label'), null, 'QA Library should not have aria-label');
+            assert.strictEqual(
+              btn.getAttribute('aria-label'),
+              null,
+              'QA Library should not have aria-label',
+            );
           } else {
             assert.strictEqual(btn.getAttribute('aria-label'), label);
           }

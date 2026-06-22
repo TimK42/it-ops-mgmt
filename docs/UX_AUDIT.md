@@ -810,15 +810,15 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ### ✅ Previously Open Issues — Verification
 
-| Issue | Description                   | Status               | Evidence                                                                                                                           |
-| ----- | ----------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| R8-M1 | Filter tabs 24px desktop      | ✅ **FIXED**         | All 4 tabs (All/Draft/Published/Archived) show 44px height at both desktop (1600px) and mobile (375px)                             |
-| R8-M2 | QA toolbar on Dashboard       | ✅ **FIXED**         | Dashboard has no `.table-toolbar`. Clean page with stats, recent entries, most viewed, sub-system coverage                         |
-| R6-M2 | Login bg always dark          | 🟡 **STILL OPEN**    | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.                                  |
-| R2-2  | Dashboard sparse              | ✅ **FIXED**         | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage                              |
-| R6-H1 | PWA install banner overlap    | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                                                    |
+| Issue | Description                   | Status               | Evidence                                                                                                                                                              |
+| ----- | ----------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R8-M1 | Filter tabs 24px desktop      | ✅ **FIXED**         | All 4 tabs (All/Draft/Published/Archived) show 44px height at both desktop (1600px) and mobile (375px)                                                                |
+| R8-M2 | QA toolbar on Dashboard       | ✅ **FIXED**         | Dashboard has no `.table-toolbar`. Clean page with stats, recent entries, most viewed, sub-system coverage                                                            |
+| R6-M2 | Login bg always dark          | 🟡 **STILL OPEN**    | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.                                                                     |
+| R2-2  | Dashboard sparse              | ✅ **FIXED**         | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage                                                                 |
+| R6-H1 | PWA install banner overlap    | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                                                                                       |
 | R8-L1 | Nav items missing aria-labels | ✅ **FIXED**         | All nav items now use visible text as accessible name (QA Library) or have explicit `aria-label` (others). Screen readers announce full button text including counts. |
-| R8-L2 | Remember me checkbox 13×13    | ✅ **FIXED**         | PR #224 — min-height: 44px via .form-checkbox input[type=checkbox]                                                                 |
+| R8-L2 | Remember me checkbox 13×13    | ✅ **FIXED**         | PR #224 — min-height: 44px via .form-checkbox input[type=checkbox]                                                                                                    |
 
 ---
 
@@ -895,11 +895,11 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## Open Issues — Priority Order (R9)
 
-| #   | ID    | Sev | Description                            | Page      | Fix                                              |
-| --- | ----- | --- | -------------------------------------- | --------- | ------------------------------------------------ |
-| 1   | R6-H1 | 🟧  | PWA install banner overlaps content    | All       | #137 — `padding-bottom` on `<main>` when visible |
-| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)        | Login     | #139 — Use CSS custom property for gradient      |
-| 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings  | Dashboard | Add `<h2>` for each Dashboard section            |
+| #   | ID    | Sev | Description                           | Page      | Fix                                              |
+| --- | ----- | --- | ------------------------------------- | --------- | ------------------------------------------------ |
+| 1   | R6-H1 | 🟧  | PWA install banner overlaps content   | All       | #137 — `padding-bottom` on `<main>` when visible |
+| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)       | Login     | #139 — Use CSS custom property for gradient      |
+| 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings | Dashboard | Add `<h2>` for each Dashboard section            |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
