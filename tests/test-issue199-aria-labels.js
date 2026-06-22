@@ -114,7 +114,7 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
   // ============================================================
 
   describe('Admin user — all six buttons with correct aria-labels', function () {
-    it('renders 6 nav-item buttons (5 with aria-labels) for admin user', function () {
+    it('renders 6 nav-item buttons (6 with aria-labels) for admin user', function () {
       setupRenderShell('Admin');
       const allNavItems = document.querySelectorAll('.sidebar .nav-item');
       assert.strictEqual(allNavItems.length, 6, 'Admin should see 6 nav buttons total');
@@ -185,7 +185,7 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
   // ============================================================
 
   describe('Non-admin user — only non-admin buttons present', function () {
-    it('renders 4 nav-item buttons (3 with aria-labels) for non-admin user', function () {
+    it('renders 4 nav-item buttons (4 with aria-labels) for non-admin user', function () {
       setupRenderShell('User');
       const allNavItems = document.querySelectorAll('.sidebar .nav-item');
       assert.strictEqual(allNavItems.length, 4, 'Non-admin should see 4 nav buttons total');
