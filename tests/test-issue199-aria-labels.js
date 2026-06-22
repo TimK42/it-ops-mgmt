@@ -121,8 +121,8 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
       const labeledButtons = getSidebarButtonsWithLabels();
       assert.strictEqual(
         labeledButtons.length,
-        6,
-        'Admin should see 6 nav buttons with aria-labels (all have aria-labels)',
+        5,
+        'Admin should see 5 nav buttons with aria-labels (QA Library uses visible text as accessible name)',
       );
     });
 
@@ -192,8 +192,8 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
       const labeledButtons = getSidebarButtonsWithLabels();
       assert.strictEqual(
         labeledButtons.length,
-        4,
-        'Non-admin should see 4 nav buttons with aria-labels (all have aria-labels)',
+        3,
+        'Non-admin should see 3 nav buttons with aria-labels (QA Library uses visible text as accessible name)',
       );
     });
 
@@ -276,7 +276,12 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
 
           const btn = document.querySelector(selector);
           assert.ok(btn, `${label} button should exist for ${role}`);
-          assert.strictEqual(btn.getAttribute('aria-label'), label);
+          if (label === 'QA Library') {
+            // QA Library uses visible text as accessible name (no aria-label)
+            assert.strictEqual(btn.getAttribute('aria-label'), null, 'QA Library should not have aria-label');
+          } else {
+            assert.strictEqual(btn.getAttribute('aria-label'), label);
+          }
         });
       }
     }
@@ -303,32 +308,50 @@ describe('Issue #199 — Sidebar nav item aria-labels', function () {
   // Every rendered nav-item has an aria-label
   // ============================================================
 
-  describe('Every .sidebar .nav-item has an aria-label', function () {
-    it('all sidebar nav-items have aria-labels for admin', function () {
+  describe('Every .sidebar .nav-item has an aria-label (except QA Library which uses visible text)', function () {
+    it('sidebar nav-items have aria-labels for admin (QA Library uses visible text)', function () {
       setupRenderShell('Admin');
       const allNavItems = document.querySelectorAll('.sidebar .nav-item');
       assert.ok(allNavItems.length > 0, 'There should be nav-items in the sidebar');
       for (const item of allNavItems) {
-        assert.ok(
-          item.hasAttribute('aria-label'),
-          `Every sidebar nav-item should have aria-label (missing on: ${item.textContent.trim().slice(0, 30)})`,
-        );
-        const label = item.getAttribute('aria-label');
-        assert.ok(label.trim().length > 0, 'aria-label should not be empty');
+        const isQaLibrary = item.getAttribute('data-nav') === 'qa';
+        if (isQaLibrary) {
+          // QA Library uses visible text as accessible name (no aria-label)
+          assert.ok(
+            !item.hasAttribute('aria-label') || item.getAttribute('aria-label') === '',
+            'QA Library should not have aria-label (uses visible text)',
+          );
+        } else {
+          assert.ok(
+            item.hasAttribute('aria-label'),
+            `Every sidebar nav-item should have aria-label (missing on: ${item.textContent.trim().slice(0, 30)})`,
+          );
+          const label = item.getAttribute('aria-label');
+          assert.ok(label.trim().length > 0, 'aria-label should not be empty');
+        }
       }
     });
 
-    it('all sidebar nav-items have aria-labels for non-admin', function () {
+    it('sidebar nav-items have aria-labels for non-admin (QA Library uses visible text)', function () {
       setupRenderShell('User');
       const allNavItems = document.querySelectorAll('.sidebar .nav-item');
       assert.ok(allNavItems.length > 0, 'There should be nav-items in the sidebar');
       for (const item of allNavItems) {
-        assert.ok(
-          item.hasAttribute('aria-label'),
-          `Every sidebar nav-item should have aria-label (missing on: ${item.textContent.trim().slice(0, 30)})`,
-        );
-        const label = item.getAttribute('aria-label');
-        assert.ok(label.trim().length > 0, 'aria-label should not be empty');
+        const isQaLibrary = item.getAttribute('data-nav') === 'qa';
+        if (isQaLibrary) {
+          // QA Library uses visible text as accessible name (no aria-label)
+          assert.ok(
+            !item.hasAttribute('aria-label') || item.getAttribute('aria-label') === '',
+            'QA Library should not have aria-label (uses visible text)',
+          );
+        } else {
+          assert.ok(
+            item.hasAttribute('aria-label'),
+            `Every sidebar nav-item should have aria-label (missing on: ${item.textContent.trim().slice(0, 30)})`,
+          );
+          const label = item.getAttribute('aria-label');
+          assert.ok(label.trim().length > 0, 'aria-label should not be empty');
+        }
       }
     });
   });

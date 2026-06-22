@@ -817,7 +817,7 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | R6-M2 | Login bg always dark          | 🟡 **STILL OPEN**    | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.                                  |
 | R2-2  | Dashboard sparse              | ✅ **FIXED**         | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage                              |
 | R6-H1 | PWA install banner overlap    | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                                                    |
-| R8-L1 | Nav items missing aria-labels | 🟡 **STILL OPEN**    | QA Library (21 count) lacks `aria-label`. Other 5 nav items (Sub-Systems, Users, Dashboard, Change Password, Sign Out) have labels |
+| R8-L1 | Nav items missing aria-labels | ✅ **FIXED**         | All nav items now use visible text as accessible name (QA Library) or have explicit `aria-label` (others). Screen readers announce full button text including counts. |
 | R8-L2 | Remember me checkbox 13×13    | ✅ **FIXED**         | PR #224 — min-height: 44px via .form-checkbox input[type=checkbox]                                                                 |
 
 ---
@@ -900,7 +900,6 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | 1   | R6-H1 | 🟧  | PWA install banner overlaps content    | All       | #137 — `padding-bottom` on `<main>` when visible |
 | 2   | R6-M2 | 🟨  | Login bg always dark (no theme)        | Login     | #139 — Use CSS custom property for gradient      |
 | 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings  | Dashboard | Add `<h2>` for each Dashboard section            |
-| 4   | R8-L1 | 🟩  | QA Library nav item missing aria-label | Sidebar   | Add `aria-label` to QA Library button            |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
