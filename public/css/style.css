@@ -206,9 +206,20 @@ body {
   background: none;
   padding: 10px 8px;
   font-size: 16px;
-  outline: none;
   width: 100%;
   font-family: 'Inter', sans-serif;
+  min-height: 44px;
+}
+.sort-select {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 32px 10px 12px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  min-height: 44px;
 }
 .search-icon {
   color: #999;
@@ -645,6 +656,7 @@ tr.row-click {
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color 0.15s;
+  min-height: 44px;
 }
 .form-input:focus,
 .form-select:focus,
