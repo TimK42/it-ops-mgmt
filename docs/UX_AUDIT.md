@@ -27,7 +27,7 @@
 | 🟨 Medium       | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | **4**  |
 | 🟩 Low          | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **2**  |
 | **Total Open**  | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **7**  |
-| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **37** |
+| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **40** |
 
 ---
 
@@ -882,13 +882,13 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | 🔴 Critical            | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0     | **0**  |
 | 🟧 High                | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1     | **1**  |
 | 🟨 Medium              | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | **4**  |
-| 🟩 Low                 | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **2**  |
+| 🟩 Low                 | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **3**  |
 | **Total Open**         | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **7**  |
-| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **37** |
+| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **40** |
 
 **New issues found (R9):** 3 (2 Medium, 1 Low)  
-**Issues fixed since R8:** 2 (R8-M1 filter tabs, R8-M2/R2-2 dashboard)  
-**Issues still open:** 7 (1 High, 4 Medium, 2 Low)  
+**Issues fixed since R8:** 3 (R8-M1 filter tabs, R8-M2 dashboard, R2-2 dashboard)  
+**Issues still open:** 7 (1 High, 3 Medium, 3 Low)  
 **Longest-standing open issue:** R6-M2 (Login bg always dark) — open since Round 6
 
 ---
