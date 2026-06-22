@@ -219,7 +219,6 @@ body {
   font-family: 'Inter', sans-serif;
   color: var(--text);
   cursor: pointer;
-  outline: none;
   min-height: 44px;
 }
 .search-icon {
