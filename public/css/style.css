@@ -209,6 +209,20 @@ body {
   outline: none;
   width: 100%;
   font-family: 'Inter', sans-serif;
+  min-height: 44px;
+}
+.sort-select {
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 32px 10px 12px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  min-height: 44px;
 }
 .search-icon {
   color: #999;
@@ -645,6 +659,7 @@ tr.row-click {
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color 0.15s;
+  min-height: 44px;
 }
 .form-input:focus,
 .form-select:focus,
@@ -1165,6 +1180,16 @@ body.has-pwa-banner .content {
 }
 .login-card .form-group {
   margin-bottom: 14px;
+}
+.login-card input[type='text'],
+.login-card input[type='password'] {
+  min-height: 44px;
+}
+.login-card input[type='checkbox'] {
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
 }
 .login-card .btn {
   width: 100%;

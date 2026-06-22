@@ -1,5 +1,6 @@
 # IT Ops Management — UI/UX Audit Report
 
+> **Round 9:** 2026-06-22 23:45 HKT · via Browser (CDP) snapshot + JS evaluate + curl
 > **Round 8:** 2026-06-11 20:57 HKT · via CDP snapshot + JS evaluate + curl
 > **Round 7:** 2026-06-10 22:41 HKT · via CDP snapshot + JS evaluate + chrome
 > **Round 6:** 2026-06-08 16:59 HKT · via CDP snapshot + JS evaluate + curl
@@ -19,14 +20,14 @@
 
 ## Status Summary
 
-| Issue           | R1     | R2    | R3     | R4    | R5    | R6     | R7     | **R8** |
-| --------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ------ |
-| 🔴 Critical     | 4      | 0     | 0      | 0     | 0     | 0      | 0      | **0**  |
-| 🟧 High         | 5      | 0     | 3      | 2     | 1     | 1      | 1      | **1**  |
-| 🟨 Medium       | 5      | 2     | 4      | 4     | 2     | 5      | 5      | **4**  |
-| 🟩 Low          | 5      | 1     | 3      | 1     | 2     | 4      | 4      | **2**  |
-| **Total Open**  | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7**  |
-| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | **37** |
+| Issue           | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8   | **R9** |
+| --------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ---- | ------ |
+| 🔴 Critical     | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0    | **0**  |
+| 🟧 High         | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1    | **1**  |
+| 🟨 Medium       | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4    | **4**  |
+| 🟩 Low          | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2    | **2**  |
+| **Total Open**  | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7**  | **7**  |
+| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37   | **37** |
 
 ---
 
@@ -794,6 +795,115 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | R3-L2 (Search type)              | —             | Changed to `type="search"`                         |
 | R2-1 (Sidebar QA count)          | PR #42 (#35)  | `loadQATotalCount()`                               |
 | All 19 Round 1 issues            | Various       | Full semantic + a11y + security                    |
+
+---
+
+## 🆕 Round 9 Findings — Full Regression Audit (2026-06-22)
+
+> **Focus:** Verify all 7 open issues from R8 + desktop viewport regression checks  
+> **Method:** Browser (CDP) snapshot + JS evaluate + curl  
+> **Viewports:** 1600×1000 (desktop), 375×667 (mobile)  
+> **Auth:** admin / 0000 (21 QA entries, 4 categories)  
+> **Server:** Running at localhost:3000
+
+---
+
+### ✅ Previously Open Issues — Verification
+
+| Issue | Description                      | Status          | Evidence                                                                                                                              |
+| ----- | -------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| R8-M1 | Filter tabs 24px desktop         | ✅ **FIXED**    | All 4 tabs (All/Draft/Published/Archived) show 44px height at both desktop (1600px) and mobile (375px)                              |
+| R8-M2 | QA toolbar on Dashboard          | ✅ **FIXED**    | Dashboard has no `.table-toolbar`. Clean page with stats, recent entries, most viewed, sub-system coverage                          |
+| R6-M2 | Login bg always dark             | 🟡 **STILL OPEN** | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.                                  |
+| R2-2  | Dashboard sparse                 | ✅ **FIXED**    | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage                              |
+| R6-H1 | PWA install banner overlap       | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                                                     |
+| R8-L1 | Nav items missing aria-labels    | 🟡 **STILL OPEN** | QA Library (21 count) lacks `aria-label`. Other 5 nav items (Sub-Systems, Users, Dashboard, Change Password, Sign Out) have labels |
+| R8-L2 | Remember me checkbox 13×13       | 🟡 **STILL OPEN** | Checkbox measures 13×13. Label text is clickable, mitigating impact.                                                                 |
+
+---
+
+### 🆕 NEW Issues Found — Round 9
+
+#### R9-M1. 🟨 Search Input 39.4px + Sort Select 17.2px at Desktop Viewport
+
+**Severity:** Medium · **Page:** QA Library  
+**Symptom:** Search input and sort dropdown have reduced heights at desktop viewport (1600×1000) — below WCAG 2.5.5 minimum of 44px. Mobile (375px) measures correctly at 44px.
+
+| Element | Desktop (1600px) | Mobile (375px) | WCAG 2.5.5 |
+| ------- | ---------------- | -------------- | ---------- |
+| Search input | 39.4px          | 44.0px         | ❌ Fail    |
+| Sort select  | 17.2px          | 44.0px         | ❌ Fail    |
+
+**Computed CSS at desktop:** Search `height: 39.44px`, Sort `height: 17.22px, font-size: 13.33px`  
+**Root cause:** Responsive CSS reduces input heights at wider viewports (intended for compact toolbar) but drops below minimum.  
+**Suggested fix:** Set `min-height: 44px` on `.search-box input` and `.sort-select` for all viewports.
+
+#### R9-M2. 🟨 Dashboard Missing H2 Section Headings
+
+**Severity:** Medium · **Page:** Dashboard  
+**Symptom:** Dashboard has 5 content sections (Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage) but only H1 "Dashboard" is present. No H2 headings for sections.
+
+**Evidence:** `document.querySelectorAll('h1,h2,h3')` returns only `[H1: Dashboard]`.  
+**Root cause:** R3-M4 fix added H2 sections but Dashboard sections use plain text or implicit headings.  
+**Suggested fix:** Add `<h2>` elements for each Dashboard section (Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage).
+
+#### R9-L1. 🟩 Login Inputs 40.6px (Desktop)
+
+**Severity:** Low · **Page:** Login  
+**Symptom:** Login Username and Password inputs measure 40.6px height at desktop viewport — 3.4px short of WCAG 2.5.5 minimum. Mobile inputs are 44px.
+
+**Evidence (1600×1000):** `INPUT#auth-user` = 40.6px, `INPUT#auth-pass` = 40.6px  
+**Suggested fix:** Set `min-height: 44px` on `.login-page input` for all viewports.
+
+---
+
+### ✅ Round 9 — Positive Findings
+
+- **All filter tabs rendering correctly** — All/Draft/Published/Archived visible at both desktop and mobile ✅
+- **Dashboard toolbar leak fixed** — No QA controls visible on Dashboard ✅
+- **Dashboard content rich** — Stats cards, charts, recent entries, most viewed, sub-system coverage ✅
+- **Security headers intact** — CSP, HSTS, COOP, COEP, XFO, XCTO all present ✅
+- **PWA manifest valid** — All required fields + icons ✅
+- **Skip-to-content link present** — First focusable on all authenticated pages ✅
+- **Dark mode persists** — `data-theme="dark"` maintained across SPA navigation ✅
+- **All pages have H1** — QA Library, Dashboard, Categories, Users, QA Detail, 404, Login ✅
+- **Breadcrumb consistent** — "IT Operations / [Page Name]" format on all pages ✅
+- **Footer present** — `IT Operations KB v1.1.0` in sidebar and contentinfo ✅
+- **Mobile touch targets** — All interactive elements ≥44px at 375px viewport ✅
+- **No horizontal overflow** — Body scrollWidth == clientWidth at all tested viewports ✅
+- **QA count accurate** — Sidebar shows "21" matching DB total across all pages ✅
+
+---
+
+### Round 9 — Updated Status Summary
+
+| Issue                  | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8   | **R9** |
+| ---------------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ---- | ------ |
+| 🔴 Critical            | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0    | **0**  |
+| 🟧 High                | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1    | **1**  |
+| 🟨 Medium              | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4    | **4**  |
+| 🟩 Low                 | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2    | **2**  |
+| **Total Open**         | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7**  | **7**  |
+| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37   | **37** |
+
+**New issues found (R9):** 3 (2 Medium, 1 Low)  
+**Issues fixed since R8:** 2 (R8-M1 filter tabs, R8-M2/R2-2 dashboard)  
+**Issues still open:** 7 (1 High, 4 Medium, 2 Low)  
+**Longest-standing open issue:** R6-M2 (Login bg always dark) — open since Round 6
+
+---
+
+## Open Issues — Priority Order (R9)
+
+| #   | ID    | Sev | Description                            | Page          | Fix                                                  |
+| --- | ----- | --- | -------------------------------------- | ------------- | ---------------------------------------------------- |
+| 1   | R6-H1 | 🟧  | PWA install banner overlaps content    | All           | #137 — `padding-bottom` on `<main>` when visible     |
+| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)        | Login         | #139 — Use CSS custom property for gradient          |
+| 3   | R9-M1 | 🟨  | Search 39.4px + Sort 17.2px desktop   | QA Library    | Set `min-height: 44px` on toolbar inputs             |
+| 4   | R9-M2 | 🟨  | Dashboard missing H2 section headings  | Dashboard     | Add `<h2>` for each Dashboard section                |
+| 5   | R8-L1 | 🟩  | QA Library nav item missing aria-label | Sidebar       | Add `aria-label` to QA Library button                |
+| 6   | R8-L2 | 🟩  | Remember me checkbox 13×13             | Login         | Increase touch target size                           |
+| 7   | R9-L1 | 🟩  | Login inputs 40.6px desktop            | Login         | Set `min-height: 44px` on login inputs               |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
