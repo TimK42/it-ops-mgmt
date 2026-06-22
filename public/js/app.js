@@ -826,7 +826,7 @@ function renderShell() {
         </div>
         <div class="sidebar-nav">
           <div class="nav-section">Main</div>
-          <button class="nav-item active" data-nav="qa" data-action="navigate" data-page="qa"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
+          <button class="nav-item active" data-nav="qa" data-action="navigate" data-page="qa" aria-label="QA Library"><span class="nav-icon">❓</span> QA Library <span class="nav-badge" id="qa-count">${esc(String(state.qaTotalCount ?? '…'))}</span></button>
           ${isAdmin ? `<button class="nav-item" data-nav="categories" data-action="navigate" data-page="categories" aria-label="Sub-Systems"><span class="nav-icon">📋</span> Sub-Systems</button><button class="nav-item" data-nav="users" data-action="navigate" data-page="users" aria-label="Users"><span class="nav-icon">👥</span> Users</button>` : ''}
           <div class="nav-section">Workspace</div>
           <button class="nav-item" data-nav="dashboard" data-action="navigate" data-page="dashboard" aria-label="Dashboard"><span class="nav-icon">📊</span> Dashboard</button>
