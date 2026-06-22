@@ -817,7 +817,7 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | R6-M2 | Login bg always dark          | 🟡 **STILL OPEN**    | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.          |
 | R2-2  | Dashboard sparse              | ✅ **FIXED**         | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage      |
 | R6-H1 | PWA install banner overlap    | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                            |
-| R8-L1 | Nav items missing aria-labels | ✅ **FIXED**         | All nav items now have explicit `aria-label` matching their visible text (including QA Library).           |
+| R8-L1 | Nav items missing aria-labels | ✅ **FIXED**         | All nav items now have explicit `aria-label` (QA Library uses `aria-label="QA Library"` without count badge; other items match visible text exactly). |
 | R8-L2 | Remember me checkbox 13×13    | ✅ **FIXED**         | PR #224 — min-height: 44px via .form-checkbox input[type=checkbox]                                         |
 
 ---
