@@ -20,14 +20,14 @@
 
 ## Status Summary
 
-| Issue           | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8   | **R9** |
-| --------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ---- | ------ |
-| 🔴 Critical     | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0    | **0**  |
-| 🟧 High         | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1    | **1**  |
-| 🟨 Medium       | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4    | **4**  |
-| 🟩 Low          | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2    | **2**  |
-| **Total Open**  | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7**  | **7**  |
-| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37   | **37** |
+| Issue           | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8    | **R9** |
+| --------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ----- | ------ |
+| 🔴 Critical     | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0     | **0**  |
+| 🟧 High         | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1     | **1**  |
+| 🟨 Medium       | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | **4**  |
+| 🟩 Low          | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **2**  |
+| **Total Open**  | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **7**  |
+| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **37** |
 
 ---
 
@@ -810,15 +810,15 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ### ✅ Previously Open Issues — Verification
 
-| Issue | Description                      | Status          | Evidence                                                                                                                              |
-| ----- | -------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| R8-M1 | Filter tabs 24px desktop         | ✅ **FIXED**    | All 4 tabs (All/Draft/Published/Archived) show 44px height at both desktop (1600px) and mobile (375px)                              |
-| R8-M2 | QA toolbar on Dashboard          | ✅ **FIXED**    | Dashboard has no `.table-toolbar`. Clean page with stats, recent entries, most viewed, sub-system coverage                          |
-| R6-M2 | Login bg always dark             | 🟡 **STILL OPEN** | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.                                  |
-| R2-2  | Dashboard sparse                 | ✅ **FIXED**    | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage                              |
-| R6-H1 | PWA install banner overlap       | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                                                     |
-| R8-L1 | Nav items missing aria-labels    | 🟡 **STILL OPEN** | QA Library (21 count) lacks `aria-label`. Other 5 nav items (Sub-Systems, Users, Dashboard, Change Password, Sign Out) have labels |
-| R8-L2 | Remember me checkbox 13×13       | 🟡 **STILL OPEN** | Checkbox measures 13×13. Label text is clickable, mitigating impact.                                                                 |
+| Issue | Description                   | Status               | Evidence                                                                                                                           |
+| ----- | ----------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| R8-M1 | Filter tabs 24px desktop      | ✅ **FIXED**         | All 4 tabs (All/Draft/Published/Archived) show 44px height at both desktop (1600px) and mobile (375px)                             |
+| R8-M2 | QA toolbar on Dashboard       | ✅ **FIXED**         | Dashboard has no `.table-toolbar`. Clean page with stats, recent entries, most viewed, sub-system coverage                         |
+| R6-M2 | Login bg always dark          | 🟡 **STILL OPEN**    | Login gradient still hardcoded `linear-gradient(135deg, #1a1a2e, #16213e)`. No theme integration.                                  |
+| R2-2  | Dashboard sparse              | ✅ **FIXED**         | Dashboard now has 5 stat cards, Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage                              |
+| R6-H1 | PWA install banner overlap    | 🟡 **NOT RE-TESTED** | Banner already fired in this session. Code still uses fixed-bottom positioning.                                                    |
+| R8-L1 | Nav items missing aria-labels | 🟡 **STILL OPEN**    | QA Library (21 count) lacks `aria-label`. Other 5 nav items (Sub-Systems, Users, Dashboard, Change Password, Sign Out) have labels |
+| R8-L2 | Remember me checkbox 13×13    | 🟡 **STILL OPEN**    | Checkbox measures 13×13. Label text is clickable, mitigating impact.                                                               |
 
 ---
 
@@ -829,10 +829,10 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 **Severity:** Medium · **Page:** QA Library  
 **Symptom:** Search input and sort dropdown have reduced heights at desktop viewport (1600×1000) — below WCAG 2.5.5 minimum of 44px. Mobile (375px) measures correctly at 44px.
 
-| Element | Desktop (1600px) | Mobile (375px) | WCAG 2.5.5 |
-| ------- | ---------------- | -------------- | ---------- |
-| Search input | 39.4px          | 44.0px         | ❌ Fail    |
-| Sort select  | 17.2px          | 44.0px         | ❌ Fail    |
+| Element      | Desktop (1600px) | Mobile (375px) | WCAG 2.5.5 |
+| ------------ | ---------------- | -------------- | ---------- |
+| Search input | 39.4px           | 44.0px         | ❌ Fail    |
+| Sort select  | 17.2px           | 44.0px         | ❌ Fail    |
 
 **Computed CSS at desktop:** Search `height: 39.44px`, Sort `height: 17.22px, font-size: 13.33px`  
 **Root cause:** Responsive CSS reduces input heights at wider viewports (intended for compact toolbar) but drops below minimum.  
@@ -877,14 +877,14 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ### Round 9 — Updated Status Summary
 
-| Issue                  | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8   | **R9** |
-| ---------------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ---- | ------ |
-| 🔴 Critical            | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0    | **0**  |
-| 🟧 High                | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1    | **1**  |
-| 🟨 Medium              | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4    | **4**  |
-| 🟩 Low                 | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2    | **2**  |
-| **Total Open**         | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7**  | **7**  |
-| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37   | **37** |
+| Issue                  | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8    | **R9** |
+| ---------------------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ----- | ------ |
+| 🔴 Critical            | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0     | **0**  |
+| 🟧 High                | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1     | **1**  |
+| 🟨 Medium              | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | **4**  |
+| 🟩 Low                 | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **2**  |
+| **Total Open**         | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **7**  |
+| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **37** |
 
 **New issues found (R9):** 3 (2 Medium, 1 Low)  
 **Issues fixed since R8:** 2 (R8-M1 filter tabs, R8-M2/R2-2 dashboard)  
@@ -895,15 +895,15 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## Open Issues — Priority Order (R9)
 
-| #   | ID    | Sev | Description                            | Page          | Fix                                                  |
-| --- | ----- | --- | -------------------------------------- | ------------- | ---------------------------------------------------- |
-| 1   | R6-H1 | 🟧  | PWA install banner overlaps content    | All           | #137 — `padding-bottom` on `<main>` when visible     |
-| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)        | Login         | #139 — Use CSS custom property for gradient          |
-| 3   | R9-M1 | 🟨  | Search 39.4px + Sort 17.2px desktop   | QA Library    | Set `min-height: 44px` on toolbar inputs             |
-| 4   | R9-M2 | 🟨  | Dashboard missing H2 section headings  | Dashboard     | Add `<h2>` for each Dashboard section                |
-| 5   | R8-L1 | 🟩  | QA Library nav item missing aria-label | Sidebar       | Add `aria-label` to QA Library button                |
-| 6   | R8-L2 | 🟩  | Remember me checkbox 13×13             | Login         | Increase touch target size                           |
-| 7   | R9-L1 | 🟩  | Login inputs 40.6px desktop            | Login         | Set `min-height: 44px` on login inputs               |
+| #   | ID    | Sev | Description                            | Page       | Fix                                              |
+| --- | ----- | --- | -------------------------------------- | ---------- | ------------------------------------------------ |
+| 1   | R6-H1 | 🟧  | PWA install banner overlaps content    | All        | #137 — `padding-bottom` on `<main>` when visible |
+| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)        | Login      | #139 — Use CSS custom property for gradient      |
+| 3   | R9-M1 | 🟨  | Search 39.4px + Sort 17.2px desktop    | QA Library | Set `min-height: 44px` on toolbar inputs         |
+| 4   | R9-M2 | 🟨  | Dashboard missing H2 section headings  | Dashboard  | Add `<h2>` for each Dashboard section            |
+| 5   | R8-L1 | 🟩  | QA Library nav item missing aria-label | Sidebar    | Add `aria-label` to QA Library button            |
+| 6   | R8-L2 | 🟩  | Remember me checkbox 13×13             | Login      | Increase touch target size                       |
+| 7   | R9-L1 | 🟩  | Login inputs 40.6px desktop            | Login      | Set `min-height: 44px` on login inputs           |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
