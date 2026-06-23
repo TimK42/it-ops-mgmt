@@ -60,13 +60,15 @@ function getThemeScript() {
   // (identified by its localStorage.getItem('theme') call, unique in <head>)
   var idx = html.indexOf("localStorage.getItem('theme')");
   assert.ok(idx >= 0, 'index.html should contain the theme script in <head>');
-  // Find the opening <script> tag before this position
-  var scriptStart = html.lastIndexOf('<script>', idx);
-  assert.ok(scriptStart >= 0, 'theme script should have opening <script> tag');
+  // Find the opening <script tag before this position (handles attributes like nonce)
+  var scriptStart = html.lastIndexOf('<script', idx);
+  assert.ok(scriptStart >= 0, 'theme script should have opening <script tag');
+  var scriptTagEnd = html.indexOf('>', scriptStart);
+  assert.ok(scriptTagEnd >= 0, 'theme script should have closing > of opening tag');
   // Find the closing </script> tag after this position
   var scriptEnd = html.indexOf('</script>', idx);
   assert.ok(scriptEnd >= 0, 'theme script should have closing </script> tag');
-  return html.substring(scriptStart + '<script>'.length, scriptEnd).trim();
+  return html.substring(scriptTagEnd + 1, scriptEnd).trim();
 }
 
 // ============================================================
@@ -207,6 +209,8 @@ describe('Issue #221 — Theme script in index.html', function () {
         vm.runInThisContext(getThemeScript());
       } catch (err) {
         threw = true;
+      } finally {
+        global.localStorage = origLs;
       }
       assert.ok(!threw, 'should not throw when localStorage is unavailable');
       assert.strictEqual(
@@ -214,7 +218,6 @@ describe('Issue #221 — Theme script in index.html', function () {
         'dark',
         'should fall back to system preference (dark) when localStorage is unavailable',
       );
-      global.localStorage = origLs;
     });
   });
 });
