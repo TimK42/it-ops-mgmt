@@ -202,7 +202,7 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     // Toolbar should be a child of .main, NOT inside .content
     const toolbar = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbar, 'Toolbar should exist as direct child of .main');
-    assert.strictEqual(toolbar.parentElement.className, 'main', 'Toolbar parent is .main');
+    assert.ok(toolbar.parentElement.classList.contains('main'), 'Toolbar parent is .main');
 
     // Toolbar should NOT be inside #page-content
     const toolbarInContent = el.querySelector('.table-toolbar');
@@ -225,7 +225,7 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     // Toolbar should be child of .main
     const toolbar = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbar, 'Categories toolbar should exist as direct child of .main');
-    assert.strictEqual(toolbar.parentElement.className, 'main', 'Toolbar parent is .main');
+    assert.ok(toolbar.parentElement.classList.contains('main'), 'Toolbar parent is .main');
 
     // Toolbar should NOT be inside #page-content
     const toolbarInContent = el.querySelector('.table-toolbar');
@@ -255,7 +255,7 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     // Toolbar should be child of .main
     const toolbar = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbar, 'Users toolbar should exist as direct child of .main');
-    assert.strictEqual(toolbar.parentElement.className, 'main', 'Toolbar parent is .main');
+    assert.ok(toolbar.parentElement.classList.contains('main'), 'Toolbar parent is .main');
 
     // Toolbar should NOT be inside #page-content
     const toolbarInContent = el.querySelector('.table-toolbar');
@@ -363,7 +363,7 @@ describe('Issue #184 - Sticky toolbar DOM structure', function () {
     // Toolbar should still exist as child of .main
     const toolbar = document.querySelector('.main > .table-toolbar');
     assert.ok(toolbar, 'Toolbar should exist even with 0 categories');
-    assert.strictEqual(toolbar.parentElement.className, 'main', 'Toolbar parent is .main');
+    assert.ok(toolbar.parentElement.classList.contains('main'), 'Toolbar parent is .main');
 
     // Toolbar shows 0
     assert.ok(

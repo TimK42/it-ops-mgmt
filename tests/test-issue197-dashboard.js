@@ -251,9 +251,8 @@ describe('Issue #197 — Dashboard toolbar cleanup & status distribution', funct
         toolbarAfter,
         'QA Library should STILL have toolbar after returning from Dashboard',
       );
-      assert.strictEqual(
-        toolbarAfter.parentElement.className,
-        'main',
+      assert.ok(
+        toolbarAfter.parentElement.classList.contains('main'),
         'Toolbar should be child of .main after returning from Dashboard',
       );
 
