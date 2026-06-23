@@ -11,7 +11,9 @@
         try {
           var s = localStorage.getItem('theme');
           if (s === 'dark' || s === 'light') theme = s;
-        } catch (e) { /* ignore */ }
+        } catch (e) {
+          /* ignore */
+        }
         if (!theme && typeof window.matchMedia === 'function') {
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }

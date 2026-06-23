@@ -1044,6 +1044,12 @@ body.has-pwa-banner #page-content {
 body.has-pwa-banner .content {
   padding-bottom: var(--pwa-banner-height, 68px);
 }
+/* Only apply .main padding in login/register layout (#app > .main).
+   Authenticated layout has #page-content inside .main, which already
+   gets the padding via body.has-pwa-banner #page-content. */
+body.has-pwa-banner #app > .main {
+  padding-bottom: var(--pwa-banner-height, 68px);
+}
 .pwa-ios-banner,
 .pwa-android-banner {
   background: var(--surface);
