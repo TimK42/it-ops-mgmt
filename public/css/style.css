@@ -330,7 +330,7 @@ body {
   background: var(--bg);
 }
 /* QA toolbar: two-row layout */
-.main.qa-page > .table-toolbar {
+.main .qa-page .table-toolbar {
   flex-direction: column;
   align-items: stretch;
   gap: 6px;
