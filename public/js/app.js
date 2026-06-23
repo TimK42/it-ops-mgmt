@@ -868,6 +868,8 @@ function navigate(page) {
   closeModal('detail-modal');
   closeSidebar();
   state.page = page;
+  const mainEl = document.getElementById('page-content');
+  if (mainEl) mainEl.parentNode.classList.remove('qa-page');
   document.querySelectorAll('.nav-item').forEach((e) => e.classList.remove('active'));
   const n = document.querySelector(`[data-nav="${page}"]`);
   if (n) n.classList.add('active');
@@ -912,6 +914,7 @@ async function renderQA(el) {
   qaAbortController = new AbortController();
   const signal = qaAbortController.signal;
   const main = el.parentNode;
+  main.classList.add('qa-page');
 
   const isFirstRender = !el.querySelector('#qa-list');
 
