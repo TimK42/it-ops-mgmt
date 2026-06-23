@@ -95,9 +95,11 @@ describe('Issue #221 — Theme script in index.html', function () {
     it('theme script appears before CSS <link> tags (prevents flash)', function () {
       var htmlPath = path.resolve(__dirname, '..', 'public', 'index.html');
       var html = fs.readFileSync(htmlPath, 'utf-8');
-      // Locate the theme script by its unique localStorage call
-      var scriptIdx = html.indexOf("localStorage.getItem('theme')");
-      assert.ok(scriptIdx >= 0, 'theme script should be present');
+      // Locate the theme script by its unique pattern: data-theme attribute set before CSS
+      // Use the specific pattern that only appears in the theme bootstrap script
+      var themePattern = "document.documentElement.setAttribute('data-theme'";
+      var scriptIdx = html.indexOf(themePattern);
+      assert.ok(scriptIdx >= 0, 'theme script should set data-theme on <html>');
       var cssIdx = html.indexOf('/css/style.css');
       assert.ok(
         cssIdx >= 0 && scriptIdx < cssIdx,
