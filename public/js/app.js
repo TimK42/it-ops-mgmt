@@ -1827,7 +1827,7 @@ async function renderDashboard(el) {
   const recentSection = document.createElement('div');
   recentSection.id = 'dash-recent';
   recentSection.innerHTML =
-    '<h2>Recent Entries</h2><div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="loading">Loading...</div>';
+    '<h2 class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></h2><div class="loading">Loading...</div>';
   el.appendChild(recentSection);
 
   api('/api/qa?_per_page=5&sort=newest')
@@ -1837,16 +1837,16 @@ async function renderDashboard(el) {
       if (!rs) return;
       if (!entries.length) {
         rs.innerHTML =
-          '<h2>Recent Entries</h2><div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
+          '<h2 class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></h2><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
         return;
       }
-      rs.innerHTML = `<h2>Recent Entries</h2><div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
+      rs.innerHTML = `<h2 class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></h2><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
     })
     .catch(() => {
       const rs = document.getElementById('dash-recent');
       if (rs) {
         rs.innerHTML =
-          '<h2>Recent Entries</h2><div class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></div><div class="error-msg">Failed to load recent entries</div>';
+          '<h2 class="section-title">Recent Entries<a href="/qa" data-action="navigate" data-page="qa" data-allow-nav>View All →</a></h2><div class="error-msg">Failed to load recent entries</div>';
       }
     });
 
@@ -1854,7 +1854,7 @@ async function renderDashboard(el) {
   const popSection = document.createElement('div');
   popSection.id = 'dash-popular';
   popSection.innerHTML =
-    '<h2>Most Viewed</h2><div class="section-title">Most Viewed</div><div class="loading">Loading...</div>';
+    '<h2 class="section-title">Most Viewed</h2><div class="loading">Loading...</div>';
   el.appendChild(popSection);
 
   api('/api/qa?_per_page=5&sort=popular')
@@ -1864,16 +1864,16 @@ async function renderDashboard(el) {
       if (!ps) return;
       if (!entries.length) {
         ps.innerHTML =
-          '<h2>Most Viewed</h2><div class="section-title">Most Viewed</div><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
+          '<h2 class="section-title">Most Viewed</h2><div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No entries yet</div></div>';
         return;
       }
-      ps.innerHTML = `<h2>Most Viewed</h2><div class="section-title">Most Viewed</div><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span><span class="badge">👁 ${esc(String(q.usage_count ?? 0))}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
+      ps.innerHTML = `<h2 class="section-title">Most Viewed</h2><div class="recent-list">${entries.map((q) => `<div class="recent-entry"><div class="recent-entry-row"><a href="/qa/${esc(q.id)}" class="recent-entry-title" data-action="qa-card" data-id="${esc(q.id)}" data-allow-nav>${esc(q.title || q.question || '')}</a><div class="recent-entry-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${esc(q.status)}</span><span class="badge">👁 ${esc(String(q.usage_count ?? 0))}</span></div></div>${q.question ? `<div class="recent-entry-question">${esc(q.question.slice(0, 80))}${q.question.length > 80 ? '…' : ''}</div>` : ''}</div>`).join('')}</div>`;
     })
     .catch(() => {
       const ps = document.getElementById('dash-popular');
       if (ps) {
         ps.innerHTML =
-          '<h2>Most Viewed</h2><div class="section-title">Most Viewed</div><div class="error-msg">Failed to load popular entries</div>';
+          '<h2 class="section-title">Most Viewed</h2><div class="error-msg">Failed to load popular entries</div>';
       }
     });
 
@@ -1881,7 +1881,7 @@ async function renderDashboard(el) {
   const barSection = document.createElement('div');
   barSection.id = 'dash-bars';
   barSection.innerHTML =
-    '<h2>Sub-System Coverage</h2><div class="section-title">Sub-System Coverage</div><div class="loading">Loading...</div>';
+    '<h2 class="section-title">Sub-System Coverage</h2><div class="loading">Loading...</div>';
   el.appendChild(barSection);
 
   api('/api/categories')
@@ -1890,17 +1890,17 @@ async function renderDashboard(el) {
       if (!bs) return;
       if (!cats || !cats.length) {
         bs.innerHTML =
-          '<h2>Sub-System Coverage</h2><div class="section-title">Sub-System Coverage</div><div class="empty-state"><div class="empty-state-text">No sub-systems configured</div></div>';
+          '<h2 class="section-title">Sub-System Coverage</h2><div class="empty-state"><div class="empty-state-text">No sub-systems configured</div></div>';
         return;
       }
       const max = Math.max(...cats.map((c) => c.qa_count || 0), 1);
-      bs.innerHTML = `<h2>Sub-System Coverage</h2><div class="section-title">Sub-System Coverage</div><div class="bar-chart">${cats.map((c) => `<div class="bar-row"><span class="bar-label">${esc(c.icon)} ${esc(c.name)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(((c.qa_count || 0) / max) * 100)}%;background:${safeColor(c.color)}"></div></div><span class="bar-count">${c.qa_count || 0}</span></div>`).join('')}</div>`;
+      bs.innerHTML = `<h2 class="section-title">Sub-System Coverage</h2><div class="bar-chart">${cats.map((c) => `<div class="bar-row"><span class="bar-label">${esc(c.icon)} ${esc(c.name)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(((c.qa_count || 0) / max) * 100)}%;background:${safeColor(c.color)}"></div></div><span class="bar-count">${c.qa_count || 0}</span></div>`).join('')}</div>`;
     })
     .catch(() => {
       const bs = document.getElementById('dash-bars');
       if (bs) {
         bs.innerHTML =
-          '<h2>Sub-System Coverage</h2><div class="section-title">Sub-System Coverage</div><div class="error-msg">Failed to load coverage data</div>';
+          '<h2 class="section-title">Sub-System Coverage</h2><div class="error-msg">Failed to load coverage data</div>';
       }
     });
 }
