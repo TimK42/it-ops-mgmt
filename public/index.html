@@ -13,11 +13,7 @@
           if (s === 'dark' || s === 'light') theme = s;
         } catch (e) {}
         if (!theme && typeof window.matchMedia === 'function') {
-          try {
-            if (!localStorage.getItem('theme')) {
-              theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-          } catch (e) {}
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         if (!theme) theme = 'light';
         document.documentElement.setAttribute('data-theme', theme);
