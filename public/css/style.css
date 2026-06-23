@@ -329,6 +329,18 @@ body {
   flex-shrink: 0;
   background: var(--bg);
 }
+/* QA toolbar: two-row layout */
+.qa-toolbar-wrapper {
+  display: block;
+}
+.qa-toolbar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.qa-toolbar-row--actions {
+  justify-content: flex-end;
+}
 .filter-group {
   display: flex;
   align-items: center;
