@@ -7,18 +7,19 @@
     <title>IT Operations - Knowledge Base</title>
     <script>
       (function () {
-        var theme = 'light';
+        var theme = null;
         try {
           var s = localStorage.getItem('theme');
           if (s === 'dark' || s === 'light') theme = s;
         } catch (e) {}
-        if (theme === 'light' && typeof window.matchMedia === 'function') {
+        if (!theme && typeof window.matchMedia === 'function') {
           try {
             if (!localStorage.getItem('theme')) {
               theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
           } catch (e) {}
         }
+        if (!theme) theme = 'light';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
