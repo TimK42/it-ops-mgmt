@@ -158,7 +158,7 @@ describe('Issue #221 — Theme script in index.html', function () {
       resetDOM();
     });
 
-    it('ignores invalid localStorage values and stays at default light', function () {
+    it('falls back to matchMedia when localStorage has invalid value', function () {
       localStorage.setItem('theme', 'invalid');
       document.defaultView.matchMedia = function () {
         return { matches: true };
@@ -166,8 +166,8 @@ describe('Issue #221 — Theme script in index.html', function () {
       vm.runInThisContext(getThemeScript());
       assert.strictEqual(
         document.documentElement.getAttribute('data-theme'),
-        'light',
-        'invalid localStorage value should stay at default light (not fall through)',
+        'dark',
+        'invalid localStorage value should fall back to matchMedia (system preference)',
       );
     });
   });
@@ -200,10 +200,7 @@ describe('Issue #221 — Theme script in index.html', function () {
       } catch (err) {
         threw = true;
       }
-      assert.ok(
-        !threw,
-        'should not throw when localStorage is unavailable',
-      );
+      assert.ok(!threw, 'should not throw when localStorage is unavailable');
       assert.strictEqual(
         document.documentElement.getAttribute('data-theme'),
         'dark',
