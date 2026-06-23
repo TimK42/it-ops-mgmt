@@ -56,10 +56,17 @@ function resetDOM() {
 function getThemeScript() {
   var htmlPath = path.resolve(__dirname, '..', 'public', 'index.html');
   var html = fs.readFileSync(htmlPath, 'utf-8');
-  // Extract the script content between <script> and </script> in <head>
-  var match = html.match(/<script>\s*([\s\S]*?)<\/script>\s*(?=\s*<link)/);
-  assert.ok(match, 'index.html should contain the theme script in <head>');
-  return match[1].trim();
+  // Extract the script content by finding the theme bootstrap script
+  // (identified by its localStorage.getItem('theme') call, unique in <head>)
+  var idx = html.indexOf("localStorage.getItem('theme')");
+  assert.ok(idx >= 0, 'index.html should contain the theme script in <head>');
+  // Find the opening <script> tag before this position
+  var scriptStart = html.lastIndexOf('<script>', idx);
+  assert.ok(scriptStart >= 0, 'theme script should have opening <script> tag');
+  // Find the closing </script> tag after this position
+  var scriptEnd = html.indexOf('</script>', idx);
+  assert.ok(scriptEnd >= 0, 'theme script should have closing </script> tag');
+  return html.substring(scriptStart + '<script>'.length, scriptEnd).trim();
 }
 
 // ============================================================
