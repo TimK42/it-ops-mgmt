@@ -177,7 +177,7 @@ describe('Issue #221 — Theme script in index.html', function () {
       resetDOM();
     });
 
-    it('throws when localStorage is unavailable (second getItem not in try-catch)', function () {
+    it('does not throw when localStorage is unavailable, falls back to matchMedia', function () {
       // Save original localStorage and replace with one that throws
       var origLs = global.localStorage;
       Object.defineProperty(global, 'localStorage', {
@@ -188,6 +188,10 @@ describe('Issue #221 — Theme script in index.html', function () {
         },
         writable: true,
       });
+      // Set matchMedia to dark mode
+      document.defaultView.matchMedia = function () {
+        return { matches: true };
+      };
       // Reset document state
       document.documentElement.removeAttribute('data-theme');
       var threw = false;
@@ -197,8 +201,13 @@ describe('Issue #221 — Theme script in index.html', function () {
         threw = true;
       }
       assert.ok(
-        threw,
-        'should throw when localStorage is unavailable (second getItem not in try-catch)',
+        !threw,
+        'should not throw when localStorage is unavailable',
+      );
+      assert.strictEqual(
+        document.documentElement.getAttribute('data-theme'),
+        'dark',
+        'should fall back to system preference (dark) when localStorage is unavailable',
       );
       global.localStorage = origLs;
     });
