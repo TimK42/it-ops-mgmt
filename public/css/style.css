@@ -1044,6 +1044,9 @@ body.has-pwa-banner #page-content {
 body.has-pwa-banner .content {
   padding-bottom: var(--pwa-banner-height, 68px);
 }
+body.has-pwa-banner .main {
+  padding-bottom: var(--pwa-banner-height, 68px);
+}
 .pwa-ios-banner,
 .pwa-android-banner {
   background: var(--surface);
