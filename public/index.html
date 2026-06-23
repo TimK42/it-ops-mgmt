@@ -8,9 +8,16 @@
     <script>
       (function () {
         var theme = 'light';
-        try { var s = localStorage.getItem('theme'); if (s === 'dark' || s === 'light') theme = s; } catch (e) { }
-        if (theme === 'light' && typeof window.matchMedia === 'function' && !localStorage.getItem('theme')) {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        try {
+          var s = localStorage.getItem('theme');
+          if (s === 'dark' || s === 'light') theme = s;
+        } catch (e) {}
+        if (theme === 'light' && typeof window.matchMedia === 'function') {
+          try {
+            if (!localStorage.getItem('theme')) {
+              theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+          } catch (e) {}
         }
         document.documentElement.setAttribute('data-theme', theme);
       })();
