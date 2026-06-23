@@ -95,10 +95,12 @@ describe('Issue #221 — Theme script in index.html', function () {
     it('theme script appears before CSS <link> tags (prevents flash)', function () {
       var htmlPath = path.resolve(__dirname, '..', 'public', 'index.html');
       var html = fs.readFileSync(htmlPath, 'utf-8');
-      var scriptIdx = html.indexOf('<script>');
+      // Locate the theme script by its unique localStorage call
+      var scriptIdx = html.indexOf("localStorage.getItem('theme')");
+      assert.ok(scriptIdx >= 0, 'theme script should be present');
       var cssIdx = html.indexOf('/css/style.css');
       assert.ok(
-        scriptIdx >= 0 && cssIdx >= 0 && scriptIdx < cssIdx,
+        cssIdx >= 0 && scriptIdx < cssIdx,
         'theme script must appear before CSS to prevent flash of wrong theme',
       );
     });
@@ -187,14 +189,11 @@ describe('Issue #221 — Theme script in index.html', function () {
     it('does not throw when localStorage is unavailable, falls back to matchMedia', function () {
       // Save original localStorage and replace with one that throws
       var origLs = global.localStorage;
-      Object.defineProperty(global, 'localStorage', {
-        value: {
-          getItem: function () {
-            throw new Error('localStorage unavailable');
-          },
+      global.localStorage = {
+        getItem: function () {
+          throw new Error('localStorage unavailable');
         },
-        writable: true,
-      });
+      };
       // Set matchMedia to dark mode
       document.defaultView.matchMedia = function () {
         return { matches: true };
