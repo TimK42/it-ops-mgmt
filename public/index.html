@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="IT Operations Knowledge Base - QA Library" />
     <title>IT Operations - Knowledge Base</title>
+    <script>
+      (function () {
+        var theme = null;
+        try {
+          var s = localStorage.getItem('theme');
+          if (s === 'dark' || s === 'light') theme = s;
+        } catch (e) { /* ignore */ }
+        if (!theme && typeof window.matchMedia === 'function') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (!theme) theme = 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
     <link rel="stylesheet" href="/fonts/inter.css" />
     <link rel="stylesheet" href="/css/style.css" />
     <link

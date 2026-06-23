@@ -7,7 +7,7 @@
     "start": "node server.js",
     "test": "bash tests/run.sh",
     "test:js": "node tests/test.js",
-    "test:mocha": "mocha tests/test-issue94-search.js tests/test-issue207-search-clear.js tests/test-issue107-chips.js tests/test-issue117-export.js tests/test-issue121-123-archive-button.js tests/test-issue134-unarchive.js tests/test-issue137-pwa.js tests/test-issue138.js tests/test-issue146-draft-publish.js tests/test-issue177-sort.js tests/test-issue184-sticky-toolbar.js tests/test-issue196-filter-tab.js tests/test-issue197-dashboard.js tests/test-issue198-login-checkbox.js tests/test-issue199-aria-labels.js tests/test-issue205-208-integration.js tests/test-issue213-responsive-pagination.js --timeout 15000",
+    "test:mocha": "mocha tests/test-issue94-search.js tests/test-issue207-search-clear.js tests/test-issue107-chips.js tests/test-issue117-export.js tests/test-issue121-123-archive-button.js tests/test-issue134-unarchive.js tests/test-issue137-pwa.js tests/test-issue138.js tests/test-issue146-draft-publish.js tests/test-issue177-sort.js tests/test-issue184-sticky-toolbar.js tests/test-issue196-filter-tab.js tests/test-issue197-dashboard.js tests/test-issue198-login-checkbox.js tests/test-issue199-aria-labels.js tests/test-issue205-208-integration.js tests/test-issue213-responsive-pagination.js tests/test-issue221-theme-script.js --timeout 15000",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
