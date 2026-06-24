@@ -336,10 +336,11 @@ body {
   gap: 6px;
 }
 .main .qa-page .table-toolbar .qa-toolbar-row--controls {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  flex-direction: row !important;
 }
 .filter-group {
   display: flex;
