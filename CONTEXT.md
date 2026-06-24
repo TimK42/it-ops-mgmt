@@ -100,6 +100,9 @@ An Admin-initiated password reset that sets a new password for a user and marks 
 
 ## Resolved Decisions
 
+- **Mobile search box behavior** (Issue #231): Remove global `.search-box { width: 100%; }` from `@media (max-width: 768px)`. Use `flex: 1 1 150px` for search boxes in QA toolbar and Users page (minimum 150px, grows to fill remaining space). QA toolbar mobile layout: two rows — filters row (tabs) + controls row (search + sort + actions), controls right-aligned, Export/New Entry may wrap.
+- **Sort select labels**: Changed from "By Popularity" / "By Newest" to "Popular" / "Newest" across all screen sizes.
+
 - **Password reset approach**: Admin-mediated direct password set (no email, no security questions). Admin provides the new password directly.
 - **Force change on login**: After admin reset, user must change password on next login.
 - **Session invalidation**: All existing sessions for the user are deleted on admin reset.
