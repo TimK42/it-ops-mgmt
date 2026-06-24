@@ -27,7 +27,7 @@
 | 🟨 Medium       | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | **2**  |
 | 🟩 Low          | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **1**  |
 | **Total Open**  | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **3**  |
-| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **43** |
+| **Fixed (cum)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **44** |
 
 ---
 
@@ -884,22 +884,33 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 | 🟨 Medium              | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | **3**  |
 | 🟩 Low                 | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | **1**  |
 | **Total Open**         | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **3**  |
-| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **43** |
+| **Fixed (cumulative)** | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | **44** |
 
 **New issues found (R9):** 3 (2 Medium, 1 Low)  
-**Issues fixed since R8:** 6 (R8-M1 filter tabs, R8-M2 dashboard, R2-2 dashboard, R8-L2 checkbox, R9-M1 search/sort, R9-L1 login inputs)  
+**Issues fixed since R8:** 7 (R8-M1 filter tabs, R8-M2 dashboard, R2-2 dashboard, R8-L2 checkbox, R9-M1 search/sort, R9-L1 login inputs, **#229 toolbar layout**)  
 **Issues still open:** 3 (1 High, 2 Medium, 1 Low)  
 **Longest-standing open issue:** R6-M2 (Login bg always dark) — open since Round 6
+
+### 🆕 Post-R9 Fix — Issue #229: QA Library Toolbar Layout
+
+> **Fixed:** 2026-06-24 · PR #230 merged
+> **Issue:** Export and New Entry buttons in a separate `.filter-group` from search + sort, causing wrap on narrow screens.
+> **Fix:** Merged all controls into a single `.filter-group` row. Also corrected CSS selector from `.main .qa-page` (descendant) → `.main.qa-page` (same-element).
+
+**Changes:**
+- `public/js/app.js` — consolidated toolbar template: search + sort + Export + New Entry in one `.filter-group`
+- `public/css/style.css` — corrected `.main .qa-page` → `.main.qa-page` selectors
 
 ---
 
 ## Open Issues — Priority Order (R9)
 
-| #   | ID    | Sev | Description                           | Page      | Fix                                              |
-| --- | ----- | --- | ------------------------------------- | --------- | ------------------------------------------------ |
-| 1   | R6-H1 | 🟧  | PWA install banner overlaps content   | All       | #137 — `padding-bottom` on `<main>` when visible |
-| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)       | Login     | #139 — Use CSS custom property for gradient      |
-| 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings | Dashboard | Add `<h2>` for each Dashboard section            |
+| #   | ID    | Sev | Description                                           | Page        | Fix                                              |
+| --- | ----- | --- | ----------------------------------------------------- | ----------- | ------------------------------------------------ |
+| 1   | R6-H1 | 🟧  | PWA install banner overlaps content                   | All         | #137 — `padding-bottom` on `<main>` when visible |
+| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)                       | Login       | #139 — Use CSS custom property for gradient      |
+| 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings                 | Dashboard   | Add `<h2>` for each Dashboard section            |
+| 4   | #229  | 🟨  | Export/New Entry buttons wrap to separate row on mobile | QA Library  | **✅ FIXED** — PR #230 merged                    |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
