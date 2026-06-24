@@ -898,6 +898,7 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 > **Fix:** Merged all controls into a single `.filter-group` row. Also corrected CSS selector from `.main .qa-page` (descendant) → `.main.qa-page` (same-element).
 
 **Changes:**
+
 - `public/js/app.js` — consolidated toolbar template: search + sort + Export + New Entry in one `.filter-group`
 - `public/css/style.css` — corrected `.main .qa-page` → `.main.qa-page` selectors
 
@@ -905,12 +906,12 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## Open Issues — Priority Order (R9)
 
-| #   | ID    | Sev | Description                                           | Page        | Fix                                              |
-| --- | ----- | --- | ----------------------------------------------------- | ----------- | ------------------------------------------------ |
-| 1   | R6-H1 | 🟧  | PWA install banner overlaps content                   | All         | #137 — `padding-bottom` on `<main>` when visible |
-| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)                       | Login       | #139 — Use CSS custom property for gradient      |
-| 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings                 | Dashboard   | Add `<h2>` for each Dashboard section            |
-| 4   | #229  | 🟨  | Export/New Entry buttons wrap to separate row on mobile | QA Library  | **✅ FIXED** — PR #230 merged                    |
+| #   | ID    | Sev | Description                                             | Page       | Fix                                              |
+| --- | ----- | --- | ------------------------------------------------------- | ---------- | ------------------------------------------------ |
+| 1   | R6-H1 | 🟧  | PWA install banner overlaps content                     | All        | #137 — `padding-bottom` on `<main>` when visible |
+| 2   | R6-M2 | 🟨  | Login bg always dark (no theme)                         | Login      | #139 — Use CSS custom property for gradient      |
+| 3   | R9-M2 | 🟨  | Dashboard missing H2 section headings                   | Dashboard  | Add `<h2>` for each Dashboard section            |
+| 4   | #229  | 🟨  | Export/New Entry buttons wrap to separate row on mobile | QA Library | **✅ FIXED** — PR #230 merged                    |
 
 ## 🆕 Round 7 Findings — QA Sort Feature (2026-06-10)
 
