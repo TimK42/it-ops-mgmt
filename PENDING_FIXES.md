@@ -8,8 +8,9 @@
 
 ## Completed
 
-| #   | Issue                 | Notes         |
-| --- | --------------------- | ------------- |
-| 221 | Theme bootstrap flash | Fixed in #226 |
-| 213 | Various UI fixes      | Fixed in #218 |
-| 216 | Dashboard issues      | Fixed in #217 |
+| #   | Issue                                      | Notes         |
+| --- | ------------------------------------------ | ------------- |
+| 229 | UX: Export/New Entry buttons inline        | Fixed in #230 |
+| 221 | Theme bootstrap flash                      | Fixed in #226 |
+| 213 | Various UI fixes                           | Fixed in #218 |
+| 216 | Dashboard issues                           | Fixed in #217 |
