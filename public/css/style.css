@@ -335,7 +335,7 @@ body {
   align-items: stretch;
   gap: 6px;
 }
-.qa-toolbar-row--controls {
+.main .qa-page .table-toolbar .qa-toolbar-row--controls {
   display: flex;
   align-items: center;
   gap: 8px;
