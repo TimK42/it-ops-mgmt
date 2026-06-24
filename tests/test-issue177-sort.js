@@ -309,7 +309,7 @@ describe('Issue #177 — Frontend', function () {
       assert.strictEqual(sortSelect.tagName, 'SELECT', 'Element should be a <select>');
     });
 
-    it('sort selector has the correct options: "By Popularity" and "By Newest"', async function () {
+    it('sort selector has the correct options: "Popular" and "Newest"', async function () {
       setupQA();
       const el = document.getElementById('page-content');
 
@@ -321,14 +321,14 @@ describe('Issue #177 — Frontend', function () {
 
       assert.strictEqual(sortSelect.options[0].value, 'popular', 'First option value is "popular"');
       assert.ok(
-        sortSelect.options[0].text.includes('By Popularity'),
-        'First option text includes "By Popularity"',
+        sortSelect.options[0].text.includes('Popular'),
+        'First option text includes "Popular"',
       );
 
       assert.strictEqual(sortSelect.options[1].value, 'newest', 'Second option value is "newest"');
       assert.ok(
-        sortSelect.options[1].text.includes('By Newest'),
-        'Second option text includes "By Newest"',
+        sortSelect.options[1].text.includes('Newest'),
+        'Second option text includes "Newest"',
       );
     });
 
