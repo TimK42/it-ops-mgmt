@@ -452,7 +452,7 @@ var sqEnd = js.indexOf("async function editQA", sf);
 var showQA = sqEnd > 0 ? js.slice(sf, sqEnd) : js.slice(sf);
 if (!showQA.includes(setLine)) process.exit(1);
 // Check 2: delete editQaId in submit handler (not just Cancel)
-var submitIdx = js.indexOf("getElementById(\x27f-q-submit\x27).onclick");
+var submitIdx = js.indexOf("getElementById(\x27f-q-form\x27).onsubmit");
 var closeIdx = js.indexOf("closeModal(\x27form-modal\x27)", submitIdx);
 var subChunk = submitIdx > 0 ? js.slice(submitIdx, closeIdx) : "";
 if (!subChunk.includes("delete modal.dataset.editQaId")) process.exit(1);

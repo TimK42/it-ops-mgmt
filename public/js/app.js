@@ -1132,22 +1132,23 @@ async function showCreateQA(data) {
   const modal = document.getElementById('form-modal');
   modal.querySelector('.modal-title').textContent = isEdit ? 'Edit QA Entry' : 'New QA Entry';
   modal.querySelector('.modal-body').innerHTML = `
-    <div class="form-group"><label class="form-label" for="f-q-title">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"><div class="form-error" id="f-q-title-error"></div></div>
+    <form id="f-q-form"><div class="form-group"><label class="form-label" for="f-q-title">Title *</label><input class="form-input" id="f-q-title" value="${isEdit ? esc(data.title) : ''}"><div class="form-error" id="f-q-title-error"></div></div>
     <div class="form-group"><label class="form-label" for="f-question">Question *</label><textarea class="form-textarea" id="f-question">${isEdit ? esc(data.question) : ''}</textarea><div class="form-error" id="f-q-question-error"></div></div>
     <div class="form-group"><label class="form-label" for="f-answer">Answer</label><textarea class="form-textarea" id="f-answer" rows="5">${isEdit ? esc(data.answer || '') : ''}</textarea></div>
     <div class="form-row"><div class="form-group"><label class="form-label" for="f-q-cat">Sub-System</label><select class="form-select" id="f-q-cat"><option value="">None</option>${state.categories.map((c) => `<option value="${c.id}" ${isEdit && data.category_id === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div></div>
-    <div class="form-group"><label class="form-label" for="f-tags-input">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" aria-label="Add tags" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div>`;
+    <div class="form-group"><label class="form-label" for="f-tags-input">Tags</label><div class="chip-input-wrapper" id="tags-chip-wrapper"><div class="chip-container" id="tags-chips"></div><input type="text" class="chip-input" id="f-tags-input" aria-label="Add tags" placeholder="Type tag and press Enter or comma..." autocomplete="off"><div class="suggestions-area" id="tags-suggestions"></div></div></div></form>`;
   // Track edit ID on modal so the global close-modal handler can
   // reopen detail when the X button (which goes through delegation) is clicked
   modal.dataset.editQaId = isEdit ? String(data.id) : '';
   modal.querySelector('.modal-footer').innerHTML =
-    `<button class="btn btn-ghost btn-sm" id="f-q-cancel">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit">${isEdit ? 'Update' : 'Create'}</button>`;
+    `<button class="btn btn-ghost btn-sm" id="f-q-cancel" type="button">Cancel</button><button class="btn btn-primary btn-sm" id="f-q-submit" type="submit" form="f-q-form">${isEdit ? 'Update' : 'Create'}</button>`;
   document.getElementById('f-q-cancel').onclick = () => {
     delete modal.dataset.editQaId;
     closeModal('form-modal');
     if (isEdit) showQADetail(data.id);
   };
-  document.getElementById('f-q-submit').onclick = async () => {
+  document.getElementById('f-q-form').onsubmit = async (event) => {
+    event.preventDefault();
     const body = {
       title: document.getElementById('f-q-title').value,
       question: document.getElementById('f-question').value,
@@ -1652,10 +1653,10 @@ function showChangePassword(forced) {
   const modal = document.getElementById('form-modal');
   modal.querySelector('.modal-title').textContent = forced ? 'Set New Password' : 'Change Password';
   modal.querySelector('.modal-body').innerHTML = `
-    ${forced ? '<div class="form-group" style="background:#fff3cd;color:#856404;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px">Your admin has reset your password. Please set a new password to continue.</div>' : `<div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="cp-current" placeholder="Current password" autocomplete="current-password"></div>`}
-    <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="cp-new" placeholder="New password" autocomplete="new-password"></div>
+    ${forced ? '<div class="form-group" style="background:#fff3cd;color:#856404;padding:8px 12px;border-radius:6px;font-size:13px;margin-bottom:12px">Your admin has reset your password. Please set a new password to continue.</div>' : `<div class="form-group"><label class="form-label" for="cp-current">Current Password</label><input class="form-input" type="password" id="cp-current" placeholder="Current password" autocomplete="current-password"></div>`}
+    <div class="form-group"><label class="form-label" for="cp-new">New Password</label><input class="form-input" type="password" id="cp-new" placeholder="New password" autocomplete="new-password"></div>
     <div class="pw-hints" id="cp-pass-hints"></div>
-    <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" type="password" id="cp-confirm" placeholder="Confirm new password" autocomplete="new-password"></div>
+    <div class="form-group"><label class="form-label" for="cp-confirm">Confirm New Password</label><input class="form-input" type="password" id="cp-confirm" placeholder="Confirm new password" autocomplete="new-password"></div>
     <div class="form-error" id="cp-error"></div>
     <div class="form-success" id="cp-success"></div>
   `;

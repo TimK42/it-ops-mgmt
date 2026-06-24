@@ -892,11 +892,17 @@ tr.row-click {
     overflow: visible;
     max-width: 100%;
   }
+  html {
+    overflow-x: clip;
+  }
   body {
     height: auto;
     min-height: 100vh;
+    width: 100%;
+    max-width: 100vw;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-gutter: auto;
   }
   .main {
     overflow: visible;
