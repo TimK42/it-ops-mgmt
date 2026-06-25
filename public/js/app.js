@@ -28,6 +28,21 @@ var state = state || {
   }
 })();
 
+// ===== PAGE TITLES =====
+const PAGE_TITLES = {
+  login: 'Sign In - IT Ops KB',
+  register: 'Register - IT Ops KB',
+  qa: 'QA Library - IT Ops KB',
+  categories: 'Sub-Systems - IT Ops KB',
+  users: 'Users - IT Ops KB',
+  dashboard: 'Dashboard - IT Ops KB',
+  '404': 'Page Not Found - IT Ops KB',
+};
+
+function setPageTitle(page) {
+  document.title = PAGE_TITLES[page] || 'IT Operations - Knowledge Base';
+}
+
 function updateThemeColor(theme) {
   const color = theme === 'dark' ? '#0f0f1a' : '#4f46e5';
   const metas = document.querySelectorAll('meta[name="theme-color"]');
@@ -693,6 +708,7 @@ function closeConfirm() {
 // ===== AUTH =====
 function renderLogin(mode) {
   restoreTheme();
+  setPageTitle(mode);
   const isRegister = mode === 'register';
   const targetPath = isRegister ? '/register' : '/';
   if (window.location.pathname !== targetPath) {
@@ -868,6 +884,7 @@ function navigate(page) {
   closeModal('detail-modal');
   closeSidebar();
   state.page = page;
+  setPageTitle(page);
   const mainEl = document.getElementById('page-content');
   if (mainEl) mainEl.parentNode.classList.remove('qa-page');
   document.querySelectorAll('.nav-item').forEach((e) => e.classList.remove('active'));

@@ -1,0 +1,92 @@
+[
+  {
+    "title": "[Accessibility] Login form uses GET method (defaults to GET, no method attribute)",
+    "labels": ["accessibility", "bug"],
+    "body": "## Problem\nThe login form `<form>` tag lacks a `method` attribute, defaulting to GET. While JavaScript prevents the default submission and uses POST for the API call, the form element itself is semantically incorrect.\n\n## Current State (app.js line ~722)\n```html\n<form class=\"login-page...\" id=\"login-form\">\n```\n\n## Issue\n- No `method` attribute → defaults to GET\n- No `action` attribute → submits to current URL\n- If JavaScript is disabled, credentials would be exposed in the URL\n\n## Required Fix\n```html\n<form class=\"login-page${isRegister ? ' register-mode' : ''}\" id=\"login-form\" method=\"post\" action=\"/api/auth/login\">\n```\n\nNote: Since the form uses `e.preventDefault()` and makes a fetch call anyway, this is primarily a semantic/accessibility fix. But adding `method=\"post\"` ensures correctness.\n\n## WCAG Standards\n- **4.1.1 Parsing (Level A)**\n\n## Priority: Medium"
+  },
+  {
+    "title": "[Accessibility] QA Library entry links lack descriptive aria-labels",
+    "labels": ["accessibility", "enhancement"],
+    "body": "## Problem\nQA entry cards are links that display the QA title, sub-system, status, and tags. Screen readers may not provide sufficient context about what each link leads to.\n\n## Current State\n```html\n<a href=\"/qa/1\">\n  QA-0001 如何重置使用者密碼\n  使用者忘記密碼該如何處理？\n  📐 CAD ● Published #account #password\n</a>\n```\n\n## Required Fixes\nAdd `aria-label` to each link with full context:\n```html\n<a href=\"/qa/1\" aria-label=\"QA-0001: 如何重置使用者密碼 - 使用者忘記密碼該如何處理？ (CAD, Published)\">\n  <!-- visible content remains the same -->\n</a>\n```\n\nThis ensures screen reader users get the complete context (QA number, title, sub-system, status) without having to navigate through all the nested elements.\n\n## WCAG Standards\n- **2.4.4 Link Purpose (Level A)**\n- **4.1.2 Name, Role, Value (Level A)**\n\n## Priority: High"
+  },
+  {
+    "title": "[Accessibility] Dashboard stat cards and progress bars missing semantic roles",
+    "labels": ["accessibility", "enhancement"],
+    "body": "## Problem\nDashboard stat cards are plain `<div>` elements without semantic roles or aria-labels. Status distribution bar and Sub-System Coverage bar lack `role=\"progressbar\"` attributes.\n\n## Current State\n```html\n<!-- Current: plain divs -->\n<div class=\"stat-card\">\n  <div class=\"stat-number\">21</div>\n  <div class=\"stat-label\">Total QA Entries</div>\n</div>\n```\n\n## Required Fixes\n\n### Stat cards\n```html\n<div class=\"stat-card\" role=\"status\" aria-label=\"Total QA Entries: 21\">\n  <div class=\"stat-number\">21</div>\n  <div class=\"stat-label\">Total QA Entries</div>\n</div>\n```\n\n### Progress bars (Status Distribution, Sub-System Coverage)\n```html\n<div role=\"progressbar\" \n     aria-valuenow=\"4\" \n     aria-valuemin=\"0\" \n     aria-valuemax=\"21\" \n     aria-label=\"Published: 4 of 21 total\">\n  <!-- bar fill -->\n</div>\n```\n\n## WCAG Standards\n- **4.1.2 Name, Role, Value (Level A)**\n- **1.3.1 Info and Relationships (Level A)**\n\n## Priority: High"
+  },
+  {
+    "title": "[Accessibility] Status badges, pagination, and filter buttons missing semantic attributes",
+    "labels": ["accessibility", "enhancement"],
+    "body": "## Problem\nMultiple interactive elements lack proper semantic attributes for screen readers.\n\n## Issues Found\n\n### 1. Status badges (Users page)\n- \"Viewer\" role badge: no `role` attribute\n- \"pending\" status badge: no `role=\"status\"`\n- \"active\" status badge: no `role=\"status\"`\n\n### 2. Pagination (all pages)\n- Pagination controls lack `role=\"navigation\"` and `aria-label=\"Pagination\"`\n- Current page info \"1 / 1\" has no semantic context\n\n### 3. Filter buttons (QA Library)\n- Filter buttons (All, Draft, Published, Archived) lack `aria-pressed` or `aria-current`\n- No visual + programmatic indication of active filter\n\n## Required Fixes\n\n### Status badges\n```html\n<span class=\"badge\" role=\"status\" aria-label=\"Role: Viewer\">Viewer</span>\n<span class=\"badge status-open\" role=\"status\" aria-label=\"Status: pending\">pending</span>\n<span class=\"badge status-resolved\" role=\"status\" aria-label=\"Status: active\">active</span>\n```\n\n### Pagination\n```html\n<nav role=\"navigation\" aria-label=\"Pagination\">\n  <!-- pagination controls -->\n</nav>\n```\n\n### Filter buttons\n```html\n<button aria-pressed=\"true\" aria-current=\"filter\">Published</button>\n<button aria-pressed=\"false\">Draft</button>\n```\n\n## WCAG Standards\n- **4.1.2 Name, Role, Value (Level A)**\n- **1.3.1 Info and Relationships (Level A)**\n\n## Priority: Medium"
+  },
+  {
+    "title": "[Accessibility] Categories page icon column emoji missing alt text",
+    "labels": ["accessibility", "enhancement"],
+    "body": "## Problem\nThe Categories (Sub-Systems) page displays emoji icons (🛡️📐🗺️📡) in the Icon column without any alt text or aria-label. Screen reader users won't know what each icon represents.\n\n## Current State\n```html\n<td data-label=\"Icon\" style=\"font-size:18px\">🛡️</td>\n<td data-label=\"Icon\" style=\"font-size:18px\">📐</td>\n<td data-label=\"Icon\" style=\"font-size:18px\">🗺️</td>\n<td data-label=\"Icon\" style=\"font-size:18px\">📡</td>\n```\n\n## Required Fix\nAdd `aria-label` to each icon cell or wrap in `<span>` with proper label:\n```html\n<td data-label=\"Icon\"><span aria-label=\"Shield (ACOS)\" style=\"font-size:18px\">🛡️</span></td>\n<td data-label=\"Icon\"><span aria-label=\"Triangle (CAD)\" style=\"font-size:18px\">📐</span></td>\n<td data-label=\"Icon\"><span aria-label=\"Map (GIS)\" style=\"font-size:18px\">🗺️</span></td>\n<td data-label=\"Icon\"><span aria-label=\"Satellite (PVNS)\" style=\"font-size:18px\">📡</span></td>\n```\n\n## WCAG Standards\n- **1.1.1 Non-text Content (Level A)**\n\n## Priority: Medium"
+  },
+  {
+    "title": "[Meta/SEO] All pages share the same title and meta description",
+    "labels": ["enhancement", "seo"],
+    "body": "## Problem\nAll pages in the SPA share the same `<title>` and `<meta name=\"description\">` regardless of the current route.\n\n## Current State\n```html\n<title>IT Operations - Knowledge Base</title>\n<meta name=\"description\" content=\"IT Operations Knowledge Base - QA Library\" />\n```\n\nThis is true for:\n- Dashboard (/dashboard)\n- Users (/users)\n- Categories (/categories)\n- QA Library (/qa)\n- 404 page\n\n## Required Fix\nUpdate `<title>` and `<meta description>` dynamically in the `navigate()` function:\n```javascript\nfunction navigate(page) {\n  const titles = {\n    qa: 'QA Library - IT Operations KB',\n    categories: 'Sub-Systems - IT Operations KB',\n    users: 'Users - IT Operations KB',\n    dashboard: 'Dashboard - IT Operations KB',\n    '404': 'Page Not Found - IT Operations KB'\n  };\n  const descriptions = {\n    qa: 'Browse and search QA entries for IT Operations',\n    // ... etc\n  };\n  document.title = titles[page] || 'IT Operations - Knowledge Base';\n  const desc = document.querySelector('meta[name=\"description\"]');\n  if (desc) desc.content = descriptions[page] || descriptions.qa;\n}\n```\n\n## Priority: Low"
+  },
+  {
+    "title": "[Meta/SEO] Missing Open Graph, Twitter Card, and canonical tags",
+    "labels": ["enhancement", "seo"],
+    "body": "## Problem\nThe application lacks social sharing meta tags and canonical URL.\n\n## Missing Tags\n- `og:title` - Open Graph title\n- `og:description` - Open Graph description\n- `og:image` - Open Graph image\n- `og:url` - Open Graph URL\n- `twitter:card` - Twitter card type\n- `twitter:title` - Twitter title\n- `twitter:description` - Twitter description\n- `canonical` - Canonical URL\n\n## Required Fix\nAdd to `public/index.html` `<head>`:\n```html\n<!-- Open Graph -->\n<meta property=\"og:title\" content=\"IT Operations - Knowledge Base\">\n<meta property=\"og:description\" content=\"IT Operations Knowledge Base - QA Library\">\n<meta property=\"og:url\" content=\"https://your-domain.com\">\n<meta property=\"og:type\" content=\"website\">\n\n<!-- Twitter Card -->\n<meta name=\"twitter:card\" content=\"summary\">\n<meta name=\"twitter:title\" content=\"IT Operations - Knowledge Base\">\n<meta name=\"twitter:description\" content=\"IT Operations Knowledge Base - QA Library\">\n\n<!-- Canonical -->\n<link rel=\"canonical\" href=\"https://your-domain.com\">\n```\n\n## Priority: Low"
+  },
+  {
+    "title": "[SEO] Missing favicon and keywords meta tag",
+    "labels": ["enhancement", "seo"],
+    "body": "## Problem\nThe application has no proper favicon file and no `<meta name=\"keywords\">` tag.\n\n## Current State\n- Favicon: Inline SVG data URI (works but not ideal)\n- No `favicon.ico` file\n- No `apple-touch-icon` for iOS\n- No `<meta name=\"keywords\">`\n\n## Required Fix\n1. Create `public/favicon.ico` (16x16 or 32x32)\n2. Add to `<head>`:\n```html\n<link rel=\"icon\" type=\"image/png\" href=\"/icons/icon-192.png\">\n<link rel=\"apple-touch-icon\" href=\"/icons/icon-192.png\">\n<meta name=\"keywords\" content=\"IT operations, QA library, knowledge base, IT support\">\n```\n\n## Priority: Low"
+  },
+  {
+    "title": "[Security] HTTP headers: Referrer-Policy too strict, X-XSS-Protection disabled",
+    "labels": ["security", "enhancement"],
+    "body": "## Problem\nTwo HTTP security headers are suboptimal.\n\n## Current State\n```\nReferrer-Policy: no-referrer\nX-XSS-Protection: 0\n```\n\n## Issues\n\n### Referrer-Policy: no-referrer\n- Too strict: no referrer info sent to ANY destination\n- Breaks analytics, link tracking, and debugging\n- Prevents referring site from knowing traffic source\n\n### X-XSS-Protection: 0\n- Disabled. While modern browsers rely on CSP instead, some older browsers still use this header.\n\n## Required Fix\n```\nReferrer-Policy: strict-origin-when-cross-origin\nX-XSS-Protection: 1; mode=block\n```\n\n## Priority: Medium"
+  },
+  {
+    "title": "[Security] Cache-Control set to max-age=0 for all static assets",
+    "labels": ["security", "performance"],
+    "body": "## Problem\nAll static assets (HTML, CSS, JS) are served with `Cache-Control: public, max-age=0`, forcing a revalidation on every page load.\n\n## Current State\n```\nCache-Control: public, max-age=0\nLast-Modified: Wed, 24 Jun 2026 18:02:58 GMT\nETag: W/\"1187-...\"\n```\n\n## Impact\n- Every page load requires an HTTP request to check if content changed\n- Increased latency and server load\n- Poor performance on slow connections\n\n## Required Fix\nServe static assets with appropriate cache headers:\n```\nCache-Control: public, max-age=31536000, immutable\n```\nFor HTML (SPA shell):\n```\nCache-Control: no-cache\n```\nOr use the existing Service Worker's stale-while-revalidate strategy more effectively.\n\n## Priority: Medium"
+  },
+  {
+    "title": "[UX] 404 page lacks useful navigation and error details",
+    "labels": ["enhancement", "ux"],
+    "body": "## Problem\nThe 404 page is minimal - just a magnifying glass icon, \"Page not found\" text, and a single \"Go to QA Library\" button.\n\n## Current State\n- No explanation of what happened\n- No search functionality\n- No link to other main sections (Dashboard, Users, Sub-Systems)\n- No back button to previous page\n\n## Required Fix\nImprove the 404 page with:\n1. A brief explanation: \"The page you're looking for doesn't exist or has been moved.\"\n2. Multiple navigation options:\n   - Go to QA Library\n   - Go to Dashboard\n   - Go to Users\n3. A \"Back\" button to return to the previous page\n4. A search input to find content\n\n## Priority: Low"
+  },
+  {
+    "title": "[UX] Missing breadcrumb navigation",
+    "labels": ["enhancement", "ux"],
+    "body": "## Problem\nThe application has no breadcrumb navigation. Users can't easily see their current location or navigate back to parent sections.\n\n## Current State\n- Only sidebar navigation exists\n- No breadcrumb trail\n- No \"Home\" link in the main content area\n\n## Required Fix\nAdd breadcrumb navigation below the header:\n```html\n<nav aria-label=\"Breadcrumb\">\n  <ol class=\"breadcrumb\">\n    <li><a href=\"/\">Home</a></li>\n    <li><a href=\"/qa\">QA Library</a></li>\n    <li aria-current=\"page\">QA-0001</li>\n  </ol>\n</nav>\n```\n\nExamples:\n- QA detail page: Home → QA Library → QA-0001\n- Users page: Home → Users\n- Dashboard: Home → Dashboard\n\n## WCAG Standards\n- **3.2.3 Consistent Navigation (Level AA)**\n\n## Priority: Medium"
+  },
+  {
+    "title": "[UX] Dashboard missing `<title>` and meta description per page",
+    "labels": ["enhancement", "seo"],
+    "body": "## Problem\nDashboard page (and other pages) share the same `<title>` and meta description as the QA Library page.\n\n## Current State\nAll pages show:\n```html\n<title>IT Operations - Knowledge Base</title>\n<meta name=\"description\" content=\"IT Operations Knowledge Base - QA Library\" />\n```\n\n## Required Fix\nMake title and description dynamic based on the current route. See issue #246 for full details.\n\n## Priority: Low"
+  },
+  {
+    "title": "[Security] X-Frame-Options and CSP: review frame-ancestors directive",
+    "labels": ["security", "enhancement"],
+    "body": "## Problem\nCSP `frame-ancestors 'self'` is set, which is correct for preventing clickjacking. However, the overall CSP could be reviewed for tightness.\n\n## Current CSP\n```\ndefault-src 'self';\nstyle-src 'self' 'unsafe-inline';\nfont-src 'self';\nimg-src 'self' data:;\nscript-src 'self' 'unsafe-inline';\nbase-uri 'self';\nform-action 'self';\nframe-ancestors 'self';\nobject-src 'none';\nscript-src-attr 'none';\nupgrade-insecure-requests\n```\n\n## Observations\n- `unsafe-inline` in style-src and script-src: acceptable for SPA but could be tightened with nonces\n- `upgrade-insecure-requests`: good, forces HTTPS\n- `form-action 'self'`: good, prevents form submission to external sites\n- `frame-ancestors 'self'`: good, prevents clickjacking\n\n## No immediate issues, but consider:\n1. Adding `nonce` or `hash` to script-src for stricter CSP\n2. Adding `report-uri` or `report-to` for CSP violation reporting\n\n## Priority: Low"
+  },
+  {
+    "title": "[PWA] Service worker: no offline fallback for API routes",
+    "labels": ["enhancement", "pwa"],
+    "body": "## Problem\nThe service worker uses `network-only` for all API routes, meaning API calls fail completely when offline.\n\n## Current State (sw.js)\n```javascript\nif (url.pathname.startsWith('/api/')) {\n  event.respondWith(fetch(event.request).catch(() => new Response(null, { status: 503 })));\n}\n```\n\n## Impact\n- Users completely offline cannot see any cached data through API\n- No optimistic UI updates possible when offline\n\n## Required Fix\nConsider implementing a cache-first or network-first strategy for read-only API routes (GET requests), while keeping write operations (POST/PUT/DELETE) as network-only.\n\n## Priority: Low"
+  },
+  {
+    "title": "[UI] Dark/Light mode toggle button icon is confusing",
+    "labels": ["enhancement", "ux"],
+    "body": "## Problem\nThe theme toggle button uses emoji (☀️/🌙) which may not be clear to all users. The button shows ☀️ in dark mode (indicating \"switch to light\") and 🌙 in light mode (indicating \"switch to dark\").\n\n## Current State\n- Dark mode: button shows ☀️ (sun)\n- Light mode: button shows 🌙 (moon)\n\n## Issues\n1. Emoji rendering varies across platforms (Windows vs macOS vs mobile)\n2. The meaning is counter-intuitive (sun in dark mode = \"go to light\" but looks like it's showing \"dark mode is on\")\n3. No tooltip explaining the action\n\n## Required Fix\n1. Use SVG icons instead of emoji for consistent cross-platform rendering\n2. Add `title` attribute or tooltip:\n   ```html\n   <button aria-label=\"Toggle theme\" title=\"Switch to light mode\">☀️</button>\n   ```\n3. Consider using a more intuitive icon (e.g., a toggle switch)\n\n## Priority: Low"
+  },
+  {
+    "title": "[UI] QA detail modal lacks proper dialog ARIA attributes",
+    "labels": ["accessibility", "enhancement"],
+    "body": "## Problem\nThe QA detail modal (opened when clicking a QA entry) lacks proper dialog ARIA attributes.\n\n## Current State\n- Modal doesn't have `role=\"dialog\"` or `aria-modal=\"true\"`\n- Some buttons inside the modal lack `aria-label`\n- No breadcrumb inside the modal\n- Generic meta description\n\n## Required Fix\n```html\n<div role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"modal-title\">\n  <h2 id=\"modal-title\">QA-0001: 如何重置使用者密碼</h2>\n  <!-- modal content -->\n</div>\n```\n\nAlso add:\n- `aria-label` to Edit, Archive, Delete buttons with context\n- Breadcrumb navigation inside the modal\n- Focus trap when modal is open\n- Return focus to trigger element when modal closes\n\n## WCAG Standards\n- **4.1.2 Name, Role, Value (Level A)**\n- **2.4.1 Bypass Blocks (Level A)**\n\n## Priority: Medium"
+  },
+  {
+    "title": "[UI] Search input lacks visible label (only sr-only label)",
+    "labels": ["accessibility", "enhancement"],
+    "body": "## Problem\nThe search input on Users page uses `class=\"sr-only\"` for its label, making it invisible to sighted users. While the placeholder says \"Search users...\", relying solely on placeholder text is not best practice.\n\n## Current State\n```html\n<label for=\"users-search\" class=\"sr-only\">Search users</label>\n<input id=\"users-search\" placeholder=\"Search users...\">\n```\n\n## Issue\n- `sr-only` label is only visible to screen readers\n- Placeholder text disappears when user starts typing\n- No visible label for keyboard-only users who tab through\n\n## Required Fix\nMake the label visible:\n```html\n<label for=\"users-search\">Search users</label>\n<input id=\"users-search\" placeholder=\"Search users...\">\n```\n\nOr use a visible search icon + label pattern consistent with the QA Library page.\n\n## WCAG Standards\n- **3.3.2 Labels or Instructions (Level A)**\n\n## Priority: Medium"
+  }
+]
