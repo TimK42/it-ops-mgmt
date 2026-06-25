@@ -718,7 +718,7 @@ function renderLogin(mode) {
     <a href="#main-content" class="skip-link">Skip to content</a>
     <main id="main-content" class="main" tabindex="-1">
     <button class="btn btn-ghost login-theme-toggle" id="theme-toggle" data-action="theme-toggle" aria-label="Toggle theme" aria-pressed="${currentTheme}">${currentTheme ? '☀️' : '🌙'}</button>
-    <form class="login-page${isRegister ? ' register-mode' : ''}" id="login-form">
+    <form class="login-page${isRegister ? ' register-mode' : ''}" id="login-form" method="post">
       <div class="login-card">
         <h1>${isRegister ? 'Create Account' : 'IT Operations'}</h1>
         <div class="login-sub">${isRegister ? 'Register for access' : 'Knowledge Base'}</div>
