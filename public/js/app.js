@@ -29,7 +29,7 @@ var state = state || {
 })();
 
 // ===== PAGE TITLES =====
-const PAGE_TITLES = {
+let PAGE_TITLES = {
   login: 'Sign In - IT Ops KB',
   register: 'Register - IT Ops KB',
   qa: 'QA Library - IT Ops KB',
