@@ -1011,37 +1011,37 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## 頁面清冊
 
-| # | 頁面 | 路由/觸發 | 類型 | 狀態 |
-| --- | --- | --- | --- | --- |
-| 1 | Login | `/` (未登入) | 獨立頁面 | ✅ 稽核完成 |
-| 2 | Register | `/register` | 獨立頁面 | ✅ 稽核完成 |
-| 3 | QA Library | `/` (已登入) | SPA 主頁 | ✅ 稽核完成 |
-| 4 | Dashboard | `/#/dashboard` | SPA 頁面 | ✅ 稽核完成 |
-| 5 | Sub-Systems | `/#/categories` | SPA 頁面 | ✅ 稽核完成 |
-| 6 | Users | `/#/users` | SPA 頁面 | ✅ 稽核完成 |
-| 7 | QA Detail | 點擊 QA entry | Modal | ✅ 稽核完成 |
-| 8 | New Entry | 點擊「＋ New Entry」 | Modal | ✅ 稽核完成 |
-| 9 | Change Password | 側欄 → Change Password | Modal | ✅ 稽核完成 |
-| 10 | 404 Page | `/qa/new` | 獨立頁面 | ✅ 稽核完成 |
+| #   | 頁面            | 路由/觸發              | 類型     | 狀態        |
+| --- | --------------- | ---------------------- | -------- | ----------- |
+| 1   | Login           | `/` (未登入)           | 獨立頁面 | ✅ 稽核完成 |
+| 2   | Register        | `/register`            | 獨立頁面 | ✅ 稽核完成 |
+| 3   | QA Library      | `/` (已登入)           | SPA 主頁 | ✅ 稽核完成 |
+| 4   | Dashboard       | `/#/dashboard`         | SPA 頁面 | ✅ 稽核完成 |
+| 5   | Sub-Systems     | `/#/categories`        | SPA 頁面 | ✅ 稽核完成 |
+| 6   | Users           | `/#/users`             | SPA 頁面 | ✅ 稽核完成 |
+| 7   | QA Detail       | 點擊 QA entry          | Modal    | ✅ 稽核完成 |
+| 8   | New Entry       | 點擊「＋ New Entry」   | Modal    | ✅ 稽核完成 |
+| 9   | Change Password | 側欄 → Change Password | Modal    | ✅ 稽核完成 |
+| 10  | 404 Page        | `/qa/new`              | 獨立頁面 | ✅ 稽核完成 |
 
 ## 審計結果總覽
 
-| 維度 | 評級 | 說明 |
-| --- | --- | --- |
-| 觸控目標 (≥44px) | ✅ 通過 | 所有頁面所有按鈕/連結/輸入框 ≥44px |
-| Heading 層級 | ✅ 通過 | 所有頁面 H1 → H2 正確，無跳躍 |
-| Main landmark | ✅ 通過 | 所有頁面皆有 `<main#main-content>` |
-| aria-label 缺失 | ✅ 通過 | 無 aria 缺失元素 |
-| img alt 缺失 | ✅ 通過 | 無圖片缺少 alt |
-| autocomplete 屬性 | ✅ 通過 | 所有表單輸入框有正確 autocomplete |
-| 主題切換 | ✅ 通過 | Dark/Light toggle 正常運作 |
-| Modal 溢出 | ✅ 通過 | 所有 modal 內容無水平溢出 |
-| Table 溢出 | ✅ 通過 | Users/Sub-Systems 表格無溢出 |
-| 水平溢出 (body) | 🔴 失敗 | 8/10 頁面 body 水平溢出 (R10-M1) |
-| 表單語意 | 🟡 警告 | Change Password labels / New Entry form (R10-M3, R10-M4) |
-| theme-color meta | 🟡 警告 | Light 模式值錯誤 (R10-M2) |
-| PWA banner | 🟡 待確認 | banner display:none，無法驗證 R6-H1 |
-| Login 背景 | 🟡 已知 | 登入頁一律 dark 模式 (R6-M2, 未修復) |
+| 維度              | 評級      | 說明                                                     |
+| ----------------- | --------- | -------------------------------------------------------- |
+| 觸控目標 (≥44px)  | ✅ 通過   | 所有頁面所有按鈕/連結/輸入框 ≥44px                       |
+| Heading 層級      | ✅ 通過   | 所有頁面 H1 → H2 正確，無跳躍                            |
+| Main landmark     | ✅ 通過   | 所有頁面皆有 `<main#main-content>`                       |
+| aria-label 缺失   | ✅ 通過   | 無 aria 缺失元素                                         |
+| img alt 缺失      | ✅ 通過   | 無圖片缺少 alt                                           |
+| autocomplete 屬性 | ✅ 通過   | 所有表單輸入框有正確 autocomplete                        |
+| 主題切換          | ✅ 通過   | Dark/Light toggle 正常運作                               |
+| Modal 溢出        | ✅ 通過   | 所有 modal 內容無水平溢出                                |
+| Table 溢出        | ✅ 通過   | Users/Sub-Systems 表格無溢出                             |
+| 水平溢出 (body)   | 🔴 失敗   | 8/10 頁面 body 水平溢出 (R10-M1)                         |
+| 表單語意          | 🟡 警告   | Change Password labels / New Entry form (R10-M3, R10-M4) |
+| theme-color meta  | 🟡 警告   | Light 模式值錯誤 (R10-M2)                                |
+| PWA banner        | 🟡 待確認 | banner display:none，無法驗證 R6-H1                      |
+| Login 背景        | 🟡 已知   | 登入頁一律 dark 模式 (R6-M2, 未修復)                     |
 
 ---
 
@@ -1053,18 +1053,18 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 **影響範圍：** 8/10 個頁面
 **發現：** `document.body.scrollWidth > window.innerWidth`，水平滾動條出現。
 
-| 頁面 | Overflow | 備註 |
-| --- | --- | --- |
-| Login | ⚠️ true | |
-| Register | ⚠️ true | |
-| QA Library | ⚠️ true | |
-| Dashboard | ✅ false | |
-| Sub-Systems | ⚠️ true | |
-| Users | ⚠️ true | |
-| QA Detail | ⚠️ true | body 有溢出，modal 無 |
-| New Entry | ⚠️ true | body 有溢出，modal 無 |
-| Change Password | ⚠️ true | body 有溢出，modal 無 |
-| 404 | ⚠️ true | |
+| 頁面            | Overflow | 備註                  |
+| --------------- | -------- | --------------------- |
+| Login           | ⚠️ true  |                       |
+| Register        | ⚠️ true  |                       |
+| QA Library      | ⚠️ true  |                       |
+| Dashboard       | ✅ false |                       |
+| Sub-Systems     | ⚠️ true  |                       |
+| Users           | ⚠️ true  |                       |
+| QA Detail       | ⚠️ true  | body 有溢出，modal 無 |
+| New Entry       | ⚠️ true  | body 有溢出，modal 無 |
+| Change Password | ⚠️ true  | body 有溢出，modal 無 |
+| 404             | ⚠️ true  |                       |
 
 **可能原因：** Sidebar 在關閉狀態下仍有不可見元素超出 viewport；或 `box-sizing` 設定不完整。
 **建議修復：** 檢查 `overflow-x: hidden` 或修正超出元素的寬度計算。
@@ -1112,10 +1112,10 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## ✅ 已確認修復
 
-| Issue | 狀態 | 驗證 |
-| --- | --- | --- |
-| R9-M2 — Dashboard 缺少 H2 | ✅ 已修復 | H1 "Dashboard" + 4x H2（Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage） |
-| R8-M2 — 非 QA 頁面顯示 toolbar | ✅ 已修復 | Dashboard toolbarVisible: "not-present" |
+| Issue                          | 狀態      | 驗證                                                                                            |
+| ------------------------------ | --------- | ----------------------------------------------------------------------------------------------- |
+| R9-M2 — Dashboard 缺少 H2      | ✅ 已修復 | H1 "Dashboard" + 4x H2（Status Distribution, Recent Entries, Most Viewed, Sub-System Coverage） |
+| R8-M2 — 非 QA 頁面顯示 toolbar | ✅ 已修復 | Dashboard toolbarVisible: "not-present"                                                         |
 
 ---
 
@@ -1123,144 +1123,144 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ### 1. Login 頁面 (`/`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true |
-| data-theme | "dark" |
-| Headings | H1: "Sign In" |
-| Main landmark | ✅ |
-| Form | `<form>` 存在 ✅ |
-| Inputs | auth-user (text), auth-pass (password)，皆有 label ✅ |
-| Autocomplete | username / current-password ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| bgGradient | "none" ⚠️ |
+| 檢查項目       | 結果                                                  |
+| -------------- | ----------------------------------------------------- |
+| Viewport       | 416×902                                               |
+| scrollOverflow | ⚠️ true                                               |
+| data-theme     | "dark"                                                |
+| Headings       | H1: "Sign In"                                         |
+| Main landmark  | ✅                                                    |
+| Form           | `<form>` 存在 ✅                                      |
+| Inputs         | auth-user (text), auth-pass (password)，皆有 label ✅ |
+| Autocomplete   | username / current-password ✅                        |
+| Touch targets  | 全部 ≥44px ✅                                         |
+| bgGradient     | "none" ⚠️                                             |
 
 ### 2. Register 頁面 (`/register`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true |
-| data-theme | "dark" |
-| Headings | H1: "Create Account" |
-| Main landmark | ✅ |
-| Form | `<form>` 存在 ✅ |
-| Inputs | Username, Password, Confirm Password, Role — 皆有 label ✅ |
-| Autocomplete | username / new-password / new-password ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| bgGradient | "none" ⚠️ |
+| 檢查項目       | 結果                                                       |
+| -------------- | ---------------------------------------------------------- |
+| Viewport       | 416×902                                                    |
+| scrollOverflow | ⚠️ true                                                    |
+| data-theme     | "dark"                                                     |
+| Headings       | H1: "Create Account"                                       |
+| Main landmark  | ✅                                                         |
+| Form           | `<form>` 存在 ✅                                           |
+| Inputs         | Username, Password, Confirm Password, Role — 皆有 label ✅ |
+| Autocomplete   | username / new-password / new-password ✅                  |
+| Touch targets  | 全部 ≥44px ✅                                              |
+| bgGradient     | "none" ⚠️                                                  |
 
 ### 3. QA Library (`/` 已登入)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true |
-| Headings | H1 "QA Library" → H2 "Filters" → H2 "QA Entries" ✅ |
-| Main landmark | ✅ |
-| Filter tabs | All / Draft / Published / Archived ✅ |
-| Search | searchbox 346×44 ✅ |
-| Sort | select 167×44（Popular / Newest）✅ |
-| Export/New Entry | 按鈕存在 ✅ |
-| QA entries | 4 個連結卡片，顯示 status/tags ✅ |
-| Pagination | "Showing 1–4 of 4" ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| ariaMissing | 0 ✅ |
-| imgMissingAlt | 0 ✅ |
+| 檢查項目         | 結果                                                |
+| ---------------- | --------------------------------------------------- |
+| Viewport         | 416×902                                             |
+| scrollOverflow   | ⚠️ true                                             |
+| Headings         | H1 "QA Library" → H2 "Filters" → H2 "QA Entries" ✅ |
+| Main landmark    | ✅                                                  |
+| Filter tabs      | All / Draft / Published / Archived ✅               |
+| Search           | searchbox 346×44 ✅                                 |
+| Sort             | select 167×44（Popular / Newest）✅                 |
+| Export/New Entry | 按鈕存在 ✅                                         |
+| QA entries       | 4 個連結卡片，顯示 status/tags ✅                   |
+| Pagination       | "Showing 1–4 of 4" ✅                               |
+| Touch targets    | 全部 ≥44px ✅                                       |
+| ariaMissing      | 0 ✅                                                |
+| imgMissingAlt    | 0 ✅                                                |
 
 ### 4. Dashboard (`/#/dashboard`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ✅ false |
-| Headings | H1 "Dashboard" + 4x H2 ✅ |
-| Main landmark | ✅ |
-| Toolbar | "not-present"（正確，非 QA 頁面）✅ |
-| Stat cards | 4 張卡片 (368×98 each) ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| ariaMissing | 0 ✅ |
+| 檢查項目       | 結果                                |
+| -------------- | ----------------------------------- |
+| Viewport       | 416×902                             |
+| scrollOverflow | ✅ false                            |
+| Headings       | H1 "Dashboard" + 4x H2 ✅           |
+| Main landmark  | ✅                                  |
+| Toolbar        | "not-present"（正確，非 QA 頁面）✅ |
+| Stat cards     | 4 張卡片 (368×98 each) ✅           |
+| Touch targets  | 全部 ≥44px ✅                       |
+| ariaMissing    | 0 ✅                                |
 
 ### 5. Sub-Systems (`/#/categories`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true |
-| Headings | H1 "Categories" → H2 "Sub-Systems List" ✅ |
-| Main landmark | ✅ |
-| Table | clientW=384, scrollW=384，無溢出 ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目       | 結果                                       |
+| -------------- | ------------------------------------------ |
+| Viewport       | 416×902                                    |
+| scrollOverflow | ⚠️ true                                    |
+| Headings       | H1 "Categories" → H2 "Sub-Systems List" ✅ |
+| Main landmark  | ✅                                         |
+| Table          | clientW=384, scrollW=384，無溢出 ✅        |
+| Touch targets  | 全部 ≥44px ✅                              |
 
 ### 6. Users (`/#/users`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true |
-| Headings | H1 "Users" → H2 "Users List" ✅ |
-| Main landmark | ✅ |
-| Table | clientW=384, scrollW=384，無溢出 ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| ariaMissing | 0 ✅ |
+| 檢查項目       | 結果                                |
+| -------------- | ----------------------------------- |
+| Viewport       | 416×902                             |
+| scrollOverflow | ⚠️ true                             |
+| Headings       | H1 "Users" → H2 "Users List" ✅     |
+| Main landmark  | ✅                                  |
+| Table          | clientW=384, scrollW=384，無溢出 ✅ |
+| Touch targets  | 全部 ≥44px ✅                       |
+| ariaMissing    | 0 ✅                                |
 
 ### 7. QA Detail Modal (`/qa/1`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true (body), modal 無溢出 |
-| Headings | H1: QA 標題 ✅ |
-| Modal | clientW=396, scrollW=396，無溢出 ✅ |
-| Content | Question, Answer, Status, Sub-System, Tags, Dates ✅ |
-| 操作按鈕 | Edit / Archive / Delete，全部 ≥44px ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目       | 結果                                                 |
+| -------------- | ---------------------------------------------------- |
+| Viewport       | 416×902                                              |
+| scrollOverflow | ⚠️ true (body), modal 無溢出                         |
+| Headings       | H1: QA 標題 ✅                                       |
+| Modal          | clientW=396, scrollW=396，無溢出 ✅                  |
+| Content        | Question, Answer, Status, Sub-System, Tags, Dates ✅ |
+| 操作按鈕       | Edit / Archive / Delete，全部 ≥44px ✅               |
+| Touch targets  | 全部 ≥44px ✅                                        |
 
 ### 8. New Entry Modal (QA Library → ＋ New Entry)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Modal | clientW=396, scrollW=396，無溢出 ✅ |
-| Inputs | Title, Question, Answer, Sub-System, Tags — 皆有 label ✅ |
-| Input 尺寸 | 348×44（text），348×60/118（textarea），348×44（select）✅ |
-| Form | ⚠️ 未包裹在 `<form>` 元素中 |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目      | 結果                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Modal         | clientW=396, scrollW=396，無溢出 ✅                        |
+| Inputs        | Title, Question, Answer, Sub-System, Tags — 皆有 label ✅  |
+| Input 尺寸    | 348×44（text），348×60/118（textarea），348×44（select）✅ |
+| Form          | ⚠️ 未包裹在 `<form>` 元素中                                |
+| Touch targets | 全部 ≥44px ✅                                              |
 
 ### 9. Change Password Modal (側欄 → Change Password)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Modal | clientW=396, scrollW=396，無溢出 ✅ |
-| Inputs | Current/New/Confirm Password (type=password)，348×44 ✅ |
-| Autocomplete | current-password / new-password / new-password ✅ |
-| Labels | ⚠️ hasLabel: false（文字標籤存在但未程式化連接） |
+| 檢查項目       | 結果                                                        |
+| -------------- | ----------------------------------------------------------- |
+| Modal          | clientW=396, scrollW=396，無溢出 ✅                         |
+| Inputs         | Current/New/Confirm Password (type=password)，348×44 ✅     |
+| Autocomplete   | current-password / new-password / new-password ✅           |
+| Labels         | ⚠️ hasLabel: false（文字標籤存在但未程式化連接）            |
 | Password rules | 顯示要求（8 chars, uppercase, lowercase, digit, special）✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| Touch targets  | 全部 ≥44px ✅                                               |
 
 ### 10. 404 Page (`/qa/new`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 416×902 |
-| scrollOverflow | ⚠️ true |
-| Headings | H1 "Page Not Found" ✅ |
-| Main landmark | ✅ |
-| CTA | "Go to QA Library" 按鈕 142×44 ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目       | 結果                              |
+| -------------- | --------------------------------- |
+| Viewport       | 416×902                           |
+| scrollOverflow | ⚠️ true                           |
+| Headings       | H1 "Page Not Found" ✅            |
+| Main landmark  | ✅                                |
+| CTA            | "Go to QA Library" 按鈕 142×44 ✅ |
+| Touch targets  | 全部 ≥44px ✅                     |
 
 ---
 
 ## 行動版建議優先級
 
-| # | 問題 | 優先級 | 狀態 |
-| --- | --- | --- | --- |
-| R10-M1 | 全站 body 水平溢出 | 🔴 高 | 新發現 |
-| R10-M3 | Change Password labels 缺失 | 🟡 中 | 新發現 |
-| R10-M4 | New Entry 缺少 `<form>` | 🟡 中 | 新發現 |
-| R10-M2 | theme-color light 值錯誤 | 🟢 低 | 新發現 |
-| R6-M2 | 登入頁背景一律 dark | 🔵 已知 | 未修復 |
-| R6-H1 | PWA banner 重疊 | 🔵 已知 | 無法驗證（banner display:none） |
+| #      | 問題                        | 優先級  | 狀態                            |
+| ------ | --------------------------- | ------- | ------------------------------- |
+| R10-M1 | 全站 body 水平溢出          | 🔴 高   | 新發現                          |
+| R10-M3 | Change Password labels 缺失 | 🟡 中   | 新發現                          |
+| R10-M4 | New Entry 缺少 `<form>`     | 🟡 中   | 新發現                          |
+| R10-M2 | theme-color light 值錯誤    | 🟢 低   | 新發現                          |
+| R6-M2  | 登入頁背景一律 dark         | 🔵 已知 | 未修復                          |
+| R6-H1  | PWA banner 重疊             | 🔵 已知 | 無法驗證（banner display:none） |
 
 ---
 
@@ -1275,40 +1275,40 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 
 ## 頁面清冊
 
-| # | 頁面 | 路由 | 狀態 |
-| --- | --- | --- | --- |
-| 1 | Login | `/` | ✅ |
-| 2 | Register | `/register` | ✅ |
-| 3 | QA Library | `/qa` | ✅ |
-| 4 | Dashboard | `/dashboard` | ✅ |
-| 5 | Sub-Systems | `/categories` | ✅ |
-| 6 | Users | `/users` | ✅ |
-| 7 | QA Detail | `/qa/1` | ✅ |
-| 8 | New Entry | Modal | ✅ |
-| 9 | Change Password | Modal | ✅ |
-| 10 | 404 Page | `/nonexistent` | ✅ |
+| #   | 頁面            | 路由           | 狀態 |
+| --- | --------------- | -------------- | ---- |
+| 1   | Login           | `/`            | ✅   |
+| 2   | Register        | `/register`    | ✅   |
+| 3   | QA Library      | `/qa`          | ✅   |
+| 4   | Dashboard       | `/dashboard`   | ✅   |
+| 5   | Sub-Systems     | `/categories`  | ✅   |
+| 6   | Users           | `/users`       | ✅   |
+| 7   | QA Detail       | `/qa/1`        | ✅   |
+| 8   | New Entry       | Modal          | ✅   |
+| 9   | Change Password | Modal          | ✅   |
+| 10  | 404 Page        | `/nonexistent` | ✅   |
 
 ## 審計結果總覽
 
-| 維度 | 評級 | 說明 |
-| --- | --- | --- |
-| Heading 層級 | ✅ 通過 | 所有頁面 H1 → H2 正確，無跳躍 |
-| Main landmark | ✅ 通過 | 所有頁面皆有 `<main>` |
-| Skip-to-content | ✅ 通過 | 所有頁面皆有 skip-link |
-| aria-label 缺失 | ✅ 通過 | 無缺失（按鈕有可見文字） |
-| img alt 缺失 | ✅ 通過 | 無圖片缺少 alt |
-| target="_blank" | ✅ 通過 | 0 個無 rel="noopener" 的 external link |
-| autocomplete | ✅ 通過 | 所有表單輸入框有正確 autocomplete |
-| 表單 label | 🟡 部分 | Change Password modal 缺少程式化 label |
-| 表單 `<form>` | 🟡 部分 | New Entry modal 未用 `<form>` 包裹 |
-| 觸控目標 | ✅ 通過 | 全部 ≥44px |
-| 水平溢出 | ⚠️ 部分 | 8/10 頁面 body 有溢出 |
-| PWA manifest | ✅ 通過 | 所有必填欄位 + icons |
-| Service Worker | ✅ 通過 | Cache-first + network-first 策略 |
-| theme-color meta | 🟡 警告 | Light 模式值錯誤 |
-| Dark mode | ✅ 通過 | 全站 Dark/Light 切換正常 |
-| Navigation | ✅ 通過 | SPA routing 正確，側欄高亮當前頁 |
-| 404 Page | ✅ 通過 | 自訂 404，HTTP 404 status |
+| 維度             | 評級    | 說明                                   |
+| ---------------- | ------- | -------------------------------------- |
+| Heading 層級     | ✅ 通過 | 所有頁面 H1 → H2 正確，無跳躍          |
+| Main landmark    | ✅ 通過 | 所有頁面皆有 `<main>`                  |
+| Skip-to-content  | ✅ 通過 | 所有頁面皆有 skip-link                 |
+| aria-label 缺失  | ✅ 通過 | 無缺失（按鈕有可見文字）               |
+| img alt 缺失     | ✅ 通過 | 無圖片缺少 alt                         |
+| target="\_blank" | ✅ 通過 | 0 個無 rel="noopener" 的 external link |
+| autocomplete     | ✅ 通過 | 所有表單輸入框有正確 autocomplete      |
+| 表單 label       | 🟡 部分 | Change Password modal 缺少程式化 label |
+| 表單 `<form>`    | 🟡 部分 | New Entry modal 未用 `<form>` 包裹     |
+| 觸控目標         | ✅ 通過 | 全部 ≥44px                             |
+| 水平溢出         | ⚠️ 部分 | 8/10 頁面 body 有溢出                  |
+| PWA manifest     | ✅ 通過 | 所有必填欄位 + icons                   |
+| Service Worker   | ✅ 通過 | Cache-first + network-first 策略       |
+| theme-color meta | 🟡 警告 | Light 模式值錯誤                       |
+| Dark mode        | ✅ 通過 | 全站 Dark/Light 切換正常               |
+| Navigation       | ✅ 通過 | SPA routing 正確，側欄高亮當前頁       |
+| 404 Page         | ✅ 通過 | 自訂 404，HTTP 404 status              |
 
 ---
 
@@ -1321,6 +1321,7 @@ H1.topbar-title: scrollWidth=431px, clientWidth=208px, whiteSpace=nowrap
 **狀態：** R10-M1 未修復
 
 桌面版同樣有水平溢出問題。可能原因：
+
 - Sidebar 關閉狀態下仍有不可見元素超出 viewport
 - `box-sizing` 設定不完整
 - 某些容器的 `width: 100%` 計算錯誤
@@ -1361,13 +1362,13 @@ New Entry modal 內的輸入框（title, question, answer, sub-system, tags）�
 
 ## ✅ 已確認修復
 
-| Issue | 狀態 | 驗證 |
-| --- | --- | --- |
-| R6-H1 — PWA banner 重疊 | ✅ 已修復 | PR #137 — `padding-bottom` on `<main>` |
-| R6-M2 — Login bg always dark | 🔵 已知 | 仍未修復（低優先） |
-| R9-M2 — Dashboard 缺少 H2 | ✅ 已修復 | H1 + 4x H2 確認存在 |
-| R8-M2 — 非 QA 頁面顯示 toolbar | ✅ 已修復 | Dashboard toolbar 正確隱藏 |
-| #229 — Export/New Entry 換行 | ✅ 已修復 | PR #230 merged |
+| Issue                          | 狀態      | 驗證                                   |
+| ------------------------------ | --------- | -------------------------------------- |
+| R6-H1 — PWA banner 重疊        | ✅ 已修復 | PR #137 — `padding-bottom` on `<main>` |
+| R6-M2 — Login bg always dark   | 🔵 已知   | 仍未修復（低優先）                     |
+| R9-M2 — Dashboard 缺少 H2      | ✅ 已修復 | H1 + 4x H2 確認存在                    |
+| R8-M2 — 非 QA 頁面顯示 toolbar | ✅ 已修復 | Dashboard toolbar 正確隱藏             |
+| #229 — Export/New Entry 換行   | ✅ 已修復 | PR #230 merged                         |
 
 ---
 
@@ -1375,49 +1376,49 @@ New Entry modal 內的輸入框（title, question, answer, sub-system, tags）�
 
 ### manifest.json
 
-| 欄位 | 值 | 狀態 |
-| --- | --- | --- |
-| name | "IT Operations — Knowledge Base" | ✅ |
-| short_name | "IT Ops KB" | ✅ |
-| description | "IT Operations Knowledge Base" | ✅ |
-| start_url | "/" | ✅ |
-| scope | "/" | ✅ |
-| display | "standalone" | ✅ |
-| background_color | "#f5f5f5" | ✅ |
-| theme_color | "#4f46e5" | ✅ |
-| orientation | "portrait-primary" | ✅ |
-| icons (192x192) | `/icons/icon-192.png` | ✅ |
-| icons (512x512) | `/icons/icon-512.png` | ✅ |
-| icons purpose | "any maskable" | ✅ |
+| 欄位             | 值                               | 狀態 |
+| ---------------- | -------------------------------- | ---- |
+| name             | "IT Operations — Knowledge Base" | ✅   |
+| short_name       | "IT Ops KB"                      | ✅   |
+| description      | "IT Operations Knowledge Base"   | ✅   |
+| start_url        | "/"                              | ✅   |
+| scope            | "/"                              | ✅   |
+| display          | "standalone"                     | ✅   |
+| background_color | "#f5f5f5"                        | ✅   |
+| theme_color      | "#4f46e5"                        | ✅   |
+| orientation      | "portrait-primary"               | ✅   |
+| icons (192x192)  | `/icons/icon-192.png`            | ✅   |
+| icons (512x512)  | `/icons/icon-512.png`            | ✅   |
+| icons purpose    | "any maskable"                   | ✅   |
 
 ### Service Worker
 
-| 功能 | 狀態 | 備註 |
-| --- | --- | --- |
-| Install event | ✅ | Cache static assets |
-| Activate event | ✅ | Clean old caches |
-| Fetch handler | ✅ | Network-first for SPA, cache-first for static |
-| API routes | ✅ | Network-only (no caching auth data) |
-| SPA navigation | ✅ | Network-first → fallback to cached index.html |
-| Stale-while-revalidate | ✅ | Static assets update on next visit |
+| 功能                   | 狀態 | 備註                                          |
+| ---------------------- | ---- | --------------------------------------------- |
+| Install event          | ✅   | Cache static assets                           |
+| Activate event         | ✅   | Clean old caches                              |
+| Fetch handler          | ✅   | Network-first for SPA, cache-first for static |
+| API routes             | ✅   | Network-only (no caching auth data)           |
+| SPA navigation         | ✅   | Network-first → fallback to cached index.html |
+| Stale-while-revalidate | ✅   | Static assets update on next visit            |
 
 ---
 
 ## Accessibility JS Evaluate（Round 11）
 
-| Check | Result | Detail |
-| --- | --- | --- |
-| `<a target="_blank">` without rel="noopener" | 0 | ✅ |
-| Buttons without aria-label (with visible text) | 12 | ✅ 皆有可見文字 |
-| Buttons without aria-label (no visible text) | 0 | ✅ |
-| Images without alt | 0 | ✅ |
-| Inputs without autocomplete | 0 | ✅ |
-| Inputs without label | 3 | ⚠️ Change Password modal |
-| Select without aria-label | 0 | ✅ (sort select has aria-label) |
-| H1 elements per page | 1 per page | ✅ |
-| Heading hierarchy | H1 → H2 | ✅ |
-| Skip-to-content | Present on all pages | ✅ |
-| Main landmark | Present on all pages | ✅ |
+| Check                                          | Result               | Detail                          |
+| ---------------------------------------------- | -------------------- | ------------------------------- |
+| `<a target="_blank">` without rel="noopener"   | 0                    | ✅                              |
+| Buttons without aria-label (with visible text) | 12                   | ✅ 皆有可見文字                 |
+| Buttons without aria-label (no visible text)   | 0                    | ✅                              |
+| Images without alt                             | 0                    | ✅                              |
+| Inputs without autocomplete                    | 0                    | ✅                              |
+| Inputs without label                           | 3                    | ⚠️ Change Password modal        |
+| Select without aria-label                      | 0                    | ✅ (sort select has aria-label) |
+| H1 elements per page                           | 1 per page           | ✅                              |
+| Heading hierarchy                              | H1 → H2              | ✅                              |
+| Skip-to-content                                | Present on all pages | ✅                              |
+| Main landmark                                  | Present on all pages | ✅                              |
 
 ---
 
@@ -1425,148 +1426,148 @@ New Entry modal 內的輸入框（title, question, answer, sub-system, tags）�
 
 ### 1. Login 頁面 (`/`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| data-theme | "dark" |
-| Headings | H1: "Sign In" |
-| Main landmark | ✅ |
-| Form | `<form>` 存在 ✅ |
-| Inputs | auth-user (text), auth-pass (password)，皆有 label ✅ |
-| Autocomplete | username / current-password ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| bgGradient | "none" ⚠️ (R6-M2) |
+| 檢查項目      | 結果                                                  |
+| ------------- | ----------------------------------------------------- |
+| Viewport      | 1600×1000                                             |
+| data-theme    | "dark"                                                |
+| Headings      | H1: "Sign In"                                         |
+| Main landmark | ✅                                                    |
+| Form          | `<form>` 存在 ✅                                      |
+| Inputs        | auth-user (text), auth-pass (password)，皆有 label ✅ |
+| Autocomplete  | username / current-password ✅                        |
+| Touch targets | 全部 ≥44px ✅                                         |
+| bgGradient    | "none" ⚠️ (R6-M2)                                     |
 
 ### 2. Register 頁面 (`/register`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| data-theme | "dark" |
-| Headings | H1: "Create Account" |
-| Main landmark | ✅ |
-| Form | `<form>` 存在 ✅ |
-| Inputs | Username, Password, Confirm Password, Role — 皆有 label ✅ |
-| Autocomplete | username / new-password / new-password ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目      | 結果                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Viewport      | 1600×1000                                                  |
+| data-theme    | "dark"                                                     |
+| Headings      | H1: "Create Account"                                       |
+| Main landmark | ✅                                                         |
+| Form          | `<form>` 存在 ✅                                           |
+| Inputs        | Username, Password, Confirm Password, Role — 皆有 label ✅ |
+| Autocomplete  | username / new-password / new-password ✅                  |
+| Touch targets | 全部 ≥44px ✅                                              |
 
 ### 3. QA Library (`/qa`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| Headings | H1 "QA Library" → H2 "Filters" → H2 "QA Entries" ✅ |
-| Main landmark | ✅ |
-| Filter tabs | All / Draft / Published / Archived ✅ |
-| Search | searchbox 346×44 ✅ |
-| Sort | select 167×44（Popular / Newest）✅ |
-| Export/New Entry | 按鈕存在 ✅ |
-| QA entries | 4 個連結卡片，顯示 status/tags ✅ |
-| Pagination | "Showing 1–4 of 4" ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| ariaMissing | 0 ✅ |
-| imgMissingAlt | 0 ✅ |
+| 檢查項目         | 結果                                                |
+| ---------------- | --------------------------------------------------- |
+| Viewport         | 1600×1000                                           |
+| Headings         | H1 "QA Library" → H2 "Filters" → H2 "QA Entries" ✅ |
+| Main landmark    | ✅                                                  |
+| Filter tabs      | All / Draft / Published / Archived ✅               |
+| Search           | searchbox 346×44 ✅                                 |
+| Sort             | select 167×44（Popular / Newest）✅                 |
+| Export/New Entry | 按鈕存在 ✅                                         |
+| QA entries       | 4 個連結卡片，顯示 status/tags ✅                   |
+| Pagination       | "Showing 1–4 of 4" ✅                               |
+| Touch targets    | 全部 ≥44px ✅                                       |
+| ariaMissing      | 0 ✅                                                |
+| imgMissingAlt    | 0 ✅                                                |
 
 ### 4. Dashboard (`/dashboard`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| Headings | H1 "Dashboard" + 4x H2 ✅ |
-| Main landmark | ✅ |
-| Toolbar | "not-present"（正確，非 QA 頁面）✅ |
-| Stat cards | 5 張卡片 (Total/Published/Draft/Archived/Sub-Systems) ✅ |
-| Status Distribution | Progress bar (Published 19%, Draft 81%, Archived 0%) ✅ |
-| Recent Entries | 列表 + "View All →" 連結 ✅ |
-| Most Viewed | 列表 + view count ✅ |
-| Sub-System Coverage | Bar chart per category ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| ariaMissing | 0 ✅ |
+| 檢查項目            | 結果                                                     |
+| ------------------- | -------------------------------------------------------- |
+| Viewport            | 1600×1000                                                |
+| Headings            | H1 "Dashboard" + 4x H2 ✅                                |
+| Main landmark       | ✅                                                       |
+| Toolbar             | "not-present"（正確，非 QA 頁面）✅                      |
+| Stat cards          | 5 張卡片 (Total/Published/Draft/Archived/Sub-Systems) ✅ |
+| Status Distribution | Progress bar (Published 19%, Draft 81%, Archived 0%) ✅  |
+| Recent Entries      | 列表 + "View All →" 連結 ✅                              |
+| Most Viewed         | 列表 + view count ✅                                     |
+| Sub-System Coverage | Bar chart per category ✅                                |
+| Touch targets       | 全部 ≥44px ✅                                            |
+| ariaMissing         | 0 ✅                                                     |
 
 ### 5. Sub-Systems (`/categories`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| Headings | H1 "Categories" → H2 "Sub-Systems List" ✅ |
-| Main landmark | ✅ |
-| Table | 4 rows (ACOS, CAD, GIS, PVNS) ✅ |
-| Add button | "+ Add Sub-System" ✅ |
-| Remove buttons | 每個 row 有 Remove 按鈕 ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目       | 結果                                       |
+| -------------- | ------------------------------------------ |
+| Viewport       | 1600×1000                                  |
+| Headings       | H1 "Categories" → H2 "Sub-Systems List" ✅ |
+| Main landmark  | ✅                                         |
+| Table          | 4 rows (ACOS, CAD, GIS, PVNS) ✅           |
+| Add button     | "+ Add Sub-System" ✅                      |
+| Remove buttons | 每個 row 有 Remove 按鈕 ✅                 |
+| Touch targets  | 全部 ≥44px ✅                              |
 
 ### 6. Users (`/users`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| Headings | H1 "Users" → H2 "Users List" ✅ |
-| Main landmark | ✅ |
-| Table | 246 users, pagination 1/13 ✅ |
-| Search | "Search users" ✅ |
-| Actions | Approve/Reject (pending) / Disable/Reset (active) ✅ |
-| Touch targets | 全部 ≥44px ✅ |
-| ariaMissing | 0 ✅ |
+| 檢查項目      | 結果                                                 |
+| ------------- | ---------------------------------------------------- |
+| Viewport      | 1600×1000                                            |
+| Headings      | H1 "Users" → H2 "Users List" ✅                      |
+| Main landmark | ✅                                                   |
+| Table         | 246 users, pagination 1/13 ✅                        |
+| Search        | "Search users" ✅                                    |
+| Actions       | Approve/Reject (pending) / Disable/Reset (active) ✅ |
+| Touch targets | 全部 ≥44px ✅                                        |
+| ariaMissing   | 0 ✅                                                 |
 
 ### 7. QA Detail Modal (`/qa/1`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| Headings | H1: QA 標題 ✅ |
-| Modal | 無溢出 ✅ |
-| Content | Question, Answer, Status, Sub-System, Tags, Dates ✅ |
-| 操作按鈕 | Edit / Archive / Delete，全部 ≥44px ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目      | 結果                                                 |
+| ------------- | ---------------------------------------------------- |
+| Viewport      | 1600×1000                                            |
+| Headings      | H1: QA 標題 ✅                                       |
+| Modal         | 無溢出 ✅                                            |
+| Content       | Question, Answer, Status, Sub-System, Tags, Dates ✅ |
+| 操作按鈕      | Edit / Archive / Delete，全部 ≥44px ✅               |
+| Touch targets | 全部 ≥44px ✅                                        |
 
 ### 8. New Entry Modal
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Modal | 無溢出 ✅ |
-| Inputs | Title, Question, Answer, Sub-System, Tags — 皆有 label ✅ |
-| Input 尺寸 | 348×44（text），348×60/118（textarea），348×44（select）✅ |
-| Form | ⚠️ 未包裹在 `<form>` 元素中 |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目      | 結果                                                       |
+| ------------- | ---------------------------------------------------------- |
+| Modal         | 無溢出 ✅                                                  |
+| Inputs        | Title, Question, Answer, Sub-System, Tags — 皆有 label ✅  |
+| Input 尺寸    | 348×44（text），348×60/118（textarea），348×44（select）✅ |
+| Form          | ⚠️ 未包裹在 `<form>` 元素中                                |
+| Touch targets | 全部 ≥44px ✅                                              |
 
 ### 9. Change Password Modal
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Modal | 無溢出 ✅ |
-| Inputs | Current/New/Confirm Password (type=password)，348×44 ✅ |
-| Autocomplete | current-password / new-password / new-password ✅ |
-| Labels | ⚠️ hasLabel: false（文字標籤存在但未程式化連接） |
+| 檢查項目       | 結果                                                        |
+| -------------- | ----------------------------------------------------------- |
+| Modal          | 無溢出 ✅                                                   |
+| Inputs         | Current/New/Confirm Password (type=password)，348×44 ✅     |
+| Autocomplete   | current-password / new-password / new-password ✅           |
+| Labels         | ⚠️ hasLabel: false（文字標籤存在但未程式化連接）            |
 | Password rules | 顯示要求（8 chars, uppercase, lowercase, digit, special）✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| Touch targets  | 全部 ≥44px ✅                                               |
 
 ### 10. 404 Page (`/nonexistent`)
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| Viewport | 1600×1000 |
-| Headings | H1 "Page Not Found" ✅ |
-| Main landmark | ✅ |
-| CTA | "Go to QA Library" 按鈕 ✅ |
-| HTTP status | 404 ✅ |
-| Touch targets | 全部 ≥44px ✅ |
+| 檢查項目      | 結果                       |
+| ------------- | -------------------------- |
+| Viewport      | 1600×1000                  |
+| Headings      | H1 "Page Not Found" ✅     |
+| Main landmark | ✅                         |
+| CTA           | "Go to QA Library" 按鈕 ✅ |
+| HTTP status   | 404 ✅                     |
+| Touch targets | 全部 ≥44px ✅              |
 
 ---
 
 ## 深色模式驗證（Round 11）
 
-| 頁面 | Dark mode | Light mode | Toggle | 備註 |
-| --- | --- | --- | --- | --- |
-| Login | ✅ | ✅ | ✅ | 背景 gradient 正常 |
-| Register | ✅ | ✅ | ✅ | 背景 gradient 正常 |
-| QA Library | ✅ | ✅ | ✅ | 所有元素清晰可讀 |
-| Dashboard | ✅ | ✅ | ✅ | Stat cards / charts 正常 |
-| Sub-Systems | ✅ | ✅ | ✅ | Table 清晰可讀 |
-| Users | ✅ | ✅ | ✅ | Table 清晰可讀 |
-| QA Detail | ✅ | ✅ | ✅ | Modal 清晰可讀 |
-| New Entry | ✅ | ✅ | ✅ | Form 清晰可讀 |
-| Change Password | ✅ | ✅ | ✅ | Form 清晰可讀 |
-| 404 | ✅ | ✅ | ✅ | 文字清晰可讀 |
+| 頁面            | Dark mode | Light mode | Toggle | 備註                     |
+| --------------- | --------- | ---------- | ------ | ------------------------ |
+| Login           | ✅        | ✅         | ✅     | 背景 gradient 正常       |
+| Register        | ✅        | ✅         | ✅     | 背景 gradient 正常       |
+| QA Library      | ✅        | ✅         | ✅     | 所有元素清晰可讀         |
+| Dashboard       | ✅        | ✅         | ✅     | Stat cards / charts 正常 |
+| Sub-Systems     | ✅        | ✅         | ✅     | Table 清晰可讀           |
+| Users           | ✅        | ✅         | ✅     | Table 清晰可讀           |
+| QA Detail       | ✅        | ✅         | ✅     | Modal 清晰可讀           |
+| New Entry       | ✅        | ✅         | ✅     | Form 清晰可讀            |
+| Change Password | ✅        | ✅         | ✅     | Form 清晰可讀            |
+| 404             | ✅        | ✅         | ✅     | 文字清晰可讀             |
 
 **Dark mode body contrast ratio: 14.42:1** — Exceeds WCAG AAA requirement (7:1) ✅
 
@@ -1574,42 +1575,42 @@ New Entry modal 內的輸入框（title, question, answer, sub-system, tags）�
 
 ## 導航與 SPA Routing（Round 11）
 
-| 檢查項目 | 結果 |
-| --- | --- |
-| SPA routing | ✅ 所有路由正確 |
-| Sidebar active state | ✅ 當前頁高亮 |
-| Sidebar collapse | ✅ Mobile: hamburger toggle |
-| Breadcrumb | ✅ "IT Operations / [Page Name]" 格式一致 |
-| Version footer | ✅ "IT Operations KB v1.1.0" |
-| Logout | ✅ 側欄 Sign Out 可用 |
-| Change Password | ✅ 側欄可用 |
-| Page title | ✅ `<title>` 正確更新 |
+| 檢查項目             | 結果                                      |
+| -------------------- | ----------------------------------------- |
+| SPA routing          | ✅ 所有路由正確                           |
+| Sidebar active state | ✅ 當前頁高亮                             |
+| Sidebar collapse     | ✅ Mobile: hamburger toggle               |
+| Breadcrumb           | ✅ "IT Operations / [Page Name]" 格式一致 |
+| Version footer       | ✅ "IT Operations KB v1.1.0"              |
+| Logout               | ✅ 側欄 Sign Out 可用                     |
+| Change Password      | ✅ 側欄可用                               |
+| Page title           | ✅ `<title>` 正確更新                     |
 
 ---
 
 ## Round 11 建議優先級
 
-| # | 問題 | 優先級 | 狀態 |
-| --- | --- | --- | --- |
-| R11-M1 | 全站 body 水平溢出 | 🔴 高 | 新發現（R10-M1 未修復） |
-| R11-M2 | Sort Select 缺少 label 元素 | 🟢 低 | **✅ FIXED** — PR #237 merged |
-| R11-M3 | New Entry 缺少 `<form>` | 🟡 中 | R10-M4 未修復 |
-| R11-M4 | Change Password 缺少 label | 🟡 中 | R10-M3 未修復 |
-| R10-M2 | theme-color light 值錯誤 | 🟢 低 | 新發現 |
-| R6-M2 | 登入頁背景一律 dark | 🔵 已知 | 未修復（低優先） |
-| R6-H1 | PWA banner 重疊 | 🔵 已知 | 已修復（無法驗證） |
+| #      | 問題                        | 優先級  | 狀態                          |
+| ------ | --------------------------- | ------- | ----------------------------- |
+| R11-M1 | 全站 body 水平溢出          | 🔴 高   | 新發現（R10-M1 未修復）       |
+| R11-M2 | Sort Select 缺少 label 元素 | 🟢 低   | **✅ FIXED** — PR #237 merged |
+| R11-M3 | New Entry 缺少 `<form>`     | 🟡 中   | R10-M4 未修復                 |
+| R11-M4 | Change Password 缺少 label  | 🟡 中   | R10-M3 未修復                 |
+| R10-M2 | theme-color light 值錯誤    | 🟢 低   | 新發現                        |
+| R6-M2  | 登入頁背景一律 dark         | 🔵 已知 | 未修復（低優先）              |
+| R6-H1  | PWA banner 重疊             | 🔵 已知 | 已修復（無法驗證）            |
 
 ---
 
 ## 累計狀態總覽
 
-| Issue | R1 | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | **R11** |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 🔴 Critical | 4 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | **0** |
-| 🟧 High | 5 | 0 | 3 | 2 | 1 | 1 | 1 | 1 | 1 | 1 | **1** |
-| 🟨 Medium | 5 | 2 | 4 | 4 | 2 | 5 | 5 | 4 | 2 | 3 | **3** |
-| 🟩 Low | 5 | 1 | 3 | 1 | 2 | 4 | 4 | 2 | 1 | 1 | **1** |
-| **Total** | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **3** | **3** | **5** |
-| **Fixed** | — | 19 | 21 | 25 | 28 | 30 | 30 | 37 | 44 | 44 | **44** |
+| Issue       | R1     | R2    | R3     | R4    | R5    | R6     | R7     | R8    | R9    | R10   | **R11** |
+| ----------- | ------ | ----- | ------ | ----- | ----- | ------ | ------ | ----- | ----- | ----- | ------- |
+| 🔴 Critical | 4      | 0     | 0      | 0     | 0     | 0      | 0      | 0     | 0     | 0     | **0**   |
+| 🟧 High     | 5      | 0     | 3      | 2     | 1     | 1      | 1      | 1     | 1     | 1     | **1**   |
+| 🟨 Medium   | 5      | 2     | 4      | 4     | 2     | 5      | 5      | 4     | 2     | 3     | **3**   |
+| 🟩 Low      | 5      | 1     | 3      | 1     | 2     | 4      | 4      | 2     | 1     | 1     | **1**   |
+| **Total**   | **19** | **3** | **10** | **7** | **5** | **10** | **10** | **7** | **3** | **3** | **5**   |
+| **Fixed**   | —      | 19    | 21     | 25    | 28    | 30     | 30     | 37    | 44    | 44    | **44**  |
 
 **Round 11 總結：** 新增 2 個 Medium + 1 個 Low（共 5 個 open issues）。全站 accessibility、PWA、dark mode 均通過驗證。主要待修復項目為 body 水平溢出（R11-M1）和表單語意問題（R11-M3, R11-M4）。
