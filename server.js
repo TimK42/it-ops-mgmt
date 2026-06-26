@@ -50,7 +50,7 @@ app.get('/version', (req, res) => {
     const versionHash = result.split(' ')[0];
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 min
     res.json({ version: versionHash });
-  } catch (err) {
+  } catch {
     // Fallback: use git commit hash
     try {
       const gitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
