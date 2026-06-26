@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { execSync } = require('child_process');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -32,11 +33,31 @@ app.use(
   express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
-        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       }
     },
   }),
 );
+
+// Version endpoint — returns a hash of static assets for SW cache invalidation
+app.get('/version', (req, res) => {
+  try {
+    const publicDir = path.join(__dirname, 'public');
+    const result = execSync(`find "${publicDir}" -type f \\( -name '*.js' -o -name '*.css' -o -name '*.html' \\) -exec md5sum {} + 2>/dev/null | md5sum`, { encoding: 'utf-8' }).trim();
+    const versionHash = result.split(' ')[0];
+    res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 min
+    res.json({ version: versionHash });
+  } catch (err) {
+    // Fallback: use git commit hash
+    try {
+      const gitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
+      res.set('Cache-Control', 'public, max-age=300');
+      res.json({ version: gitHash });
+    } catch {
+      res.json({ version: Date.now().toString() });
+    }
+  }
+});
 
 // Session middleware
 // Production safeguards
