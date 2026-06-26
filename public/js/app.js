@@ -52,7 +52,11 @@ var PAGE_DESCRIPTIONS = PAGE_DESCRIPTIONS || {
 function setPageTitle(page) {
   document.title = PAGE_TITLES[page] || 'IT Operations - Knowledge Base';
   var meta = document.querySelector('meta[name="description"]');
-  if (meta) meta.setAttribute('content', PAGE_DESCRIPTIONS[page] || 'IT Operations Knowledge Base - QA Library');
+  if (meta)
+    meta.setAttribute(
+      'content',
+      PAGE_DESCRIPTIONS[page] || 'IT Operations Knowledge Base - QA Library',
+    );
 }
 
 function updateThemeColor(theme) {
