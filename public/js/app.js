@@ -36,7 +36,7 @@ var PAGE_TITLES = PAGE_TITLES || {
   categories: 'Sub-Systems - IT Ops KB',
   users: 'Users - IT Ops KB',
   dashboard: 'Dashboard - IT Ops KB',
-  '404': 'Page Not Found - IT Ops KB',
+  404: 'Page Not Found - IT Ops KB',
 };
 
 function setPageTitle(page) {
