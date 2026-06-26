@@ -43,7 +43,10 @@ app.use(
 app.get('/version', (req, res) => {
   try {
     const publicDir = path.join(__dirname, 'public');
-    const result = execSync(`find "${publicDir}" -type f \\( -name '*.js' -o -name '*.css' -o -name '*.html' \\) -exec md5sum {} + 2>/dev/null | md5sum`, { encoding: 'utf-8' }).trim();
+    const result = execSync(
+      `find "${publicDir}" -type f \\( -name '*.js' -o -name '*.css' -o -name '*.html' \\) -exec md5sum {} + 2>/dev/null | md5sum`,
+      { encoding: 'utf-8' },
+    ).trim();
     const versionHash = result.split(' ')[0];
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 min
     res.json({ version: versionHash });

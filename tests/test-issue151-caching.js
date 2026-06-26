@@ -87,7 +87,10 @@ describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
       'Cache-Control must have max-age=31536000, got: ' + cc,
     );
     assert.ok(cc.includes('immutable'), 'Cache-Control must include "immutable", got: ' + cc);
-    assert.ok(!cc.includes('must-revalidate'), 'Cache-Control must NOT contain "must-revalidate", got: ' + cc);
+    assert.ok(
+      !cc.includes('must-revalidate'),
+      'Cache-Control must NOT contain "must-revalidate", got: ' + cc,
+    );
   });
 
   test('GET /js/app.js returns Cache-Control: public, max-age=31536000, immutable', async () => {
@@ -101,7 +104,10 @@ describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
       'Cache-Control must have max-age=31536000, got: ' + cc,
     );
     assert.ok(cc.includes('immutable'), 'Cache-Control must include "immutable", got: ' + cc);
-    assert.ok(!cc.includes('must-revalidate'), 'Cache-Control must NOT contain "must-revalidate", got: ' + cc);
+    assert.ok(
+      !cc.includes('must-revalidate'),
+      'Cache-Control must NOT contain "must-revalidate", got: ' + cc,
+    );
   });
 
   test('Conditional GET with valid ETag returns 304 Not Modified', async () => {

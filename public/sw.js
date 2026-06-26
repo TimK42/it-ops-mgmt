@@ -18,7 +18,10 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting()),
+    caches
+      .open(CACHE)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -28,12 +31,17 @@ self.addEventListener('activate', (event) => {
       .then((res) => res.json())
       .then((data) => {
         const newCache = CACHE + '-' + data.version;
-        return caches.open(newCache).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => {
-          // Delete old caches
-          return caches.keys().then((keys) =>
-            Promise.all(keys.filter((k) => k !== newCache).map((k) => caches.delete(k))),
-          );
-        });
+        return caches
+          .open(newCache)
+          .then((cache) => cache.addAll(STATIC_ASSETS))
+          .then(() => {
+            // Delete old caches
+            return caches
+              .keys()
+              .then((keys) =>
+                Promise.all(keys.filter((k) => k !== newCache).map((k) => caches.delete(k))),
+              );
+          });
       })
       .catch(() => {
         // If version endpoint fails, use existing cache
