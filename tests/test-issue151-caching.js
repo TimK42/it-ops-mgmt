@@ -75,7 +75,7 @@ after(() => {
   if (server) server.kill();
 });
 
-describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
+describe('Issue #258 — Long-term caching for static assets', () => {
   test('GET /css/style.css returns Cache-Control: public, max-age=31536000, immutable', async () => {
     const r = await req('GET', '/css/style.css');
     assert.strictEqual(r.status, 200, 'GET /css/style.css must return 200');

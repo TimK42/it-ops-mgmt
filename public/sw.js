@@ -1,5 +1,5 @@
 /* Service Worker — IT Operations Knowledge Base */
-const CACHE = 'it-ops-kb-v1';
+const CACHE_BASE = 'it-ops-kb';
 const VERSION_ENDPOINT = '/version';
 const STATIC_ASSETS = [
   '/',
@@ -16,10 +16,12 @@ const STATIC_ASSETS = [
   '/icons/icon-512.png',
 ];
 
+let currentCacheName = CACHE_BASE;
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
-      .open(CACHE)
+      .open(currentCacheName)
       .then((cache) => cache.addAll(STATIC_ASSETS))
       .then(() => self.skipWaiting()),
   );
@@ -30,16 +32,17 @@ self.addEventListener('activate', (event) => {
     fetch(VERSION_ENDPOINT)
       .then((res) => res.json())
       .then((data) => {
-        const newCache = CACHE + '-' + data.version;
+        const newCacheName = CACHE_BASE + '-' + data.version;
         return caches
-          .open(newCache)
+          .open(newCacheName)
           .then((cache) => cache.addAll(STATIC_ASSETS))
           .then(() => {
+            currentCacheName = newCacheName;
             // Delete old caches
             return caches
               .keys()
               .then((keys) =>
-                Promise.all(keys.filter((k) => k !== newCache).map((k) => caches.delete(k))),
+                Promise.all(keys.filter((k) => k !== newCacheName).map((k) => caches.delete(k))),
               );
           });
       })
@@ -77,7 +80,7 @@ self.addEventListener('fetch', (event) => {
             if (response.ok) {
               event.waitUntil(
                 caches
-                  .open(CACHE)
+                  .open(currentCacheName)
                   .then((cache) => cache.put(event.request, response.clone()))
                   .catch(() => {}),
               );
