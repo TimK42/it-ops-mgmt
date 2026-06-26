@@ -50,6 +50,7 @@ var PAGE_DESCRIPTIONS = PAGE_DESCRIPTIONS || {
 };
 
 function setPageTitle(page) {
+  if (!page) page = 'login';
   document.title = PAGE_TITLES[page] || 'IT Operations - Knowledge Base';
   var meta = document.querySelector('meta[name="description"]');
   if (meta)
