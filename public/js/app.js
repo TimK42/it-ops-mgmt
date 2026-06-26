@@ -39,8 +39,25 @@ var PAGE_TITLES = PAGE_TITLES || {
   404: 'Page Not Found - IT Ops KB',
 };
 
+var PAGE_DESCRIPTIONS = PAGE_DESCRIPTIONS || {
+  login: 'Sign in to IT Operations Knowledge Base',
+  register: 'Create an account for IT Operations Knowledge Base',
+  qa: 'Browse and search IT Operations QA entries',
+  categories: 'Manage IT Operations sub-systems and categories',
+  users: 'Manage users and permissions',
+  dashboard: 'IT Operations dashboard with stats and coverage',
+  404: 'Page not found',
+};
+
 function setPageTitle(page) {
+  if (!page) page = 'login';
   document.title = PAGE_TITLES[page] || 'IT Operations - Knowledge Base';
+  var meta = document.querySelector('meta[name="description"]');
+  if (meta)
+    meta.setAttribute(
+      'content',
+      PAGE_DESCRIPTIONS[page] || 'IT Operations Knowledge Base - QA Library',
+    );
 }
 
 function updateThemeColor(theme) {
