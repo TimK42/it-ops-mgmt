@@ -1,5 +1,5 @@
-// Issue #151 — Conditional ETag caching for static JS/CSS
-// Regression test: verifies Cache-Control header and 304 on conditional GET
+// Issue #258 — Long-term caching for static assets (max-age=1 year, immutable)
+// Regression test: verifies Cache-Control header with immutable directive
 
 const { test, describe, before, after } = require('node:test');
 const assert = require('node:assert');
@@ -75,33 +75,39 @@ after(() => {
   if (server) server.kill();
 });
 
-describe('Issue #151 — Conditional ETag caching for static JS/CSS', () => {
-  test('GET /css/style.css returns Cache-Control: public, max-age=0, must-revalidate', async () => {
+describe('Issue #258 — Long-term caching for static assets', () => {
+  test('GET /css/style.css returns Cache-Control: public, max-age=31536000, immutable', async () => {
     const r = await req('GET', '/css/style.css');
     assert.strictEqual(r.status, 200, 'GET /css/style.css must return 200');
 
     const cc = r.headers['cache-control'] || '';
     assert.ok(cc.includes('public'), 'Cache-Control must include "public", got: ' + cc);
-    assert.ok(/max-age\s*=\s*0/.test(cc), 'Cache-Control must have max-age=0, got: ' + cc);
     assert.ok(
-      cc.includes('must-revalidate'),
-      'Cache-Control must include "must-revalidate", got: ' + cc,
+      /max-age\s*=\s*31536000/.test(cc),
+      'Cache-Control must have max-age=31536000, got: ' + cc,
     );
-    assert.ok(!cc.includes('no-store'), 'Cache-Control must NOT contain "no-store", got: ' + cc);
+    assert.ok(cc.includes('immutable'), 'Cache-Control must include "immutable", got: ' + cc);
+    assert.ok(
+      !cc.includes('must-revalidate'),
+      'Cache-Control must NOT contain "must-revalidate", got: ' + cc,
+    );
   });
 
-  test('GET /js/app.js returns Cache-Control: public, max-age=0, must-revalidate', async () => {
+  test('GET /js/app.js returns Cache-Control: public, max-age=31536000, immutable', async () => {
     const r = await req('GET', '/js/app.js');
     assert.strictEqual(r.status, 200, 'GET /js/app.js must return 200');
 
     const cc = r.headers['cache-control'] || '';
     assert.ok(cc.includes('public'), 'Cache-Control must include "public", got: ' + cc);
-    assert.ok(/max-age\s*=\s*0/.test(cc), 'Cache-Control must have max-age=0, got: ' + cc);
     assert.ok(
-      cc.includes('must-revalidate'),
-      'Cache-Control must include "must-revalidate", got: ' + cc,
+      /max-age\s*=\s*31536000/.test(cc),
+      'Cache-Control must have max-age=31536000, got: ' + cc,
     );
-    assert.ok(!cc.includes('no-store'), 'Cache-Control must NOT contain "no-store", got: ' + cc);
+    assert.ok(cc.includes('immutable'), 'Cache-Control must include "immutable", got: ' + cc);
+    assert.ok(
+      !cc.includes('must-revalidate'),
+      'Cache-Control must NOT contain "must-revalidate", got: ' + cc,
+    );
   });
 
   test('Conditional GET with valid ETag returns 304 Not Modified', async () => {

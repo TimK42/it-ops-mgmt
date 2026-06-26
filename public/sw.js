@@ -1,5 +1,6 @@
 /* Service Worker — IT Operations Knowledge Base */
-const CACHE = 'it-ops-kb-v1';
+const CACHE_BASE = 'it-ops-kb';
+const VERSION_ENDPOINT = '/version';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -15,16 +16,40 @@ const STATIC_ASSETS = [
   '/icons/icon-512.png',
 ];
 
+let currentCacheName = CACHE_BASE;
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(STATIC_ASSETS)));
-  self.skipWaiting();
+  event.waitUntil(
+    caches
+      .open(currentCacheName)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+    fetch(VERSION_ENDPOINT)
+      .then((res) => res.json())
+      .then((data) => {
+        const newCacheName = CACHE_BASE + '-' + data.version;
+        return caches
+          .open(newCacheName)
+          .then((cache) => cache.addAll(STATIC_ASSETS))
+          .then(() => {
+            currentCacheName = newCacheName;
+            // Delete old caches
+            return caches
+              .keys()
+              .then((keys) =>
+                Promise.all(keys.filter((k) => k !== newCacheName).map((k) => caches.delete(k))),
+              );
+          });
+      })
+      .catch(() => {
+        // If version endpoint fails, use existing cache
+        return self.clients.claim();
+      })
       .then(() => self.clients.claim()),
   );
 });
@@ -55,7 +80,7 @@ self.addEventListener('fetch', (event) => {
             if (response.ok) {
               event.waitUntil(
                 caches
-                  .open(CACHE)
+                  .open(currentCacheName)
                   .then((cache) => cache.put(event.request, response.clone()))
                   .catch(() => {}),
               );

@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { execSync } = require('child_process');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
@@ -32,11 +33,55 @@ app.use(
   express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
-        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
       }
     },
   }),
 );
+
+// Memoized version hash (cached for 5 minutes to avoid repeated hashing)
+let cachedVersion = null;
+let cachedVersionTime = 0;
+const VERSION_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getVersionHash() {
+  const now = Date.now();
+  if (cachedVersion && now - cachedVersionTime < VERSION_CACHE_TTL) {
+    return cachedVersion;
+  }
+  try {
+    const publicDir = path.join(__dirname, 'public');
+    const result = execSync(
+      `find "${publicDir}" -type f \\( -name '*.js' -o -name '*.css' -o -name '*.html' \\) -exec md5sum {} + 2>/dev/null | md5sum`,
+      { encoding: 'utf-8' },
+    ).trim();
+    const hash = result.split(' ')[0];
+    cachedVersion = hash;
+    cachedVersionTime = now;
+    return hash;
+  } catch {
+    try {
+      const hash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
+      cachedVersion = hash;
+      cachedVersionTime = now;
+      return hash;
+    } catch {
+      const hash = Date.now().toString();
+      cachedVersion = hash;
+      cachedVersionTime = now;
+      return hash;
+    }
+  }
+}
+
+// Version endpoint — returns a hash of static assets for SW cache invalidation
+app.get('/version', (req, res) => {
+  const versionHash = getVersionHash();
+  res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 min
+  res.json({ version: versionHash });
+});
 
 // Session middleware
 // Production safeguards
