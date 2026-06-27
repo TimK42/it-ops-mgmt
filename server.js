@@ -25,8 +25,12 @@ app.use(
         fontSrc: ["'self'"],
         imgSrc: ["'self'", 'data:'],
         scriptSrc: ["'self'", "'unsafe-inline'"],
+        frameAncestors: ["'none'"],
       },
     },
+    frameguard: { action: 'deny' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    xssFilter: false,
   }),
 );
 app.use(
