@@ -1595,10 +1595,10 @@ async function renderUsers(el) {
       <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table aria-label="Users list"><caption class="sr-only">List of users and their roles</caption><thead><tr><th scope="col">Username</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Created</th><th scope="col"></th></tr></thead><tbody></tbody></table></div>
       ${
         totalPages > 1
-          ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
-        <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
-        <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
-        <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
+          ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px" role="navigation" aria-label="Users pagination">
+        <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''} aria-label="Previous page" ${state.usersPage <= 1 ? 'aria-disabled="true"' : ''}>‹ Prev</button>
+        <span class="pagination-info" style="font-size:13px;color:#888" aria-live="polite">${state.usersPage} / ${totalPages}</span>
+        <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''} aria-label="Next page" ${state.usersPage >= totalPages ? 'aria-disabled="true"' : ''}>Next ›</button>
       </div>`
           : ''
       }
@@ -1646,10 +1646,10 @@ async function renderUsers(el) {
   // Update pagination bar
   const existingPagination = rc.querySelector('.pagination-bar');
   if (totalPages > 1) {
-    const barHtml = `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
-      <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
-      <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
-      <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
+    const barHtml = `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px" role="navigation" aria-label="Users pagination">
+      <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''} aria-label="Previous page" ${state.usersPage <= 1 ? 'aria-disabled="true"' : ''}>‹ Prev</button>
+      <span class="pagination-info" style="font-size:13px;color:#888" aria-live="polite">${state.usersPage} / ${totalPages}</span>
+      <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''} aria-label="Next page" ${state.usersPage >= totalPages ? 'aria-disabled="true"' : ''}>Next ›</button>
     </div>`;
     if (existingPagination) {
       existingPagination.outerHTML = barHtml;
