@@ -909,12 +909,25 @@ function navigate(page) {
   if (n) n.classList.add('active');
   const titles = {
     qa: 'QA Library',
-    categories: 'Categories',
+    categories: 'Sub-Systems',
     users: 'Users',
     dashboard: 'Dashboard',
     404: 'Page Not Found',
   };
   document.getElementById('page-title').textContent = titles[page] || 'Dashboard';
+  // Update breadcrumb
+  const breadcrumbEl = document.querySelector('.topbar-breadcrumb');
+  if (breadcrumbEl) {
+    const breadcrumbMap = {
+      qa: 'QA Library',
+      categories: 'Sub-Systems',
+      users: 'Users',
+      dashboard: 'Dashboard',
+      404: 'Page Not Found',
+    };
+    const current = breadcrumbMap[page] || 'Dashboard';
+    breadcrumbEl.innerHTML = `<a href="/" data-action="navigate" data-page="dashboard" data-allow-nav style="color:var(--text-secondary);text-decoration:none">IT Operations</a> / <span style="color:var(--text-primary)">${current}</span>`;
+  }
   const el = document.getElementById('page-content');
   if (page === 'qa') {
     loadQATotalCount().then(() => {
@@ -934,7 +947,11 @@ function navigate(page) {
 function render404(el) {
   document.getElementById('page-title').textContent = 'Page Not Found';
   el.innerHTML =
-    '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">Page not found</div><button class="btn btn-primary" data-action="navigate" data-page="qa">Go to QA Library</button></div>';
+    '<div class="empty-state" role="alert" aria-live="assertive"><div class="empty-state-icon" style="font-size:48px">🔍</div><h1 style="font-size:24px;margin:16px 0 8px">404 — Page Not Found</h1><p style="color:var(--text-secondary);margin-bottom:24px">The page you' +
+    "'" +
+    're looking for doesn' +
+    "'" +
+    't exist or has been moved.</p><button class="btn btn-primary" data-action="navigate" data-page="dashboard" aria-label="Go to Dashboard">← Back to Dashboard</button><div style="margin-top:16px"><a href="/qa" data-action="navigate" data-page="qa" data-allow-nav style="color:var(--primary);text-decoration:underline">QA Library</a><span style="color:var(--text-secondary);margin:0 8px">·</span><a href="/categories" data-action="navigate" data-page="categories" data-allow-nav style="color:var(--primary);text-decoration:underline">Sub-Systems</a></div></div>';
 }
 
 // ===== QA =====
@@ -996,7 +1013,7 @@ async function renderQA(el) {
     // Insert toolbar as sibling BEFORE .content
     const toolbar = document.createElement('div');
     toolbar.className = 'table-toolbar';
-    toolbar.innerHTML = `<h2 class="sr-only">Filters</h2><div class="qa-toolbar-inner"><div class="qa-toolbar-row qa-toolbar-row--filters"><div class="filter-group">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${s || ''}">${s || 'All'}</button>`).join('')}</div></div><div class="qa-toolbar-row qa-toolbar-row--controls"><div class="filter-group"><div class="search-box"><span class="search-icon">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><label for="qa-sort" class="sr-only">Sort order</label><select id="qa-sort" class="sort-select"><option value="popular"${state.qaSort === 'popular' ? ' selected' : ''}>Popular</option><option value="newest"${state.qaSort === 'newest' ? ' selected' : ''}>Newest</option></select>${canEdit ? '<button class="btn btn-ghost btn-sm" data-action="export-csv">📥 Export</button>' : ''}${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa">＋ New Entry</button>` : ''}</div></div></div>`;
+    toolbar.innerHTML = `<h2 class="sr-only">Filters</h2><div class="qa-toolbar-inner"><div class="qa-toolbar-row qa-toolbar-row--filters"><div class="filter-group" role="group" aria-label="Status filter">${statuses.map((s) => `<button class="filter-tab ${state.qaFilters.status === s ? 'active' : ''}" data-qf="${esc(s || '')}" aria-label="Filter by ${esc(s || 'All')}" aria-pressed="${state.qaFilters.status === s}">${esc(s || 'All')}</button>`).join('')}</div></div><div class="qa-toolbar-row qa-toolbar-row--controls"><div class="filter-group"><div class="search-box"><span class="search-icon" aria-hidden="true">🔍</span><label for="global-search" class="sr-only">Search QA entries</label><input type="search" placeholder="Search..." id="global-search" inputmode="search" aria-label="Search QA entries"><button class="search-clear" id="search-clear" style="display:none" aria-label="Clear search">×</button></div><label for="qa-sort" class="sr-only">Sort order</label><select id="qa-sort" class="sort-select" aria-label="Sort by"><option value="popular"${state.qaSort === 'popular' ? ' selected' : ''}>Popular</option><option value="newest"${state.qaSort === 'newest' ? ' selected' : ''}>Newest</option></select>${canEdit ? '<button class="btn btn-ghost btn-sm" data-action="export-csv" aria-label="Export to CSV">📥 Export</button>' : ''}${canEdit ? `<button class="btn btn-primary btn-sm" data-action="create-qa" aria-label="Create new QA entry">＋ New Entry</button>` : ''}</div></div></div>`;
     main.insertBefore(toolbar, el);
 
     // Only list content inside .content
@@ -1077,7 +1094,7 @@ async function renderQA(el) {
   list.innerHTML = state.qaEntries
     .map(
       (q) =>
-        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}">● ${q.status}</span>${
+        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav aria-label="${esc(q.qa_number)}: ${esc(q.title)}${q.category_name ? ' — ' + esc(q.category_name) : ''}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}" aria-hidden="true">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}" role="status" aria-label="Status: ${q.status}">${q.status}</span>${
           q.tags && q.tags.length
             ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('')
             : ''
@@ -1086,7 +1103,7 @@ async function renderQA(el) {
     .join('');
   const perPage = getPerPage();
   const totalPages = Math.ceil(state.qaTotal / perPage);
-  list.innerHTML += `<div class="pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * perPage + 1}–${Math.min(state.qaPage * perPage, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''}>Next ›</button></div></div>`;
+  list.innerHTML += `<div class="pagination" role="navigation" aria-label="Pagination"><div class="pagination-info">Showing ${(state.qaPage - 1) * perPage + 1}–${Math.min(state.qaPage * perPage, state.qaTotal)} of ${state.qaTotal}</div><div class="filter-group"><button class="pagination-btn" id="qa-prev" ${state.qaPage <= 1 ? 'disabled' : ''} aria-label="Previous page" ${state.qaPage <= 1 ? 'aria-disabled="true"' : ''}>‹ Prev</button><span style="font-size:12px;color:#888;padding:0 8px" aria-live="polite">${state.qaPage} / ${totalPages}</span><button class="pagination-btn" id="qa-next" ${state.qaPage >= totalPages ? 'disabled' : ''} aria-label="Next page" ${state.qaPage >= totalPages ? 'aria-disabled="true"' : ''}>Next ›</button></div></div>`;
 
   const prev = document.getElementById('qa-prev');
   if (prev && !prev.disabled)
@@ -1486,7 +1503,7 @@ async function renderCategories(el) {
   main.insertBefore(toolbar, el);
 
   // Only table inside .content
-  el.innerHTML = `<h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table><thead><tr><th>Icon</th><th>Name</th><th>Color</th><th>QA</th><th></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px">${esc(c.icon)}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${safeColor(c.color)};vertical-align:middle"></span><span class="color-hex-label"> ${esc(c.color)}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
+  el.innerHTML = `<h2 class="sr-only">Sub-Systems List</h2><div class="table-container admin-table"><table aria-label="Sub-Systems list"><caption class="sr-only">List of sub-systems</caption><thead><tr><th scope="col">Icon</th><th scope="col">Name</th><th scope="col">Color</th><th scope="col">QA</th><th scope="col"></th></tr></thead><tbody>${state.categories.map((c) => `<tr><td data-label="Icon" style="font-size:18px" aria-hidden="true">${esc(c.icon)}</td><td data-label="Name"><strong>${esc(c.name)}</strong></td><td data-label="Color"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${safeColor(c.color)};vertical-align:middle"></span><span class="color-hex-label"> ${esc(c.color)}</span></td><td data-label="QA">${c.qa_count || 0}</td><td data-label=""><button class="btn btn-ghost btn-sm" data-action="delete-cat" data-id="${c.id}" aria-label="Remove ${esc(c.name)}">Remove</button></td></tr>`).join('')}</tbody></table></div>`;
 }
 async function showCreateCategory() {
   const modal = document.getElementById('form-modal');
@@ -1570,18 +1587,18 @@ async function renderUsers(el) {
     // Insert toolbar as sibling BEFORE .content
     const toolbar = document.createElement('div');
     toolbar.className = 'table-toolbar';
-    toolbar.innerHTML = `<div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user">＋ New User</button>`;
+    toolbar.innerHTML = `<div style="font-size:13px;color:#888">${users.length} users${state.usersSearch ? ` (filtered: ${filteredUsers.length})` : ''}</div><div class="filter-group"><div class="search-box" style="width:200px"><label for="users-search" class="sr-only">Search users</label><input type="search" placeholder="Search users..." id="users-search" value="${esc(state.usersSearch)}"></div></div><button class="btn btn-primary btn-sm" data-action="create-user" aria-label="Create new user">＋ New User</button>`;
     main.insertBefore(toolbar, el);
 
     // Only results container inside .content
     el.innerHTML = `<div id="users-results-container">
-      <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody></tbody></table></div>
+      <h2 class="sr-only">Users List</h2><div class="table-container admin-table"><table aria-label="Users list"><caption class="sr-only">List of users and their roles</caption><thead><tr><th scope="col">Username</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Created</th><th scope="col"></th></tr></thead><tbody></tbody></table></div>
       ${
         totalPages > 1
-          ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
-        <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
-        <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
-        <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
+          ? `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px" role="navigation" aria-label="Users pagination">
+        <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''} aria-label="Previous page" ${state.usersPage <= 1 ? 'aria-disabled="true"' : ''}>‹ Prev</button>
+        <span class="pagination-info" style="font-size:13px;color:#888" aria-live="polite">${state.usersPage} / ${totalPages}</span>
+        <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''} aria-label="Next page" ${state.usersPage >= totalPages ? 'aria-disabled="true"' : ''}>Next ›</button>
       </div>`
           : ''
       }
@@ -1621,7 +1638,7 @@ async function renderUsers(el) {
       <td data-label="Role"><span class="badge" style="background:#f0f0f5;color:#555">${u.role}</span></td>
       <td data-label="Status"><span class="badge ${u.status === 'active' ? 'status-resolved' : u.status === 'pending' ? 'status-open' : 'status-closed'}">${u.status}</span></td>
       <td data-label="Created" style="font-size:12px;color:#888">${fmtDate(u.created_at)}</td>
-      <td data-label="" style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button> ${u.status === 'active' ? `<button class="btn btn-sm btn-ghost" data-action="reset-user-password" data-id="${u.id}">Reset</button>` : ''}`}</td>
+      <td data-label="" style="text-align:right">${u.id === state.user.id ? '' : u.status === 'pending' ? `<button class="btn btn-sm" style="background:#ecfdf5;color:#16a34a" data-action="approve-user" data-id="${u.id}" aria-label="Approve ${esc(u.username)}">Approve</button> <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626" data-action="reject-user" data-id="${u.id}" aria-label="Reject ${esc(u.username)}">Reject</button>` : `<button class="btn btn-sm btn-ghost" data-action="toggle-user" data-id="${u.id}" aria-label="${u.status === 'disabled' ? 'Enable' : 'Disable'} ${esc(u.username)}">${u.status === 'disabled' ? 'Enable' : 'Disable'}</button> ${u.status === 'active' ? `<button class="btn btn-sm btn-ghost" data-action="reset-user-password" data-id="${u.id}" aria-label="Reset password for ${esc(u.username)}">Reset</button>` : ''}`}</td>
     </tr>`,
       )
       .join('');
@@ -1629,10 +1646,10 @@ async function renderUsers(el) {
   // Update pagination bar
   const existingPagination = rc.querySelector('.pagination-bar');
   if (totalPages > 1) {
-    const barHtml = `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px">
-      <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''}>‹ Prev</button>
-      <span class="pagination-info" style="font-size:13px;color:#888">${state.usersPage} / ${totalPages}</span>
-      <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''}>Next ›</button>
+    const barHtml = `<div class="pagination-bar" style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px;padding:12px" role="navigation" aria-label="Users pagination">
+      <button class="pagination-btn" data-action="users-prev" ${state.usersPage <= 1 ? 'disabled' : ''} aria-label="Previous page" ${state.usersPage <= 1 ? 'aria-disabled="true"' : ''}>‹ Prev</button>
+      <span class="pagination-info" style="font-size:13px;color:#888" aria-live="polite">${state.usersPage} / ${totalPages}</span>
+      <button class="pagination-btn" data-action="users-next" ${state.usersPage >= totalPages ? 'disabled' : ''} aria-label="Next page" ${state.usersPage >= totalPages ? 'aria-disabled="true"' : ''}>Next ›</button>
     </div>`;
     if (existingPagination) {
       existingPagination.outerHTML = barHtml;
@@ -1845,12 +1862,12 @@ async function renderDashboard(el) {
       const draftPct = total > 0 ? Math.round((draft / total) * 100) : 0;
       const archivedPct = total > 0 ? Math.round((archived / total) * 100) : 0;
       ds.className = '';
-      ds.innerHTML = `<div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">${esc(String(total))}</div><div class="stat-label">Total QA Entries</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--success)">${esc(String(published))}</div><div class="stat-label">Published</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--warning)">${esc(String(draft))}</div><div class="stat-label">Draft</div></div>
-      <div class="stat-card"><div class="stat-number" style="color:var(--text-secondary)">${esc(String(archived))}</div><div class="stat-label">Archived</div></div>
-      <div class="stat-card"><div class="stat-number">${esc(String(s.categories ?? 0))}</div><div class="stat-label">Sub-Systems</div></div>
+      ds.innerHTML = `<div class="stats-grid" role="group" aria-label="Dashboard statistics">
+      <div class="stat-card" role="status" aria-label="Total QA entries: ${esc(String(total))}"><div class="stat-number">${esc(String(total))}</div><div class="stat-label">Total QA Entries</div></div>
+      <div class="stat-card" role="status" aria-label="Published: ${esc(String(published))}"><div class="stat-number" style="color:var(--success)">${esc(String(published))}</div><div class="stat-label">Published</div></div>
+      <div class="stat-card" role="status" aria-label="Draft: ${esc(String(draft))}"><div class="stat-number" style="color:var(--warning)">${esc(String(draft))}</div><div class="stat-label">Draft</div></div>
+      <div class="stat-card" role="status" aria-label="Archived: ${esc(String(archived))}"><div class="stat-number" style="color:var(--text-secondary)">${esc(String(archived))}</div><div class="stat-label">Archived</div></div>
+      <div class="stat-card" role="status" aria-label="Sub-Systems: ${esc(String(s.categories ?? 0))}"><div class="stat-number">${esc(String(s.categories ?? 0))}</div><div class="stat-label">Sub-Systems</div></div>
     </div><div class="status-distribution"><h2 class="section-title" style="margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Status Distribution</h2><div class="distribution-bar"><div class="dist-segment dist-published" style="flex:${publishedPct};background:var(--success)" title="Published: ${publishedPct}%"></div><div class="dist-segment dist-draft" style="flex:${draftPct};background:var(--warning)" title="Draft: ${draftPct}%"></div><div class="dist-segment dist-archived" style="flex:${archivedPct};background:var(--text-secondary)" title="Archived: ${archivedPct}%"></div></div><div class="distribution-labels"><span>● Published ${publishedPct}%</span><span>● Draft ${draftPct}%</span><span>● Archived ${archivedPct}%</span></div></div>`;
     })
     .catch(() => {
