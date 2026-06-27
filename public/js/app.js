@@ -947,7 +947,11 @@ function navigate(page) {
 function render404(el) {
   document.getElementById('page-title').textContent = 'Page Not Found';
   el.innerHTML =
-    '<div class="empty-state" role="alert" aria-live="assertive"><div class="empty-state-icon" style="font-size:48px">🔍</div><h1 style="font-size:24px;margin:16px 0 8px">404 — Page Not Found</h1><p style="color:var(--text-secondary);margin-bottom:24px">The page you' + "'" + 're looking for doesn' + "'" + 't exist or has been moved.</p><button class="btn btn-primary" data-action="navigate" data-page="dashboard" aria-label="Go to Dashboard">← Back to Dashboard</button><div style="margin-top:16px"><a href="/qa" data-action="navigate" data-page="qa" data-allow-nav style="color:var(--primary);text-decoration:underline">QA Library</a><span style="color:var(--text-secondary);margin:0 8px">·</span><a href="/categories" data-action="navigate" data-page="categories" data-allow-nav style="color:var(--primary);text-decoration:underline">Sub-Systems</a></div></div>';
+    '<div class="empty-state" role="alert" aria-live="assertive"><div class="empty-state-icon" style="font-size:48px">🔍</div><h1 style="font-size:24px;margin:16px 0 8px">404 — Page Not Found</h1><p style="color:var(--text-secondary);margin-bottom:24px">The page you' +
+    "'" +
+    're looking for doesn' +
+    "'" +
+    't exist or has been moved.</p><button class="btn btn-primary" data-action="navigate" data-page="dashboard" aria-label="Go to Dashboard">← Back to Dashboard</button><div style="margin-top:16px"><a href="/qa" data-action="navigate" data-page="qa" data-allow-nav style="color:var(--primary);text-decoration:underline">QA Library</a><span style="color:var(--text-secondary);margin:0 8px">·</span><a href="/categories" data-action="navigate" data-page="categories" data-allow-nav style="color:var(--primary);text-decoration:underline">Sub-Systems</a></div></div>';
 }
 
 // ===== QA =====
