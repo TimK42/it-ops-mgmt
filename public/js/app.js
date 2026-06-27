@@ -1094,7 +1094,7 @@ async function renderQA(el) {
   list.innerHTML = state.qaEntries
     .map(
       (q) =>
-        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav aria-label="${esc(q.qa_number)}: ${esc(q.title)}${q.category_name ? ' — ' + esc(q.category_name) : ''}"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}" aria-hidden="true">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}" role="status" aria-label="Status: ${q.status}">${q.status}</span>${
+        `<a href="/qa/${q.id}" class="qa-card" data-action="qa-card" data-id="${q.id}" data-allow-nav aria-label="${esc(q.qa_number)}: ${esc(q.title)}${q.category_name ? ' — ' + esc(q.category_name) : ''} (${esc(q.status)})"><div class="qa-card-title"><span class="issue-id">${esc(q.qa_number)}</span> ${esc(q.title)}</div><div class="qa-card-question">${esc(q.question)}</div><div class="qa-card-meta">${q.category_name ? `<span class="tag" style="background:${safeColor(q.category_color)}15;color:${safeColor(q.category_color)}" aria-hidden="true">${esc(q.category_icon)} ${esc(q.category_name)}</span>` : ''}<span class="badge ${statusClass(q.status)}" role="status" aria-label="Status: ${esc(q.status)}">${esc(q.status)}</span>${
           q.tags && q.tags.length
             ? q.tags.map((t) => `<span class="tag">#${esc(t.trim())}</span>`).join('')
             : ''
