@@ -346,7 +346,15 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.filter-group::-webkit-scrollbar {
+  display: none;
 }
 .filter-tab {
   padding: 5px 12px;
@@ -359,6 +367,7 @@ body {
   cursor: pointer;
   color: var(--text-secondary);
   font-weight: 500;
+  flex-shrink: 0;
 }
 .filter-tab:hover {
   background: var(--bg-muted);
@@ -1756,5 +1765,30 @@ body.has-pwa-banner #app > .main {
 @media (max-width: 768px) {
   .bar-label {
     width: 100px;
+  }
+
+  /* Topbar responsive layout */
+  .topbar {
+    padding: 16px 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .topbar-left {
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    width: auto;
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+
+  .sort-select {
+    width: auto;
+    flex: 0 1 auto;
+    min-width: 120px;
   }
 }
